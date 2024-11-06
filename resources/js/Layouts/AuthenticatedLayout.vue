@@ -255,7 +255,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Right Sidebar (Hidden on Mobile) -->
-        <aside v-if="!hideSidebar" class="w-full lg:w-64 bg-linen p-4 dark:bg-gray-800 hidden xl:block">
+        <aside v-if="!hideSidebar" class="w-full lg:w-64 bg-color-white p-4 dark:bg-gray-800 hidden xl:block">
             <div class="mb-6 text-lg font-semibold text-gray-800 dark:text-gray-100">Quick Actions </div>
             <button class="block w-full mb-4 py-2 text-linen bg-sky-blue rounded-full">Create New Task</button>
             <!-- <button class="block w-full mb-4 py-2 text-white bg-blue-500 rounded">Join Meeting</button> -->

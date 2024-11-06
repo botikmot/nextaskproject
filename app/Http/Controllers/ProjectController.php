@@ -118,4 +118,24 @@ class ProjectController extends Controller
         return response()->json($results);
     }
 
+    public function destroy($id)
+    {
+        $project = Project::findOrFail($id);
+
+        // Check if the project has associated tasks
+        if ($project->statuses->flatMap->tasks->isNotEmpty()) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Cannot delete project because it is associated with tasks.',
+            ]);
+        }
+
+        $project->delete();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Project successfully deleted',
+        ]);
+    }
+
 }
