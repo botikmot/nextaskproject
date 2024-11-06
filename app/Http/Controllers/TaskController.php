@@ -67,5 +67,25 @@ class TaskController extends Controller
 
     }
 
+    // Delete a status
+    public function destroy($id)
+    {
+        $task = Task::findOrFail($id);
+
+        // Check if the task has associated users
+        /* if ($task->users()->exists()) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Cannot delete task because it is associated with users.',
+            ]);
+        } */
+
+        $task->delete();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Task successfully deleted',
+        ]);
+    }
 
 }

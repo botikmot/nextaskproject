@@ -1,13 +1,52 @@
 <script setup>
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
+import moment from 'moment';
+import Swal from 'sweetalert2';
+import { usePage, useForm } from '@inertiajs/vue3'
+
 const props = defineProps({
     task: Object,
 });
+
+const formatDate = (date) => {
+    return moment(date).fromNow()
+}
+
+const form = useForm({
+    id: props.task.id,
+});
+
+const confirmDelete = (id) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Once deleted, this task cannot be recovered.",
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444', // Red for delete
+        cancelButtonColor: '#38A169', // Green for cancel
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.delete(`/task-remove/${form.id}`, {
+                data: form,
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.reset()
+                    console.log('Successfully deleted.')
+                },
+                onError: (error) => {
+                    console.error('Error deleting task', error)
+                }
+            })
+        }
+    });
+}
 
 </script>
 
 
 <template>
-    <div class="bg-white p-3 mb-3 rounded shadow-lg border border-dark-gray cursor-pointer">
+    <div class="bg-white p-3 mb-3 rounded shadow-lg border relative border-dark-gray cursor-pointer">
         <div class="flex relative">
             <i :class="[
                     'fa-solid fa-flag text-xs pr-1 flex items-center',
@@ -22,11 +61,31 @@ const props = defineProps({
             </i>
             <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
             <div v-if="task.user_id == $page.props.auth.user.id" class="absolute text-sm right-0 top-0">
-                <i class="fa-solid fa-ellipsis"></i>
+                <Dropdown align="right" width="48">
+                    <template #trigger>
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </template>
+                    <template #content>
+                        <div
+                            class="hover:bg-crystal-blue px-3 py-2"
+                            @click="confirmDelete(task.id)"
+                        >
+                            Remove
+                        </div>
+                    </template>
+                </Dropdown>
             </div>
         </div>
         <p class="text-sm text-gray">{{ task.description }}</p>
-        <p class="text-sm text-gray">Due Date: {{ task.due_date }}</p>
-        <p class="text-sm text-gray text-xs">{{ task.created_at }}</p>
+        <p class="text-sm text-gray">Due date: {{ task.due_date }}</p>
+        <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
+        <div class="absolute flex items-center bottom-2 right-4">
+            <div v-for="(member, index) in task.users.slice(0, 4)" :key="member.id" class="relative -mr-3">
+                <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 rounded-full border-2 border-color-white" />
+            </div>
+            <div v-if="task.users.length > 4" class="flex items-center text-navy-blue ml-3">
+                <span class="text-sm font-bold">+{{ task.users.length - 4 }}</span>
+            </div>
+        </div>
     </div>
 </template>
