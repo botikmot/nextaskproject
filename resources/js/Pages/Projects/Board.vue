@@ -34,7 +34,7 @@ function checkScreenSize() {
 const containerWidth = computed(() => {
     console.log(isCollapsed.value)
     if (isLgScreen.value) {
-        return eventBus.isCollapsed.value ? 'calc(100vw - 130px)' : 'calc(100vw - 320px)';
+        return eventBus.isCollapsed.value ? 'calc(100vw - 150px)' : 'calc(100vw - 320px)';
         //return isCollapsed.value ? 'calc(100vw - 130px)' : 'calc(100vw - 320px)'; // 16rem when collapsed, 320px when expanded
     }
     return 'calc(100vw - 60px)'; // width for non-large screens
