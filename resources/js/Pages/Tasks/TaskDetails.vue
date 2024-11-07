@@ -4,10 +4,16 @@ import DropdownLink from '@/Components/DropdownLink.vue';
 import moment from 'moment';
 import Swal from 'sweetalert2';
 import { usePage, useForm } from '@inertiajs/vue3'
+import TaskLog from './TaskLog.vue';
+import Modal from '@/Components/Modal.vue';
+import { ref } from 'vue';
+
 
 const props = defineProps({
     task: Object,
 });
+
+let isTaskLogOpen = ref(false);
 
 const formatDate = (date) => {
     return moment(date).fromNow()
@@ -42,11 +48,17 @@ const confirmDelete = (id) => {
     });
 }
 
+const openTaskModal = () => {
+    console.log('open modal')
+    isTaskLogOpen.value = true;
+    //columnId.value = id
+}
+
 </script>
 
 
 <template>
-    <div class="bg-white p-3 mb-3 rounded shadow-lg border relative border-dark-gray cursor-pointer">
+    <div @click="openTaskModal" class="bg-color-white p-3 mb-3 rounded shadow-lg border relative border-dark-gray cursor-pointer">
         <div class="flex relative">
             <i :class="[
                     'fa-solid fa-flag text-xs pr-1 flex items-center',
@@ -60,7 +72,7 @@ const confirmDelete = (id) => {
                 ]">
             </i>
             <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
-            <div v-if="task.user_id == $page.props.auth.user.id" class="absolute text-sm right-0 top-0">
+            <div v-if="task.user_id == $page.props.auth.user.id" class="absolute text-sm right-0 top-0" @click.stop>
                 <Dropdown align="right" width="48">
                     <template #trigger>
                         <i class="fa-solid fa-ellipsis"></i>
@@ -68,7 +80,7 @@ const confirmDelete = (id) => {
                     <template #content>
                         <div
                             class="hover:bg-crystal-blue px-3 py-2"
-                            @click="confirmDelete(task.id)"
+                            @click.stop="confirmDelete(task.id)"
                         >
                             Remove
                         </div>
@@ -87,5 +99,9 @@ const confirmDelete = (id) => {
                 <span class="text-sm font-bold">+{{ task.users.length - 4 }}</span>
             </div>
         </div>
+        <!-- Task Modal -->
+        <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
+            <TaskLog @close="isTaskLogOpen = false" :task="task"/>
+        </Modal>
     </div>
 </template>

@@ -64,9 +64,9 @@ const openTaskModal = (id) => {
 </script>
 
 <template>
-    <div class="w-[20rem]">
+    <div class="w-[18rem]">
         <div class="flex justify-between">
-            <h2 class="text-lg text-sky-blue font-bold mb-4">{{ column.name }}</h2>
+            <h2 class="text-lg text-navy-blue font-bold mb-4">{{ column.name }}</h2>
             <div class="cursor-pointer relative" v-if="column.user_id == auth_id">
                 <Dropdown align="right" width="48">
                     <template #trigger>

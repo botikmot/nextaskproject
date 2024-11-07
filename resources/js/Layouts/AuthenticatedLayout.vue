@@ -144,7 +144,7 @@ onUnmounted(() => {
             <!-- Header -->
             <header class="flex flex-col lg:flex-row items-center justify-between bg-navy-blue p-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between w-full lg:w-auto">
-                    <div class="text-xl font-semibold text-crystal-blue mr-8">{{ pageTitle }}</div>
+                    <div class="text-xl font-semibold text-color-white mr-8">{{ pageTitle }}</div>
                     <!-- <button class="lg:hidden text-white" @click="toggleSidebar">☰</button> -->
                     <button
                         @click="toggleSidebar"
@@ -248,7 +248,7 @@ onUnmounted(() => {
             </header>
 
             <!-- Page Content -->
-            <main class="flex-grow p-4 space-y-4 lg:space-y-0 lg:space-x-4 lg:flex">
+            <main class="flex-grow space-y-4 lg:space-y-0 lg:space-x-4 lg:flex">
                 <!-- Slot for main content -->
                 <slot />
             </main>
