@@ -69,6 +69,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/task/{id}', [TaskController::class, 'store'])->name('task.store');
     Route::post('/tasks-update/{id}', [TaskController::class, 'updateTask'])->name('task.update');
     Route::delete('/task-remove/{id}', [TaskController::class, 'destroy'])->name('task.remove');
+    Route::post('/assign-member/{id}', [TaskController::class, 'assignMembers'])->name('task.assign');
+    Route::post('/remove-member/{id}', [TaskController::class, 'removeMembers'])->name('task.memberRemove');
 });
 
 

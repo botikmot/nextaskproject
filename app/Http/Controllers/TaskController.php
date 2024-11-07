@@ -88,4 +88,36 @@ class TaskController extends Controller
         ]);
     }
 
+    public function assignMembers(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+
+        if ($request->assigned_members && count($request->assigned_members) > 0) {
+            // Attach users to the task
+           $task->users()->attach($request->assigned_members);
+        }
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Users successfully assigned.',
+        ]);
+
+    }
+
+    public function removeMembers(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+
+        if ($request->removed_users && count($request->removed_users) > 0) {
+            // Detach users to the task
+           $task->users()->detach($request->removed_users);
+        }
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Users successfully removed.',
+        ]);
+
+    }
+
 }

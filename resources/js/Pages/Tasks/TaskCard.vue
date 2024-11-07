@@ -50,9 +50,7 @@ const confirmDelete = (id) => {
 }
 
 const openTaskModal = () => {
-    console.log('open modal')
     isTaskLogOpen.value = true;
-    //columnId.value = id
 }
 
 const remainingDays = (due_date) => {
