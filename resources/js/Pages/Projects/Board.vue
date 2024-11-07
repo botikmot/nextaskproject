@@ -60,16 +60,16 @@ onBeforeUnmount(() => {
 
     <AuthenticatedLayout :pageTitle="`${project.title} - Kanban Board`">
         <div class="w-full bg-crystal-blue p-4">
-            <div class="justify-between block sm:flex mb-2">
-                <div class="block sm:flex">
+            <div class="justify-between flex mb-2">
+                <div class="flex items-center">
                     <div>
-                        <p v-if="project.description" class="text-navy-blue font-bold text-lg text-center sm:text-left">
+                        <p v-if="project.description" class="text-navy-blue font-bold text-lg hidden sm:flex">
                             {{ project.description }}
                         </p>
-                        <p v-else class="text-navy-blue text-lg mb-3">
+                        <p v-else class="text-navy-blue text-lg mb-3 hidden sm:flex">
                             Visualize Your Workflow and Drive Progress.
                         </p>
-                        <p v-if="project.statuses.length" class="text-xs py-1 text-center sm:text-left sm:py-0">Effortlessly Shift Tasks Between Stages with Drag-and-Drop.</p>
+                        <p v-if="project.statuses.length" class="text-xs py-1 text-center sm:text-left sm:py-0 hidden sm:flex">Effortlessly Shift Tasks Between Stages with Drag-and-Drop.</p>
                     </div>
                     <div class="relative flex items-center pl-4 justify-center sm:justify-start">
                         <div v-for="(member, index) in project.members.slice(0, 5)" :key="member.id" class="relative -mr-5">
@@ -86,15 +86,6 @@ onBeforeUnmount(() => {
                     <div class="block xl:flex pr-2">
                         <div class="block sm:flex">
                             <div class="flex items-center">
-                                <!-- <div class="relative flex items-center">
-                                    <div v-for="(member, index) in project.members.slice(0, 5)" :key="member.id" class="relative -mr-5">
-                                        <img :src="'/' + member.user.profile_image" alt="Profile" class="w-10 h-10 rounded-full border-2 border-color-white" />
-                                    </div>
-                                    
-                                    <div v-if="project.members.length > 5" class="flex items-center text-navy-blue ml-6">
-                                        <span class="text-xl font-bold">+{{ project.members.length - 5 }}</span>
-                                    </div>
-                                </div> -->
                                 <div @click="openMemberModal" class="cursor-pointer ml-2 my-3 sm:my-0 relative group">
                                     <div class="w-9 h-9 flex items-center justify-center bg-sky-blue rounded-full hover:bg-navy-blue">
                                         <i class="fa-solid fa-user-plus text-md text-linen"></i>
@@ -117,16 +108,6 @@ onBeforeUnmount(() => {
                         >
                             <i class="fas fa-plus mr-2"></i> Add Column
                         </button>
-                        <!-- <button
-                            v-if="project.user_id == $page.props.auth.user.id"
-                            @click="openModal"
-                            class="font-semibold text-lg bg-navy-blue text-linen border-2 border-color-white w-10 h-10 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
-                        >
-                            <i class="fas fa-plus"></i> 
-                        </button>
-                        <span class="absolute top-full mt-1 right-0 transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
-                            Add New Column
-                        </span> -->
                     </div>
                 </div>
             </div>

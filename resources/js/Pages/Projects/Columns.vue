@@ -6,7 +6,7 @@ import { ref, computed } from 'vue';
 import NewTaskModal from './NewTaskModal.vue';
 import axios from 'axios';
 import Modal from '@/Components/Modal.vue';
-import TaskDetails from '../Tasks/TaskDetails.vue';
+import TaskCard from '../Tasks/TaskCard.vue';
 
 const el = ref()
 let isTaskModalOpen = ref(false);
@@ -87,7 +87,7 @@ const openTaskModal = (id) => {
         </div>
         <!-- Task List -->
         <VueDraggable ref="el" v-model="column.tasks" group="tasks" @add="handleAddToColumn" @end="onEnd">
-            <TaskDetails v-for="item in column.tasks" :key="item.id" :task="item" />
+            <TaskCard v-for="item in column.tasks" :key="item.id" :task="item" :members="project.members" />
         </VueDraggable>
         
 

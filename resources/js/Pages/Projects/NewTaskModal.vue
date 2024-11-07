@@ -14,7 +14,7 @@ const form = useForm({
     description: '',
     due_date: '',
     status: 'To Do',
-    priority: 'low',
+    priority: 'medium',
     labels: '',
     status_id: props.column_id,
     assigned_members: []
@@ -46,52 +46,55 @@ const submitTask = () => {
 </script>
 
 <template>
-    <div class="bg-light-gray rounded-lg shadow-lg p-6 w-full">
+    <div class="bg-color-white rounded-lg shadow-lg p-6 w-full">
         <h3 class="text-lg text-navy-blue font-semibold mb-4">Add Task</h3>
         <form @submit.prevent="createTask">
             <div class="mb-4">
-                <label for="projectName" class="block text-sm font-medium text-navy-blue">Task Name</label>
+                <label for="projectName" class="block text-sm font-medium">Task Name</label>
                 <input type="text" id="projectName" v-model="form.title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue" required>
             </div>
             <div class="mb-4">
-                <label for="projectDescription" class="block text-sm font-medium text-navy-blue">Description</label>
+                <label for="projectDescription" class="block text-sm font-medium">Description</label>
                 <textarea id="projectDescription" v-model="form.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
             </div>
-            <div class="mb-4">
-                <label for="dueDate" class="block text-sm font-medium text-navy-blue">Due Date</label>
-                <input
-                    type="date"
-                    id="dueDate"
-                    v-model="form.due_date"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
-                />
+
+            <div class="block sm:flex w-full">
+                <div class="mb-4 w-full sm:w-1/3 mr-1">
+                    <label for="dueDate" class="block text-sm font-medium">Due Date</label>
+                    <input
+                        type="date"
+                        id="dueDate"
+                        v-model="form.due_date"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                    />
+                </div>
+                <div class="mb-4 w-full sm:w-1/3 mx-1">
+                    <label for="status" class="block text-sm font-medium">Priority</label>
+                    <select
+                        id="status"
+                        v-model="form.priority"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                    >
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div class="mb-4 w-full sm:w-1/3 ml-1">
+                    <label for="status" class="block text-sm font-medium">Status</label>
+                    <select
+                        id="status"
+                        v-model="form.status"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                    >
+                        <option value="To Do">To Do</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
             </div>
             <div class="mb-4">
-                <label for="status" class="block text-sm font-medium text-navy-blue">Priority</label>
-                <select
-                    id="status"
-                    v-model="form.priority"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
-                >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label for="status" class="block text-sm font-medium text-navy-blue">Status</label>
-                <select
-                    id="status"
-                    v-model="form.status"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
-                >
-                    <option value="To Do">To Do</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label for="assignedMembers" class="block text-sm font-medium text-navy-blue">Assigned Members</label>
+                <label for="assignedMembers" class="block text-sm font-medium">Assigned Members</label>
                 <select
                     id="assignedMembers"
                     v-model="form.assigned_members"
@@ -102,7 +105,7 @@ const submitTask = () => {
                 </select>
             </div>
             <div class="mb-4">
-                <label for="labels" class="block text-sm font-medium text-navy-blue">Labels</label>
+                <label for="labels" class="block text-sm font-medium">Labels <span class="text-xs text-gray pl-1">(e.g., Bug, Feature, Enhancement)</span></label>
                 <input
                     type="text"
                     id="labels"
