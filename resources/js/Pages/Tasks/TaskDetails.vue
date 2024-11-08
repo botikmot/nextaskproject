@@ -4,6 +4,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import { ref } from 'vue';
 
 let isMemberModalOpen = ref(false);
+let isUpdateComment = ref(false);
 
 const props = defineProps({
     task: Object,
@@ -13,6 +14,8 @@ const props = defineProps({
 const form = useForm({
     assigned_members: [],
     removed_users: [],
+    comment: '',
+    comment_id: null,
 });
 
 const openMemberModal = () => {
@@ -30,7 +33,6 @@ const assignMember = () => {
         preserveScroll: true,
         onSuccess: () => {
             form.reset()
-            console.log('Successfully assigned.')
         },
         onError: (error) => {
             console.error('Error assigning users', error)
@@ -47,12 +49,67 @@ const removeUser = (id) => {
         preserveScroll: true,
         onSuccess: () => {
             form.reset()
-            console.log('Successfully removed users.')
         },
         onError: (error) => {
             console.error('Error deleting users', error)
         }
     })
+}
+
+const submitComment = () => {
+    console.log(form.comment)
+    if(!isUpdateComment.value){
+        form.post(`/task-comment/${props.task.id}`, {
+            data: form,
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset()
+            },
+            onError: (error) => {
+                console.error('Error saving comment', error)
+            }
+        })
+    }else{
+        console.log('Update Comment', form.comment)
+        form.put(`/task-comment/${form.comment_id}`, {
+            data: form,
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset()
+                isUpdateComment.value = false
+            },
+            onError: (error) => {
+                console.error('Error updating comment', error)
+            }
+        })
+    }
+}
+
+const removeComment = (id) => {
+    form.comment_id = id
+    console.log(form.comment_id)
+    form.delete(`/task-comment/${form.comment_id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+        },
+        onError: (error) => {
+            console.error('Error deleting comment', error)
+        }
+    })
+}
+
+const editComment = (id, comment) => {
+    isUpdateComment.value = true
+    form.comment_id = id
+    form.comment = comment
+    console.log(form.comment_id)
+}
+
+const cancelUpdate = () => {
+    isUpdateComment.value = false
+    form.comment = ''
 }
 
 /* const getPriorityClass = (priority) => {
@@ -151,7 +208,7 @@ const removeUser = (id) => {
                     <Dropdown align="right" width="40">
                         <template #trigger>
                             <div class="flex cursor-pointer">
-                                <img :src="'/' + user.profile_image" alt="User Avatar" class="w-6 h-6 rounded-full border-2 border-white" />
+                                <img :src="'/' + user.profile_image" alt="User Avatar" class="w-7 h-7 rounded-full border-2 border-color-white" />
                                 <span class="text-sm flex items-center text-navy-blue pl-1">{{ user.name }}</span>
                             </div>
                         </template>
@@ -178,6 +235,60 @@ const removeUser = (id) => {
                 {{ tag }}
             </span>
         </div>
+
+        <hr class="text-dark-gray"/>
+
+        <div v-if="task.comments.length" class="pt-3">
+            <label for="Labels" class="block text-sm font-medium pb-1">Comments:</label>
+            <div class="flex justify-between relative items-center border-b border-dark-gray py-1" v-for="comment in task.comments" :key="comment.id">
+                <div class="flex items-center pl-2">
+                    <img :src="'/' + comment.user.profile_image" alt="Profile" class="w-7 h-7 rounded-full border-2 border-color-white" />
+                    <span class="text-sm pl-1">{{ comment.content }}</span>
+                </div>
+                <div v-if="comment.user_id == $page.props.auth.user.id" class="absolute text-sm cursor-pointer right-0 top-3">
+                    <Dropdown align="right" width="48">
+                        <template #trigger>
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </template>
+                        <template #content>
+                            <div
+                                class="hover:bg-crystal-blue px-3 py-2"
+                                @click="removeComment(comment.id)"
+                            >
+                                Remove
+                            </div>
+                            <div
+                                class="hover:bg-crystal-blue px-3 py-2"
+                                @click="editComment(comment.id, comment.content)"
+                            >
+                                Edit
+                            </div>
+                        </template>
+                    </Dropdown>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4 pt-3">
+            <textarea id="taskComment" v-model="form.comment" placeholder="Type your comment" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
+            <div class="flex py-1 justify-end">
+                <button
+                    v-if="isUpdateComment"
+                    @click="cancelUpdate"
+                    class="font-semibold text-xs bg-color-white text-navy-blue py-1 px-3 mr-2 rounded-full inline-block hover:bg-gray hover:text-color-white"
+                    >
+                    Cancel Update
+                </button>
+
+                <button
+                    @click="submitComment"
+                    class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                    >
+                    {{ isUpdateComment ? 'Update Comment' : 'Submit' }}
+                </button>
+            </div>
+        </div>
+
 
         <!-- Progress Bar -->
         <div class="w-full h-2 bg-gray rounded-full my-4">

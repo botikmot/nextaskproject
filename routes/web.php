@@ -71,6 +71,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/task-remove/{id}', [TaskController::class, 'destroy'])->name('task.remove');
     Route::post('/assign-member/{id}', [TaskController::class, 'assignMembers'])->name('task.assign');
     Route::post('/remove-member/{id}', [TaskController::class, 'removeMembers'])->name('task.memberRemove');
+    Route::post('/task-comment/{id}', [TaskController::class, 'taskComment'])->name('task.comment');
+    Route::delete('/task-comment/{id}', [TaskController::class, 'removeComment'])->name('task.commentRemove');
+    Route::put('/task-comment/{id}', [TaskController::class, 'updateComment'])->name('task.commentUpdate');
 });
 
 

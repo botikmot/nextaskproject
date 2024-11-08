@@ -50,7 +50,7 @@ class ProjectController extends Controller
     public function show($id)
     {  
         $project = Project::with(['statuses.tasks' => function ($query) {
-            $query->orderBy('index')->with('users'); // Order tasks by index
+            $query->orderBy('index')->with('users', 'comments.user'); // Order tasks by index
         }, 'members.user'])->findOrFail($id);
 
         return Inertia::render('Projects/Board', [

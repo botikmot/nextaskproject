@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\TaskComment;
 use App\Models\Status;
 use Illuminate\Support\Facades\Auth;
 
@@ -116,6 +117,60 @@ class TaskController extends Controller
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Users successfully removed.',
+        ]);
+
+    }
+
+    public function taskComment(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+
+        $request->validate([
+            'comment' => 'required|string',
+            //'attachments.*' => 'nullable|max:5048'
+        ]);
+
+        $comment = new TaskComment([
+            'content' => $request->comment,
+            'user_id' => auth()->id(),
+        ]);
+
+        $task->comments()->save($comment);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Comment successfully saved.',
+        ]);
+
+    }
+
+    public function removeComment($id)
+    {
+        // Find the comment by ID
+        $comment = TaskComment::findOrFail($id);
+        // Delete the comment
+        $comment->delete();
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Comment successfully deleted.',
+        ]);
+    }
+
+    public function updateComment(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required|string',
+            //'attachments.*' => 'nullable|max:5048'
+        ]);
+
+        $comment = TaskComment::findOrFail($id);
+
+        $comment->content = $request->comment;
+        $comment->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Comment successfully updated.',
         ]);
 
     }
