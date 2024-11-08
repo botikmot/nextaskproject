@@ -19,8 +19,8 @@ class TaskComment extends Model
         return $this->belongsTo(Task::class);
     }
 
-    /* public function attachments()
+    public function attachments()
     {
         return $this->morphMany(Attachment::class, 'attachable');
-    } */
+    }
 }

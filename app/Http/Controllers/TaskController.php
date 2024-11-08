@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\TaskComment;
+use App\Models\Attachment;
 use App\Models\Status;
 use Illuminate\Support\Facades\Auth;
 
@@ -127,7 +128,7 @@ class TaskController extends Controller
 
         $request->validate([
             'comment' => 'required|string',
-            //'attachments.*' => 'nullable|max:5048'
+            'attachments.*' => 'nullable|mimes:jpg,png,pdf,doc,docx|max:2048'
         ]);
 
         $comment = new TaskComment([
@@ -136,6 +137,32 @@ class TaskController extends Controller
         ]);
 
         $task->comments()->save($comment);
+
+        // Check if there are attachments to upload
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                // Store the file and get the path
+                $path = $file->store('task_attachments', 'public');
+
+                // Create a new Attachment model and associate it with the comment
+                $attachment = new Attachment([
+                    'path' => $path,
+                    'filename' => $file->getClientOriginalName(),
+                ]);
+
+                $comment->attachments()->save($attachment);
+            }
+
+            $comment->load('attachments', 'user');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comment successfully saved.',
+                'comment' => $comment, // Return comment with attachments
+            ]);
+
+        }
+
 
         return redirect()->back()->with([
             'success' => true,

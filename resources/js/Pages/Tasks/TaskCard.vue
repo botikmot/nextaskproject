@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { usePage, useForm } from '@inertiajs/vue3'
 import TaskDetails from './TaskDetails.vue';
 import Modal from '@/Components/Modal.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 
 const props = defineProps({
@@ -73,6 +73,12 @@ const remainingDays = (due_date) => {
     }
 }
 
+const totalAttachments = computed(() => {
+    return props.task.comments.reduce((sum, comment) => {
+        return sum + (comment.attachments ? comment.attachments.length : 0);
+    }, 0);
+});
+
 </script>
 
 
@@ -108,8 +114,18 @@ const remainingDays = (due_date) => {
             </div>
         </div>
         <p class="text-xs text-gray">{{ task.description }}</p>
-        <p class="text-sm ">Due date: <span class="text-[#D97706]">{{ task.due_date ? remainingDays(task.due_date) : 'not set' }}</span></p>
+        <p class="text-sm" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ remainingDays(task.due_date) }}</span></p>
         <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
+        <div class="flex pt-1">
+            <div v-if="task.comments.length" class="flex items-center">
+                <i class="fa-solid fa-comment text-gray text-sm"></i>
+                <span class="text-gray pl-1 text-sm">{{ task.comments.length }}</span>
+            </div>
+            <div v-if="totalAttachments > 0" class="flex items-center pl-3">
+                <i class="fa-solid fa-paperclip text-gray text-sm"></i>
+                <span class="text-gray pl-1 text-sm">{{ totalAttachments }}</span>
+            </div>
+        </div>
         <div class="absolute flex items-center bottom-2 right-4">
             <div v-for="(member, index) in task.users.slice(0, 4)" :key="member.id" class="relative -mr-3">
                 <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 rounded-full border-2 border-color-white" />
