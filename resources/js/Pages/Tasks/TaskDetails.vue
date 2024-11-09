@@ -299,7 +299,7 @@ const getFileExtension = (filename) => {
                         <img :src="'/' + comment.user.profile_image" alt="Profile" class="w-7 h-7 rounded-full border-2 border-color-white" />
                         <div class="text-sm pl-1 pt-1" v-html="comment.content.replace(/\n/g, '<br>')"></div>
                     </div>
-                    <div v-if="comment.user_id == $page.props.auth.user.id" class="absolute text-sm cursor-pointer right-0 top-3">
+                    <div v-if="comment.user_id == $page.props.auth.user.id" class="text-sm cursor-pointer right-0 top-3">
                         <Dropdown align="right" width="48">
                             <template #trigger>
                                 <i class="fa-solid fa-ellipsis"></i>

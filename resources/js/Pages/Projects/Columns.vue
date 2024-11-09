@@ -2,7 +2,7 @@
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { VueDraggable } from 'vue-draggable-plus'
-import { ref, computed } from 'vue';
+import { ref, computed, toRaw } from 'vue';
 import NewTaskModal from './NewTaskModal.vue';
 import axios from 'axios';
 import Modal from '@/Components/Modal.vue';
@@ -19,7 +19,10 @@ const props = defineProps({
     project: Object,
 });
 
-const onEnd = async (event) => {
+// Cloned version of tasks to avoid reactive proxies in VueDraggable
+const clonedTasks = computed(() => props.column.tasks.map(task => toRaw(task)));
+
+const onEnd = async () => {
     const updatedTasks = props.column.tasks.map((task, idx) => ({
         id: task.id,
         index: idx,
@@ -30,10 +33,11 @@ const onEnd = async (event) => {
         status_id: props.column.id,
         tasks: updatedTasks
     }
+    
     updateTasks(props.column.id, data)    
 }
 
-const handleAddToColumn = (event) => {
+const handleAddToColumn = () => {
     const updatedTasks = props.column.tasks.map((task, idx) => ({
         id: task.id,
         index: idx,
@@ -44,12 +48,13 @@ const handleAddToColumn = (event) => {
         status_id: props.column.id,
         tasks: updatedTasks
     }
+    
     updateTasks(props.column.id, data)
 }
 
 const updateTasks = async (id, data) => {
     try {
-        const response = await axios.post(route('task.update', id), data);
+        const response = await axios.post(`/tasks-update/${id}`, data);
         console.log('Tasks updated successfully:', response.data.message);
     } catch (error) {
         console.error('Failed to update tasks:', error.response ? error.response.data : error.message);
@@ -60,6 +65,11 @@ const openTaskModal = (id) => {
     isTaskModalOpen.value = true;
     columnId.value = id
 }
+
+const updateTasksOrder = (newTasks) => {
+  // Safely update the order of tasks in the column
+  props.column.tasks = newTasks.map((task, index) => ({ ...task, index }));
+};
 
 </script>
 
@@ -86,11 +96,17 @@ const openTaskModal = (id) => {
             </div>
         </div>
         <!-- Task List -->
-        <VueDraggable ref="el" v-model="column.tasks" group="tasks" @add="handleAddToColumn" @end="onEnd">
-            <TaskCard v-for="item in column.tasks" :key="item.id" :task="item" :members="project.members" />
+        <VueDraggable
+            ref="el"
+            :model-value="clonedTasks"
+            group="tasks"
+            @add="handleAddToColumn"
+            @end="onEnd"
+            @update:model-value="updateTasksOrder"
+        >
+            <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.members" />
         </VueDraggable>
-        
-
+              
         <!-- Add Task Button -->
         <button @click="openTaskModal(column.id)"
                 class="w-full mt-2 bg-sky-blue text-linen py-1 rounded hover:shadow-xl hover:bg-navy-blue">

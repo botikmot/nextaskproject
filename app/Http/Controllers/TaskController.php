@@ -62,7 +62,11 @@ class TaskController extends Controller
             $taskData->save();
         }
        
-        return redirect()->back()->with([
+        /* return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Tasks updated successfully',
+        ]); */
+        return response()->json([
             'success' => true,
             'message' => 'Tasks updated successfully',
         ]);
