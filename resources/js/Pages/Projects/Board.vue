@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage, useForm } from '@inertiajs/vue3';
 import { ref, computed, onMounted, onBeforeUnmount, watch} from 'vue';
 import NewColumnModal from './NewColumnModal.vue';
 import AddMemberModal from './AddMemberModal.vue';
@@ -12,12 +12,19 @@ let isModalOpen = ref(false);
 let isMemberModalOpen = ref(false);
 const isLgScreen = ref(false);
 const isCollapsed = ref(false);
+const taskView = ref(localStorage.getItem('taskView') || 'myTasks');
 
 const props = defineProps({
   project: Object,
 });
 
+const page = usePage();
 console.log('project', props.project)
+
+const form = useForm({
+    filter: '',
+    user_id: null,
+});
 
 const openModal = () => {
     isModalOpen.value = true;
@@ -41,10 +48,32 @@ const containerWidth = computed(() => {
     //return 'calc(100vw - 60px)'; 
 });
 
+const filterTasks = () => {
+    console.log('auth', page.props.auth.user.id)
+    console.log('taskView', taskView.value)
+    form.filter = taskView.value
+    form.user_id = page.props.auth.user.id
+    
+    localStorage.setItem('taskView', taskView.value);
+
+    form.get(`/project/${props.project.id}`, {
+                data: form,
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.reset()
+                    console.log('Successfully fetched.')
+                },
+                onError: (error) => {
+                    console.error('Error fetching project', error)
+                }
+            })
+};
+
+
 onMounted(() => {
     const storedCollapsed = localStorage.getItem('collapsed');
     isCollapsed.value = storedCollapsed === 'true';
-
+    taskView.value = localStorage.getItem('taskView') || 'myTasks';
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
 });
@@ -82,6 +111,13 @@ onBeforeUnmount(() => {
                     </div>
                 </div>
                 <div v-if="project.statuses.length" class="flex items-center justify-center sm:justify-start">
+                    <div class="text-md flex items-center text-navy-blue">
+                        <label class="hidden lg:flex">Show:</label>
+                        <select class="ml-2 py-1 rounded-full text-md" v-model="taskView" @change="filterTasks">
+                            <option class="py-1" value="all">All Tasks</option>
+                            <option class="py-1" value="myTasks">My Tasks</option>
+                        </select>
+                    </div>
 
                     <div class="block xl:flex pr-2">
                         <div class="block sm:flex">
@@ -104,9 +140,9 @@ onBeforeUnmount(() => {
                         <button
                             v-if="project.user_id == $page.props.auth.user.id"
                             @click="openModal"
-                            class="flex items-center font-semibold text-sm bg-sky-blue text-color-white py-2 px-4 rounded-full hover:bg-navy-blue hover:shadow-lg"
+                            class="flex items-center justify-center font-semibold text-sm bg-sky-blue text-color-white py-2 px-2 lg:px-4 rounded-full hover:bg-navy-blue hover:shadow-lg"
                         >
-                            <i class="fas fa-plus mr-2"></i> Add Column
+                            <i class="fas fa-plus mr-0 lg:mr-2 text-md "></i><span class="hidden lg:flex">Add Column</span>
                         </button>
                     </div>
                 </div>

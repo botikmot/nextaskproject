@@ -47,16 +47,33 @@ class ProjectController extends Controller
     }
 
      // Show a specific project
-    public function show($id)
+    public function show(Request $request, $id)
     {  
-        $project = Project::with(['statuses.tasks' => function ($query) {
-            $query->orderBy('index');
-            $query->with(['users', 'comments' => function ($query) {
-                    $query->with('user', 'attachments'); 
-                }
-            ]);
-        }, 'members.user'])->findOrFail($id);
-
+        $user_id = $request->user_id ? $request->user_id : Auth::id();
+        if($request->filter == 'all'){
+            $project = Project::with(['statuses.tasks' => function ($query) {
+                $query->orderBy('index');
+                $query->with(['users', 'comments' => function ($query) {
+                        $query->with('user', 'attachments'); 
+                    }
+                ]);
+            }, 'members.user'])->findOrFail($id);
+        }else{
+            $project = Project::with(['statuses.tasks' => function ($query) use ($user_id) {
+                $query->orderBy('index')
+                      ->with(['users', 'comments' => function ($query) {
+                          $query->with('user', 'attachments'); 
+                      }])
+                      ->where(function ($query) use ($user_id) {
+                          //$authUserId = Auth::id();
+                          $query->where('user_id', $user_id) // Tasks created by the authenticated user
+                                ->orWhereHas('users', function ($userQuery) use ($user_id) {
+                                    $userQuery->where('user_id', $user_id); // Tasks assigned to the authenticated user
+                                });
+                      });
+            }, 'members.user'])->findOrFail($id);
+        }
+        
         return Inertia::render('Projects/Board', [
             'project' => $project,
         ]);

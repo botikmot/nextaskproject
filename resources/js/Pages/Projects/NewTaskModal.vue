@@ -7,6 +7,7 @@ const props = defineProps({
   project_id: Number,
   column_id: Number,
   project: Object,
+  index: Number,
 });
 
 const form = useForm({
@@ -17,7 +18,8 @@ const form = useForm({
     priority: 'medium',
     labels: '',
     status_id: props.column_id,
-    assigned_members: []
+    assigned_members: [],
+    index: props.index
 });
 
 

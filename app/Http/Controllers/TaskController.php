@@ -29,7 +29,7 @@ class TaskController extends Controller
             'priority' => $request->priority,
             'status' => $request->status,
             'labels' => $request->labels,
-            'index' => 0,
+            'index' => $request->index,
         ]);
 
         if ($request->assigned_members && count($request->assigned_members) > 0) {

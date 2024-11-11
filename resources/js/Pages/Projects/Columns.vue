@@ -52,6 +52,10 @@ const handleAddToColumn = () => {
     updateTasks(props.column.id, data)
 }
 
+const columnHeight = computed(() => {
+    return 'calc(100vh - 295px)';
+});
+
 const updateTasks = async (id, data) => {
     try {
         const response = await axios.post(`/tasks-update/${id}`, data);
@@ -95,18 +99,22 @@ const updateTasksOrder = (newTasks) => {
                 
             </div>
         </div>
-        <!-- Task List -->
-        <VueDraggable
-            ref="el"
-            :model-value="clonedTasks"
-            group="tasks"
-            @add="handleAddToColumn"
-            @end="onEnd"
-            @update:model-value="updateTasksOrder"
-        >
-            <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.members" />
-        </VueDraggable>
-              
+        <div class="w-full overflow-y-auto" :style="{ height: columnHeight }">
+            <!-- Task List -->
+            <VueDraggable
+                :style="{ height: columnHeight }"
+                ref="el"
+                :model-value="clonedTasks"
+                group="tasks"
+                @add="handleAddToColumn"
+                @end="onEnd"
+                @update:model-value="updateTasksOrder"
+            >
+                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.members" />
+            </VueDraggable>
+        
+        </div>
+
         <!-- Add Task Button -->
         <button @click="openTaskModal(column.id)"
                 class="w-full mt-2 bg-sky-blue text-linen py-1 rounded hover:shadow-xl hover:bg-navy-blue">
@@ -115,7 +123,7 @@ const updateTasksOrder = (newTasks) => {
 
         <!-- Task Modal -->
         <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
-            <NewTaskModal @close="isTaskModalOpen = false" :project_id="project_id" :column_id="columnId" :project="project"/>
+            <NewTaskModal @close="isTaskModalOpen = false" :project_id="project_id" :column_id="columnId" :project="project" :index="column.tasks.length"/>
         </Modal>
       
     </div>
