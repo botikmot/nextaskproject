@@ -20,10 +20,11 @@ const props = defineProps({
 
 const page = usePage();
 console.log('project', props.project)
-
+const selectedCompletedStatus = ref(props.project.completed_status_id);
 const form = useForm({
     filter: '',
     user_id: null,
+    completed_status_id: null,
 });
 
 const openModal = () => {
@@ -48,9 +49,23 @@ const containerWidth = computed(() => {
     //return 'calc(100vw - 60px)'; 
 });
 
+const updateCompletedStatus = () => {
+    console.log('selectedCompletedStatus', selectedCompletedStatus.value)
+    form.completed_status_id = selectedCompletedStatus.value
+    form.post(`/projects/${props.project.id}/update-completed-status`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+            console.log('Successfully updated.')
+        },
+        onError: (error) => {
+            console.error('Error updating project', error)
+        }
+    })
+}
+
 const filterTasks = () => {
-    console.log('auth', page.props.auth.user.id)
-    console.log('taskView', taskView.value)
     form.filter = taskView.value
     form.user_id = page.props.auth.user.id
     
@@ -87,7 +102,7 @@ onBeforeUnmount(() => {
 <template>
     <Head :title="`${project.title}`" />
 
-    <AuthenticatedLayout :pageTitle="`${project.title} - Kanban Board`">
+    <AuthenticatedLayout :pageTitle="`${project.title} - Kanban Board (${project.progress}%)`">
         <div class="w-full bg-crystal-blue p-4">
             <div class="justify-between flex mb-2">
                 <div class="flex items-center">
@@ -111,7 +126,15 @@ onBeforeUnmount(() => {
                     </div>
                 </div>
                 <div v-if="project.statuses.length" class="flex items-center justify-center sm:justify-start">
-                    <div class="text-md flex items-center text-navy-blue">
+                    <div  v-if="project.user_id == $page.props.auth.user.id" class="text-md flex items-center text-navy-blue">
+                        <label>Completion Indicator:</label>
+                        <select class="ml-2 py-1 rounded-full text-md" v-model="selectedCompletedStatus" @change="updateCompletedStatus">
+                            <option v-for="status in project.statuses" :key="status.id" :value="status.id">
+                                {{ status.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="text-md flex items-center text-navy-blue pl-3">
                         <label class="hidden lg:flex">Show:</label>
                         <select class="ml-2 py-1 rounded-full text-md" v-model="taskView" @change="filterTasks">
                             <option class="py-1" value="all">All Tasks</option>

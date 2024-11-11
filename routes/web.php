@@ -36,9 +36,10 @@ foreach ($routes as $uri => $view) {
             ->orWhereHas('members', function ($query) {
                 $query->where('user_id', auth()->id()); // Check if the user is a member
             })
-            ->with('members')
+            //->with('members')
+            ->with(['members', 'statuses.tasks'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()->append('progress');
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
@@ -57,11 +58,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/project/{id}', [ProjectController::class, 'show'])->name('project.show');
     Route::put('/projects/{id}', [ProjectController::class, 'update']);
+    Route::post('/projects/{id}/update-completed-status', [ProjectController::class, 'updateCompletedStatus'])->name('projects.updateCompletedStatus');
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
     Route::post('/project-members/{id}', [ProjectController::class, 'addMember'])->name('project.member');
     Route::get('/search-members', [ProjectController::class, 'searchMembers'])->name('search.members');
-
-
     
     Route::post('/status/{id}', [StatusController::class, 'store'])->name('status.store');
     Route::get('/status-remove/{id}', [StatusController::class, 'destroy'])->name('status.remove');

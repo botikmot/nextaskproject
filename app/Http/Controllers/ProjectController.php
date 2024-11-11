@@ -10,6 +10,8 @@ use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
+
 
 class ProjectController extends Controller
 {
@@ -73,11 +75,32 @@ class ProjectController extends Controller
                       });
             }, 'members.user'])->findOrFail($id);
         }
+
+        $project->progress = $project->progress;
         
         return Inertia::render('Projects/Board', [
             'project' => $project,
         ]);
     }
+
+    public function updateCompletedStatus(Request $request, $id)
+    {
+        $request->validate([
+            'completed_status_id' => 'required|exists:statuses,id',
+        ]);
+        //dd($project);
+        //$project->update(['completed_status_id' => $request->completed_status_id]);
+        $project = Project::findOrFail($id);
+
+        $project->completed_status_id = $request->completed_status_id;
+        $project->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Completed status updated successfully',
+        ]);
+    }
+
 
     public function addMember(Request $request, $id)
     {

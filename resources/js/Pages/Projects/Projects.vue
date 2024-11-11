@@ -38,6 +38,8 @@ const navigateToProject = (projectId) => {
     })
 }
 
+console.log('projects', props.projects)
+
 const confirmDelete = (id) => {
     form.id = id
     Swal.fire({
@@ -89,10 +91,11 @@ const confirmDelete = (id) => {
 
             <!-- Projects Section -->
             <section class="w-full">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
                     <div v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="bg-color-white p-4 shadow-lg rounded-lg cursor-pointer hover:bg-light-gray">
                         <div class="flex justify-between">
                             <h2 class="text-lg text-sky-blue font-semibold mb-2">{{ project.title }}</h2>
+                            <div>{{ project.progress }}% complete</div>
                             <div v-if="project.user_id == $page.props.auth.user.id" class="text-sm"  @click.stop>
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
