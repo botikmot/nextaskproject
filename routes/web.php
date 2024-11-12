@@ -33,11 +33,11 @@ foreach ($routes as $uri => $view) {
     Route::get($uri, function () use ($view) {
         $user = Auth::user();
         $projects = Project::where('user_id', auth()->id()) // Check if the user is the creator
-            ->orWhereHas('members', function ($query) {
+            ->orWhereHas('users', function ($query) {
                 $query->where('user_id', auth()->id()); // Check if the user is a member
             })
             //->with('members')
-            ->with(['members', 'statuses.tasks'])
+            ->with(['users', 'statuses.tasks'])
             ->orderBy('created_at', 'desc')
             ->get()->append('progress');
         return Inertia::render($view, [
@@ -62,6 +62,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/projects/{id}', [ProjectController::class, 'destroy']);
     Route::post('/project-members/{id}', [ProjectController::class, 'addMember'])->name('project.member');
     Route::get('/search-members', [ProjectController::class, 'searchMembers'])->name('search.members');
+
+    Route::post('/project/update-user-role', [ProjectController::class, 'addUserRole'])->name('projects.addUserRole');
+
     
     Route::post('/status/{id}', [StatusController::class, 'store'])->name('status.store');
     Route::get('/status-remove/{id}', [StatusController::class, 'destroy'])->name('status.remove');

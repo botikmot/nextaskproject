@@ -4,12 +4,26 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Task extends Model
 {
     use HasFactory;
+    public $incrementing = false;
+    protected $primaryKey = 'id';
+    protected $keyType = 'string';
 
     protected $fillable = ['title', 'description', 'user_id', 'project_id', 'status_id', 'priority', 'index', 'due_date', 'status', 'labels'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid(); // Automatically generate UUID on creation
+            }
+        });
+    }
 
     public function project()
     {

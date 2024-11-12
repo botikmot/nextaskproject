@@ -3,18 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 
-class Status extends Model
+class Role extends Model
 {
-    use HasFactory;
     public $incrementing = false;
     protected $primaryKey = 'id';
     protected $keyType = 'string';
-
-    protected $fillable = ['name', 'project_id', 'user_id'];
-
+    
     protected static function boot()
     {
         parent::boot();
@@ -25,12 +21,16 @@ class Status extends Model
         });
     }
 
-    public function project()
+    public function permissions()
     {
-        return $this->belongsTo(Project::class);
+        return $this->belongsToMany(Permission::class, 'role_permission');
     }
 
-    public function tasks() {
-        return $this->hasMany(Task::class, 'status_id', 'id');
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'project_user_role')
+                    ->withPivot('project_id')
+                    ->withTimestamps();
     }
+
 }

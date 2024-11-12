@@ -243,9 +243,9 @@ const getFileExtension = (filename) => {
                         class="text-navy-blue text-sm"
                         v-for="member in members"
                         :key="member.id"
-                        :value="member.user_id"
+                        :value="member.id"
                         :disabled="isUserAssigned(member.user_id)"
-                    >{{ member.user.name }}</option>
+                    >{{ member.name }}</option>
                 </select>
                 <div class="flex py-1 justify-end">
                     <button

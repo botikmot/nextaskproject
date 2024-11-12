@@ -2,31 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Attachment extends Model
+class ProjectUserRole extends Model
 {
-    use HasFactory;
+    protected $table = 'project_user_role';
     public $incrementing = false;
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
-    protected $fillable = ['path', 'filename'];
-
+    
     protected static function boot()
     {
         parent::boot();
         static::creating(function ($model) {
             if (empty($model->id)) {
-                $model->id = (string) Str::uuid(); // Automatically generate UUID on creation
+                $model->id = Str::uuid(); // Generate UUID if it's not already set
             }
         });
-    }
-
-    public function attachable()
-    {
-        return $this->morphTo('attachable');
     }
 }

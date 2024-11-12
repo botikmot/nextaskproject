@@ -1,11 +1,12 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3'
+import Swal from 'sweetalert2';
 const emit = defineEmits();
 
 const props = defineProps({
-  project_id: Number,
-  column_id: Number,
+  project_id: String,
+  column_id: String,
   project: Object,
   index: Number,
 });
@@ -37,6 +38,10 @@ const submitTask = () => {
         onSuccess: () => {
             form.reset()
             console.log('Successfully created.')
+            Swal.fire({
+                icon: usePage().props.flash.success ? "success" : "error",
+                text: usePage().props.flash.message
+            });
             emit('close')
         },
         onError: (error) => {
@@ -103,7 +108,7 @@ const submitTask = () => {
                     multiple
                     class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
                 >
-                    <option class="text-navy-blue" v-for="member in project.members" :key="member.id" :value="member.user_id">{{ member.user.name }}</option>
+                    <option class="text-navy-blue" v-for="member in project.users" :key="member.id" :value="member.id">{{ member.name }}</option>
                 </select>
             </div>
             <div class="mb-4">

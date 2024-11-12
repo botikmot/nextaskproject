@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('tasks', function (Blueprint $table) {
             $table->date('due_date')->nullable();
-            $table->enum('status', ['Pending', 'In Progress', 'Completed'])->nullable();
+            $table->enum('status', ['To Do', 'In Progress', 'Completed'])->nullable();
             $table->string('labels')->nullable();
         });
     }

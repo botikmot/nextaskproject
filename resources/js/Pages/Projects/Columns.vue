@@ -7,6 +7,7 @@ import NewTaskModal from './NewTaskModal.vue';
 import axios from 'axios';
 import Modal from '@/Components/Modal.vue';
 import TaskCard from '../Tasks/TaskCard.vue';
+import Swal from 'sweetalert2';
 
 const el = ref()
 let isTaskModalOpen = ref(false);
@@ -14,8 +15,8 @@ let columnId = ref(null);
 
 const props = defineProps({
     column: Object,
-    auth_id: Number,
-    project_id: Number,
+    auth_id: String,
+    project_id: String,
     project: Object,
 });
 
@@ -31,6 +32,7 @@ const onEnd = async () => {
     
     const data = {
         status_id: props.column.id,
+        project_id: props.project_id,
         tasks: updatedTasks
     }
     
@@ -46,6 +48,7 @@ const handleAddToColumn = () => {
 
     const data = {
         status_id: props.column.id,
+        project_id: props.project_id,
         tasks: updatedTasks
     }
     
@@ -62,6 +65,10 @@ const updateTasks = async (id, data) => {
         console.log('Tasks updated successfully:', response.data.message);
     } catch (error) {
         console.error('Failed to update tasks:', error.response ? error.response.data : error.message);
+        Swal.fire({
+            icon: "error",
+            text: 'You do not have permission to update task in this project.',
+        });
     }
 }
 
@@ -110,7 +117,7 @@ const updateTasksOrder = (newTasks) => {
                 @end="onEnd"
                 @update:model-value="updateTasksOrder"
             >
-                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.members" />
+                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.users" />
             </VueDraggable>
         
         </div>

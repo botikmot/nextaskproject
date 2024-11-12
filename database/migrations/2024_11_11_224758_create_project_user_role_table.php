@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('statuses', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+        Schema::create('project_user_role', function (Blueprint $table) {
+            $table->id();
             $table->uuid('user_id');
+            $table->uuid('role_id');
             $table->uuid('project_id');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
-            $table->string('name');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');            
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('statuses');
+        Schema::dropIfExists('project_user_role');
     }
 };

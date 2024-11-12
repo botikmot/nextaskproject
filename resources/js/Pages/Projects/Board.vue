@@ -16,6 +16,7 @@ const taskView = ref(localStorage.getItem('taskView') || 'myTasks');
 
 const props = defineProps({
   project: Object,
+  roles: Object,
 });
 
 const page = usePage();
@@ -115,7 +116,7 @@ onBeforeUnmount(() => {
                         </p>
                         <p v-if="project.statuses.length" class="text-xs py-1 text-center sm:text-left sm:py-0 hidden sm:flex">Effortlessly Shift Tasks Between Stages with Drag-and-Drop.</p>
                     </div>
-                    <div class="relative flex items-center pl-4 justify-center sm:justify-start">
+                    <!-- <div class="relative flex items-center pl-4 justify-center sm:justify-start">
                         <div v-for="(member, index) in project.members.slice(0, 5)" :key="member.id" class="relative -mr-5">
                             <img :src="'/' + member.user.profile_image" alt="Profile" class="w-8 h-8 rounded-full border-2 border-color-white" />
                         </div>
@@ -123,10 +124,25 @@ onBeforeUnmount(() => {
                         <div v-if="project.members.length > 5" class="flex items-center text-navy-blue ml-6">
                             <span class="text-lg font-bold">+{{ project.members.length - 5 }}</span>
                         </div>
+                    </div> -->
+                    <div v-if="project.user_id == $page.props.auth.user.id" class="block sm:flex pl-6">
+                        <div class="flex items-center">
+                            <div @click="openMemberModal" class="cursor-pointer ml-2 my-3 sm:my-0 relative group">
+                                <div class="flex items-center justify-center rounded-full">
+                                    <i class="fa-solid fa-users text-xl text-sky-blue hover:text-navy-blue"></i>
+                                </div>
+                                <span class="absolute top-full mt-1 -left-6 transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
+                                    Members
+                                </span>
+                            </div>
+                        </div>
+
                     </div>
+
+
                 </div>
                 <div v-if="project.statuses.length" class="flex items-center justify-center sm:justify-start">
-                    <div  v-if="project.user_id == $page.props.auth.user.id" class="text-md flex items-center text-navy-blue">
+                    <div  v-if="project.user_id == $page.props.auth.user.id" class="text-md xl:flex items-center text-navy-blue hidden">
                         <label>Completion Indicator:</label>
                         <select class="ml-2 py-1 rounded-full text-md" v-model="selectedCompletedStatus" @change="updateCompletedStatus">
                             <option v-for="status in project.statuses" :key="status.id" :value="status.id">
@@ -134,7 +150,7 @@ onBeforeUnmount(() => {
                             </option>
                         </select>
                     </div>
-                    <div class="text-md flex items-center text-navy-blue pl-3">
+                    <div class="text-md flex items-center text-navy-blue px-3">
                         <label class="hidden lg:flex">Show:</label>
                         <select class="ml-2 py-1 rounded-full text-md" v-model="taskView" @change="filterTasks">
                             <option class="py-1" value="all">All Tasks</option>
@@ -142,7 +158,7 @@ onBeforeUnmount(() => {
                         </select>
                     </div>
 
-                    <div class="block xl:flex pr-2">
+                    <!-- <div class="block xl:flex pr-2">
                         <div class="block sm:flex">
                             <div class="flex items-center">
                                 <div @click="openMemberModal" class="cursor-pointer ml-2 my-3 sm:my-0 relative group">
@@ -156,7 +172,7 @@ onBeforeUnmount(() => {
                             </div>
 
                         </div>
-                    </div>
+                    </div> -->
 
 
                     <div class="relative group">
@@ -204,7 +220,7 @@ onBeforeUnmount(() => {
             
             
             <Modal :show="isMemberModalOpen" @close="isMemberModalOpen = false">
-                <AddMemberModal @close="isMemberModalOpen = false" :project_id="project.id"/>
+                <AddMemberModal @close="isMemberModalOpen = false" :project_id="project.id" :members="project.users" :roles="roles"/>
             </Modal>
         </div>
     </AuthenticatedLayout>

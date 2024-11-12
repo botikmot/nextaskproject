@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_comments', function (Blueprint $table) {
+        Schema::create('role_permission', function (Blueprint $table) {
             $table->id();
-            $table->uuid('user_id');
-            $table->uuid('task_id');
-            $table->text('content');
+            $table->uuid('role_id');
+            $table->uuid('permission_id');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
+            $table->foreign('permission_id')->references('id')->on('permissions')->onDelete('cascade');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->foreign('task_id')->references('id')->on('tasks');
         });
     }
 
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_comments');
+        Schema::dropIfExists('role_permission');
     }
 };

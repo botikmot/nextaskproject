@@ -4,7 +4,7 @@ import { usePage, useForm } from '@inertiajs/vue3'
 const emit = defineEmits();
 
 const props = defineProps({
-  project_id: Number,
+  project_id: String,
 });
 
 const form = useForm({

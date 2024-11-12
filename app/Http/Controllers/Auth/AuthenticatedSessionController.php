@@ -35,18 +35,17 @@ class AuthenticatedSessionController extends Controller
 
         // Retrieve the authenticated user
         $user = Auth::user();
-
         // Check if this is the user's first login
         //$isNewUser = !$user->last_login;
         $isNewUser = $user->is_new;
-        
+
         // Update the last_login timestamp
         $user->last_login = now();
         if ($isNewUser) {
             $user->is_new = false; // Clear the is_new flag after first login
         }
         $user->save();
-
+        
         // Pass the `isNewUser` variable to the dashboard so it can display the appropriate welcome message
         return redirect()->intended(route('dashboard', absolute: false))->with([
             'isNewUser' => $isNewUser,

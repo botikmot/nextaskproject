@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('projects', function (Blueprint $table) {
-            $table->unsignedBigInteger('completed_status_id')->nullable()->after('status');
+            $table->uuid('completed_status_id')->nullable()->after('status'); // Use uuid instead of unsignedBigInteger
             $table->foreign('completed_status_id')->references('id')->on('statuses')->onDelete('set null');
         });
     }

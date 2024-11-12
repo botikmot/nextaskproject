@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\Attachment;
 use App\Models\Status;
+use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
@@ -18,6 +19,17 @@ class TaskController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
+
+        $project = Project::findOrFail($id);
+        //dd($request->all());
+        if (!$project->userHasPermission(auth()->user(), 'create_task')) {
+            //return response()->json(['error' => 'Unauthorized'], 403);
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'You do not have permission to create task in this project.',
+            ]);
+        }
+
     
         $task = Task::create([
             'user_id' => Auth::id(), // Automatically set the admin to the creator
@@ -42,7 +54,7 @@ class TaskController extends Controller
         //return redirect()->route('projects.index')->with('success', 'Project created successfully!');
         return redirect()->back()->with([
             'success' => true,
-            'message' => 'Project created successfully',
+            'message' => 'Task created successfully',
         ]);
     }
 
@@ -52,6 +64,12 @@ class TaskController extends Controller
         $status = Status::find($id);
         if (!$status) {
             return response()->json(['error' => 'Status not found'], 404);
+        }
+
+        $project = Project::findOrFail($request->input('project_id'));
+
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
                 
         $tasksData = $request->input('tasks');

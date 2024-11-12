@@ -115,7 +115,7 @@ const confirmDelete = (id) => {
                         <div class="space-y-1">
                             <h3 class="text-md text-navy-blue font-medium">{{ project.description }}</h3>
                             <p class="text-sm text-blue-600">Created: {{ project.created_at }}</p>
-                            <p class="text-sm text-blue-600">Members: {{  project.members.length }}</p>
+                            <p class="text-sm text-blue-600">Members: {{  project.users.length }}</p>
                         </div>
                     </div>
                     <!-- Add New Project Button -->

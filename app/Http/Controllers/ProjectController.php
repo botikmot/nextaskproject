@@ -8,6 +8,7 @@ use App\Models\ProjectUser;
 use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -52,16 +53,25 @@ class ProjectController extends Controller
     public function show(Request $request, $id)
     {  
         $user_id = $request->user_id ? $request->user_id : Auth::id();
+        $roles = Role::all();
         if($request->filter == 'all'){
-            $project = Project::with(['statuses.tasks' => function ($query) {
+            $project = Project::with(['statuses' => function ($query) {
+                    $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
+                }, 'statuses.tasks' => function ($query) {
                 $query->orderBy('index');
                 $query->with(['users', 'comments' => function ($query) {
                         $query->with('user', 'attachments'); 
                     }
                 ]);
-            }, 'members.user'])->findOrFail($id);
+            }, 'users' => function ($query) use ($id) {
+                $query->with(['roles' => function ($roleQuery) use ($id) {
+                    $roleQuery->wherePivot('project_id', $id);
+                }]);
+            }])->findOrFail($id); //'users.roles'])->findOrFail($id);
         }else{
-            $project = Project::with(['statuses.tasks' => function ($query) use ($user_id) {
+            $project = Project::with(['statuses' => function ($query) {
+                    $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
+                }, 'statuses.tasks' => function ($query) use ($user_id) {
                 $query->orderBy('index')
                       ->with(['users', 'comments' => function ($query) {
                           $query->with('user', 'attachments'); 
@@ -73,13 +83,18 @@ class ProjectController extends Controller
                                     $userQuery->where('user_id', $user_id); // Tasks assigned to the authenticated user
                                 });
                       });
-            }, 'members.user'])->findOrFail($id);
+            }, 'users' => function ($query) use ($id) {
+                $query->with(['roles' => function ($roleQuery) use ($id) {
+                    $roleQuery->wherePivot('project_id', $id);
+                }]);
+            }])->findOrFail($id); //'users.roles'])->findOrFail($id);
         }
 
         $project->progress = $project->progress;
         
         return Inertia::render('Projects/Board', [
             'project' => $project,
+            'roles' => $roles,
         ]);
     }
 
@@ -101,38 +116,33 @@ class ProjectController extends Controller
         ]);
     }
 
-
     public function addMember(Request $request, $id)
     {
         $project = Project::findOrFail($id);
-        // Check if the authenticated user is the project owner
-        if ($project->user_id == auth()->id()) {
+        // Default role ID (set it to the default you want, e.g., 2 for "member")
+        $defaultRoleId = '51149160-5ece-40d8-a6c0-b2010bede188';
 
-            $memberIds = collect($request->members)->pluck('id')->toArray();
-            $request->validate([
-                'members' => 'required|array',
-                'members.*.id' => 'exists:users,id', 
-            ]);
-      
-            // Loop through each user ID and create a new ProjectUser entry
-            foreach ($memberIds as $userId) {
-                ProjectUser::updateOrCreate(
-                    [
-                        'project_id' => $project->id,
-                        'user_id' => $userId,
-                    ]
-                );
-            }
-        
-            return redirect()->back()->with([
-                'success' => true,
-                'message' => 'Members added successfully',
-            ]);
+        // Validate incoming request
+        $request->validate([
+            'members' => 'required|array', // Ensure that 'members' is an array
+            'members.*.id' => 'required|exists:users,id', // Ensure each member has a valid user ID
+            'members.*.role_id' => 'nullable|exists:roles,id', // Optionally, each member can have a role
+        ]);
 
-        } else {
-            // Handle unauthorized access
-            abort(403, 'Unauthorized access');
+        // Loop through each member and attach them to the project with the specified or default role
+        foreach ($request->members as $member) {
+            $roleId = $member['role_id'] ?? $defaultRoleId; // Use the provided role or default to 2
+
+            // Attach the user to the project with the specified role
+            $project->users()->syncWithoutDetaching([
+                $member['id'] => ['role_id' => $roleId]
+            ]);
         }
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Members added successfully',
+        ]);
     }
 
     public function searchMembers(Request $request)
@@ -145,10 +155,9 @@ class ProjectController extends Controller
             return response()->json([]);
         }
 
-        // Get IDs of users who are already members of this project
-        $existingMemberIds = ProjectUser::where('project_id', $projectId)
-                            ->pluck('user_id')
-                            ->toArray();
+        // Retrieve the project and its existing member IDs via the users relationship
+        $project = Project::with('users')->findOrFail($projectId);
+        $existingMemberIds = $project->users->pluck('id')->toArray();
 
         $results = User::where(function ($queryBuilder) use ($query) {
                 $queryBuilder->where('name', 'LIKE', "%{$query}%")
@@ -179,6 +188,26 @@ class ProjectController extends Controller
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Project successfully deleted',
+        ]);
+    }
+
+    public function addUserRole(Request $request)
+    {
+        $project = Project::findOrFail($request->project_id);
+        $user = User::findOrFail($request->user_id);
+        $role = Role::findOrFail($request->role_id);
+
+        // Check if the user already has a role in the project
+        if ($project->users()->where('user_id', $user->id)->exists()) {
+            // Update the role by detaching the current role first
+            $project->users()->detach($user->id);
+        }
+
+        $project->users()->attach($user->id, ['role_id' => $role->id]);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'User successfully added a role',
         ]);
     }
 
