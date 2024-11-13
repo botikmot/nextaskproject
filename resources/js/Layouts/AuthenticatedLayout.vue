@@ -17,6 +17,7 @@ defineProps({
         default: 'Dashboard',
     },
 });
+const page = usePage();
 
 const isCollapsed = ref(false);
 
@@ -205,7 +206,7 @@ onUnmounted(() => {
                                                 type="button"
                                                 class="inline-flex items-center rounded-full bg-sky-blue px-1 py-1 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-300"
                                             >
-                                                <AuthImage class="h-8 w-8 rounded-full object-cover" />
+                                                <AuthImage class="h-8 w-8 rounded-full object-cover" :user="page.props.auth.user" />
                                                 <svg
                                                     class="-me-0.5 ms-2 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"

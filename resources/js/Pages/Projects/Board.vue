@@ -7,6 +7,7 @@ import AddMemberModal from './AddMemberModal.vue';
 import Columns from './Columns.vue';
 import Modal from '@/Components/Modal.vue';
 import { eventBus } from '../eventBus';
+import Dropdown from '@/Components/Dropdown.vue';
 
 let isModalOpen = ref(false);
 let isMemberModalOpen = ref(false);
@@ -125,7 +126,8 @@ onBeforeUnmount(() => {
                             <span class="text-lg font-bold">+{{ project.members.length - 5 }}</span>
                         </div>
                     </div> -->
-                    <div v-if="project.user_id == $page.props.auth.user.id" class="block sm:flex pl-6">
+
+                    <!-- <div v-if="project.user_id == $page.props.auth.user.id" class="block sm:flex pl-6">
                         <div class="flex items-center">
                             <div @click="openMemberModal" class="cursor-pointer ml-2 my-3 sm:my-0 relative group">
                                 <div class="flex items-center justify-center rounded-full">
@@ -137,45 +139,28 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
 
-                    </div>
+                    </div> -->
 
 
                 </div>
                 <div v-if="project.statuses.length" class="flex items-center justify-center sm:justify-start">
-                    <div  v-if="project.user_id == $page.props.auth.user.id" class="text-md xl:flex items-center text-navy-blue hidden">
+                    <!-- <div  v-if="project.user_id == $page.props.auth.user.id" class="text-md xl:flex items-center text-navy-blue hidden">
                         <label>Completion Indicator:</label>
                         <select class="ml-2 py-1 rounded-full text-md" v-model="selectedCompletedStatus" @change="updateCompletedStatus">
                             <option v-for="status in project.statuses" :key="status.id" :value="status.id">
                                 {{ status.name }}
                             </option>
                         </select>
-                    </div>
-                    <div class="text-md flex items-center text-navy-blue px-3">
-                        <label class="hidden lg:flex">Show:</label>
-                        <select class="ml-2 py-1 rounded-full text-md" v-model="taskView" @change="filterTasks">
-                            <option class="py-1" value="all">All Tasks</option>
-                            <option class="py-1" value="myTasks">My Tasks</option>
+                    </div> -->
+                    <div class="text-lg flex items-center py-1 rounded-full bg-linen text-navy-blue pl-3 mr-3">
+                        <i class="fa-solid fa-filter text-navy-blue"></i>
+                        <select class="filter py-1 bg-linen rounded-full text-sm border-0 cursor-pointer focus:outline-none focus:border-transparent" v-model="taskView" @change="filterTasks">
+                            <option class="py-1 cursor-pointer" value="all">All Tasks</option>
+                            <option class="py-1 cursor-pointer" value="myTasks">My Tasks</option>
                         </select>
                     </div>
 
-                    <!-- <div class="block xl:flex pr-2">
-                        <div class="block sm:flex">
-                            <div class="flex items-center">
-                                <div @click="openMemberModal" class="cursor-pointer ml-2 my-3 sm:my-0 relative group">
-                                    <div class="w-9 h-9 flex items-center justify-center bg-sky-blue rounded-full hover:bg-navy-blue">
-                                        <i class="fa-solid fa-user-plus text-md text-linen"></i>
-                                    </div>
-                                    <span class="absolute top-full mt-1 right-0 transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
-                                        Invite Collaborator
-                                    </span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div> -->
-
-
-                    <div class="relative group">
+                    <!-- <div class="relative group">
                         <button
                             v-if="project.user_id == $page.props.auth.user.id"
                             @click="openModal"
@@ -183,7 +168,28 @@ onBeforeUnmount(() => {
                         >
                             <i class="fas fa-plus mr-0 lg:mr-2 text-md "></i><span class="hidden lg:flex">Add Column</span>
                         </button>
+                    </div> -->
+
+                    <div v-if="project.user_id == $page.props.auth.user.id" class="cursor-pointer relative">
+                        <Dropdown align="right" width="64">
+                            <template #trigger>
+                                <i class="fa-solid fa-gear text-navy-blue text-3xl hover:text-sky-blue"></i>
+                            </template>
+                            <template #content>
+                                <div @click="openModal" class="hover:bg-crystal-blue px-3 flex items-center py-2">
+                                    <i class="fa-solid fa-table-columns"></i> <span class="pl-2 text-sm">+ Column</span>
+                                </div>
+                                <div @click="openMemberModal" class="hover:bg-crystal-blue px-3 flex items-center py-2">
+                                    <i class="fa-solid fa-users-gear"></i> <span class="pl-2 text-sm">Members</span>
+                                </div>
+                                <div class="hover:bg-crystal-blue px-3 flex items-center py-2">
+                                    <i class="fa-solid fa-check-double"></i> <span class="pl-2 text-sm">Completion Indicator</span>
+                                </div>
+                            </template>
+                        </Dropdown>
+                        
                     </div>
+
                 </div>
             </div>
                         
@@ -225,3 +231,12 @@ onBeforeUnmount(() => {
         </div>
     </AuthenticatedLayout>
 </template>
+
+<style>
+select:focus {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+</style>
