@@ -2,10 +2,9 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
-defineProps({
-    userName: {
-        type: String,
-    },
+const props = defineProps({
+    userName: String,
+    userRole: String,
 });
 
 </script>
@@ -22,7 +21,7 @@ defineProps({
                     <p>We’re excited to have you on board! Start by setting up your first project, adding tasks, and connecting with your team to unlock productivity.</p>
                 </div>
                 <div v-else>
-                    <h1 class="text-2xl font-semibold">Welcome back, {{ userName }}!</h1>
+                    <h1 class="text-2xl font-semibold">Welcome back, {{ userName }}! </h1>
                     <p>Stay on top of your tasks and connect with your team to accomplish more together.</p>
                 </div>
             </section>

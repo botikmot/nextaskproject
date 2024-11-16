@@ -33,6 +33,7 @@ $routes = [
 foreach ($routes as $uri => $view) {
     Route::get($uri, function () use ($view) {
         $user = Auth::user();
+        $userRole = $user->mainRoles->pluck('name')->first();
         $projects = Project::where('user_id', auth()->id()) // Check if the user is the creator
             ->orWhereHas('users', function ($query) {
                 $query->where('user_id', auth()->id()); // Check if the user is a member
@@ -45,6 +46,7 @@ foreach ($routes as $uri => $view) {
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
             'projects' => $projects,
+            'userRole' => $userRole,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
 }
@@ -69,6 +71,7 @@ Route::middleware('auth')->group(function () {
     
     Route::post('/status/{id}', [StatusController::class, 'store'])->name('status.store');
     Route::get('/status-remove/{id}', [StatusController::class, 'destroy'])->name('status.remove');
+    Route::get('/status-update/{id}', [StatusController::class, 'updateStatus'])->name('status.update');
 
     Route::post('/task/{id}', [TaskController::class, 'store'])->name('task.store');
     Route::post('/tasks-update/{id}', [TaskController::class, 'updateTask'])->name('task.update');

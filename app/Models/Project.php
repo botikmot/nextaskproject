@@ -48,7 +48,7 @@ class Project extends Model
 
     public function getProgressAttribute()
     {
-        $completedStatusId = $this->completed_status_id ?? $this->statuses()->orderByDesc('id')->first()?->id;
+        $completedStatusId = $this->completed_status_id ?? $this->statuses()->orderByDesc('created_at')->first()?->id;
 
         if (!$completedStatusId) {
             return 0;

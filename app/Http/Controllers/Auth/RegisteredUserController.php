@@ -13,6 +13,7 @@ use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -44,6 +45,14 @@ class RegisteredUserController extends Controller
             'profile_image' => $this->generateInitialImage($request->name),
             'is_new' => true,
         ]);
+
+        $role = Role::where('name', 'member')->first();
+
+        if ($user && $role) {
+            // Attach the role to the user
+            $user->assignRole($role);
+        }
+
                
         event(new Registered($user));
 

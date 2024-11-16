@@ -18,10 +18,12 @@ const taskView = ref(localStorage.getItem('taskView') || 'myTasks');
 const props = defineProps({
   project: Object,
   roles: Object,
+  userRole: String,
 });
 
 const page = usePage();
 console.log('project', props.project)
+console.log('userRole', props.userRole)
 const selectedCompletedStatus = ref(props.project.completed_status_id);
 const form = useForm({
     filter: '',

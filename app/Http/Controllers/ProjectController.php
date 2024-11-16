@@ -91,10 +91,12 @@ class ProjectController extends Controller
         }
 
         $project->progress = $project->progress;
-        
+        $user = Auth::user();
+        $userRole = $user->mainRoles->pluck('name')->first();
         return Inertia::render('Projects/Board', [
             'project' => $project,
             'roles' => $roles,
+            'userRole' => $userRole,
         ]);
     }
 
@@ -120,7 +122,7 @@ class ProjectController extends Controller
     {
         $project = Project::findOrFail($id);
         // Default role ID (set it to the default you want, e.g., 2 for "member")
-        $defaultRoleId = '51149160-5ece-40d8-a6c0-b2010bede188';
+        $defaultRoleId = $roles = Role::where('name', 'member')->first();//'51149160-5ece-40d8-a6c0-b2010bede188';
 
         // Validate incoming request
         $request->validate([
@@ -131,7 +133,7 @@ class ProjectController extends Controller
 
         // Loop through each member and attach them to the project with the specified or default role
         foreach ($request->members as $member) {
-            $roleId = $member['role_id'] ?? $defaultRoleId; // Use the provided role or default to 2
+            $roleId = $member['role_id'] ?? $defaultRoleId->id; // Use the provided role or default to 2
 
             // Attach the user to the project with the specified role
             $project->users()->syncWithoutDetaching([

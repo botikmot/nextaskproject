@@ -94,4 +94,24 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
+    public function mainRoles()
+    {
+        return $this->belongsToMany(Role::class, 'user_role');
+    }
+
+    // Method to check if a user has a specific role
+    public function hasRole($roleName)
+    {
+        return $this->mainRoles()->where('name', $roleName)->exists();
+    }
+
+    // Method to assign a role to the user
+    public function assignRole($role)
+    {
+        $this->mainRoles()->attach($role);
+    }
+
+
+
+
 }

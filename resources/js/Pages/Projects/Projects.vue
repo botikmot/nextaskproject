@@ -11,6 +11,7 @@ let isModalOpen = ref(false);
 
 const props = defineProps({
   projects: Object,
+  userRole: String,
 });
 
 console.log(props.projects);
@@ -18,7 +19,7 @@ console.log(props.projects);
 const openModal = () => {
     isModalOpen.value = true;
 }
-
+console.log('userRole', props.userRole)
 const form = useForm({
     id: null,
 });
@@ -120,6 +121,7 @@ const confirmDelete = (id) => {
                     </div>
                     <!-- Add New Project Button -->
                     <button
+                        v-if="userRole == 'admin'"
                         @click="openModal"
                         class="flex text-navy-blue flex-col items-center justify-center bg-color-white p-4 shadow-lg rounded-lg cursor-pointer hover:text-linen hover:bg-sky-blue"
                     >

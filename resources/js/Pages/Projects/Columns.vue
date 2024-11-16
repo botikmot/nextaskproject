@@ -101,6 +101,13 @@ const updateTasksOrder = (newTasks) => {
                         >
                             Remove
                         </DropdownLink>
+                        <DropdownLink
+                            as="button"
+                            class="hover:bg-crystal-blue"
+                            :href="route('status.update', column.id)"
+                        >
+                            Edit
+                        </DropdownLink>
                     </template>
                 </Dropdown>
                 
