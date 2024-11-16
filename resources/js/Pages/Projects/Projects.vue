@@ -98,7 +98,7 @@ const formatDate = (date) => {
             <!-- Projects Section -->
             <section class="w-full">
                 <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
-                    <div v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="bg-color-white p-4 shadow-lg rounded-lg cursor-pointer hover:bg-light-gray">
+                    <div v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="bg-color-white p-4 shadow-xl rounded-lg cursor-pointer hover:bg-light-gray">
                         <div class="flex justify-between">
                             <h2 class="text-lg text-sky-blue font-semibold mb-2">{{ project.title }}</h2>
                             <!-- <div>{{ project.progress }}% complete</div> -->
@@ -151,7 +151,7 @@ const formatDate = (date) => {
                     <button
                         v-if="userRole == 'admin'"
                         @click="openModal"
-                        class="flex text-navy-blue flex-col items-center justify-center bg-color-white p-4 shadow-lg rounded-lg cursor-pointer hover:text-linen hover:bg-sky-blue"
+                        class="flex text-navy-blue flex-col items-center justify-center bg-color-white p-4 shadow-xl rounded-lg cursor-pointer hover:text-linen hover:bg-sky-blue"
                     >
                         <span class="text-4xl text-blue-500">+</span>
                         <span class="text-sm font-semibold mt-2">Add New Project</span>

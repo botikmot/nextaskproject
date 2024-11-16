@@ -2,10 +2,12 @@
 import { usePage, useForm } from '@inertiajs/vue3'
 import Dropdown from '@/Components/Dropdown.vue';
 import { ref } from 'vue';
-import { Inertia } from '@inertiajs/inertia';
+import TextInput from '@/Components/TextInput.vue';
+
 
 let isMemberModalOpen = ref(false);
 let isUpdateComment = ref(false);
+let showSubtask = ref(false)
 
 const props = defineProps({
     task: Object,
@@ -21,6 +23,9 @@ const form = useForm({
     comment: '',
     comment_id: null,
     attachments: null,
+    subtask: '',
+    name: '', // subtasks name
+    is_completed: null,
 });
 
 const openMemberModal = () => {
@@ -165,6 +170,44 @@ const getFileExtension = (filename) => {
     return filename.split('.').pop();
 }
 
+const toggleSubtask = () => {
+    showSubtask.value = !showSubtask.value
+}
+
+const submitSubtask = () => {
+    console.log(form.subtask)
+
+    form.post(`/task/${props.task.id}/subtask`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+            showSubtask.value = false
+            form.subtask = ''
+        },
+        onError: (error) => {
+            console.error('Error adding subtasks', error)
+        }
+    })
+
+}
+
+const updateSubtaskStatus = (subtask) => {
+    console.log('subtask', subtask)
+    form.name = subtask.name
+    form.is_completed = subtask.is_completed
+    form.put(`/task/${subtask.id}/subtask`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            //form.reset()
+        },
+        onError: (error) => {
+            console.error('Error updating subtasks', error)
+        }
+    })
+}
+
 /* const getPriorityClass = (priority) => {
   switch (priority) {
     case 'high': return 'bg-[#EF4444]';
@@ -290,6 +333,38 @@ const getFileExtension = (filename) => {
         </div>
 
         <hr class="text-dark-gray"/>
+        
+        <!------ Subtasks ----->
+        <div class="py-4">
+            <div class="flex py-2">
+                <label for="subTasks" class="block text-sm font-medium mb-2">Subtasks:</label>
+                <div @click="toggleSubtask" class="pl-2 cursor-pointer -mt-1 relative group">
+                    <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
+                </div>
+            </div>
+            <div v-for="subtask in task.subtasks" :key="subtask.id" class="flex items-center space-x-2">
+                <!-- Checkbox -->
+                <input
+                    type="checkbox"
+                    v-model="subtask.is_completed"
+                    @change="updateSubtaskStatus(subtask)"
+                    class="form-checkbox h-4 w-4 text-blue-600"
+                />
+                <!-- Subtask Name -->
+                <div class="text-sm" :class="{ 'line-through text-gray-500': subtask.is_completed }">
+                    {{ subtask.name }}
+                </div>
+            </div>
+            <TextInput
+                placeholder="Create subtask"
+                v-model="form.subtask"
+                v-if="showSubtask"
+                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                @keyup.enter="submitSubtask"
+            />
+        </div>
+
+        <hr class="text-dark-gray"/>
 
         <div v-if="task.comments.length" class="pt-3">
             <label for="Labels" class="block text-sm font-medium pb-1">Comments:</label>
@@ -383,15 +458,5 @@ const getFileExtension = (filename) => {
         <div class="w-full h-2 bg-gray rounded-full my-4">
             <div :style="{ width: 50 + '%' }" class="h-full bg-sky-blue rounded-full"></div>
         </div>
-        <!-- Comments and Attachments -->
-        <!-- <div class="flex items-center justify-between text-sm text-gray-500">
-            <span>{{ task.comments }} comments</span>
-            <div v-if="task.attachments > 0" class="flex items-center space-x-1">
-                <span>{{ task.attachments }} attachments</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 10l5 5-5 5M13 10l5 5-5 5" />
-                </svg>
-            </div>
-        </div> -->
     </div>
 </template>

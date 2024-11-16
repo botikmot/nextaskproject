@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Task;
+use App\Models\Subtask;
 use App\Models\TaskComment;
 use App\Models\Attachment;
 use App\Models\Status;
@@ -220,6 +221,49 @@ class TaskController extends Controller
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Comment successfully updated.',
+        ]);
+
+    }
+
+
+    public function createSubtask(Request $request, $taskId)
+    {
+        $request->validate([
+            'subtask' => 'required|string|max:255',
+        ]);
+
+        $parentTask = Task::findOrFail($taskId);
+
+        $subtask = new Subtask([
+            'name' => $request->subtask,
+        ]);
+
+        $parentTask->subtasks()->save($subtask);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Subtask successfully added.',
+        ]);
+
+    }
+
+    public function updateSubtask(Request $request, $subtaskId)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'is_completed' => 'required|boolean',
+        ]);
+
+        $subtask = Subtask::findOrFail($subtaskId);
+        //$this->authorize('update', $subtask); // Ensure user is authorized to update
+
+        $subtask->name = $request->name;
+        $subtask->is_completed = $request->is_completed;
+        $subtask->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Subtask successfully updated.',
         ]);
 
     }
