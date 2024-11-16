@@ -6,6 +6,7 @@ import CreateProjectModal from './CreateProjectModal.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import { useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
+import moment from 'moment';
 
 let isModalOpen = ref(false);
 
@@ -71,6 +72,10 @@ const confirmDelete = (id) => {
     });
 }
 
+const formatDate = (date) => {
+    return moment(date).fromNow()
+}
+
 </script>
 
 <template>
@@ -92,11 +97,11 @@ const confirmDelete = (id) => {
 
             <!-- Projects Section -->
             <section class="w-full">
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
                     <div v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="bg-color-white p-4 shadow-lg rounded-lg cursor-pointer hover:bg-light-gray">
                         <div class="flex justify-between">
                             <h2 class="text-lg text-sky-blue font-semibold mb-2">{{ project.title }}</h2>
-                            <div>{{ project.progress }}% complete</div>
+                            <!-- <div>{{ project.progress }}% complete</div> -->
                             <div v-if="project.user_id == $page.props.auth.user.id" class="text-sm"  @click.stop>
                                 <Dropdown align="right" width="48">
                                     <template #trigger>
@@ -113,10 +118,33 @@ const confirmDelete = (id) => {
                                 </Dropdown>
                             </div>
                         </div>
-                        <div class="space-y-1">
-                            <h3 class="text-md text-navy-blue font-medium">{{ project.description }}</h3>
-                            <p class="text-sm text-blue-600">Created: {{ project.created_at }}</p>
-                            <p class="text-sm text-blue-600">Members: {{  project.users.length }}</p>
+                        <hr class="pb-3 text-gray"/>
+                        <div class="flex">
+                            <div class="w-1/2 text-navy-blue">
+                                <h3 class="text-md font-medium">{{ project.description }}</h3>
+                                <p class="text-sm">Created: {{ formatDate(project.created_at) }}</p>
+                                <p class="text-sm">Members: {{  project.users.length }}</p>
+                                <div class="pt-2 flex justify-start">
+                                    <div class="relative flex items-center">
+                                        <div v-for="(member, index) in project.users.slice(0, 5)" :key="member.id" class="relative -mr-3">
+                                            <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full border-2 border-color-white" />
+                                        </div>
+                                        
+                                        <div v-if="project.users.length > 5" class="flex items-center text-navy-blue ml-6">
+                                            <span class="text-lg font-bold">+{{ project.users.length - 5 }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="w-1/2 flex justify-center">
+                                <div class="text-sky-blue">
+                                    <div class="text-5xl font-bold">{{ project.progress }}%</div>
+                                    <div class="text-center text-gray">Complete</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full h-2 bg-crystal-blue rounded-full mt-3">
+                            <div :style="{ width: project.progress + '%' }" class="h-full bg-navy-blue rounded-full"></div>
                         </div>
                     </div>
                     <!-- Add New Project Button -->

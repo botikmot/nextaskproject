@@ -57,7 +57,7 @@ class Project extends Model
         $totalTasks = $this->statuses()->withCount('tasks')->get()->sum('tasks_count');
         $completedTasks = $this->statuses()->where('id', $completedStatusId)->first()->tasks()->count();
 
-        return $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 2) : 0;
+        return $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100, 1) : 0;
     }
 
     public function users()
