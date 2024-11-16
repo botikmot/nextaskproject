@@ -38,7 +38,7 @@ class StatusController extends Controller
         if ($status->tasks()->exists()) {
             return redirect()->back()->with([
                 'success' => false,
-                'message' => 'Cannot delete status because it is associated with tasks.',
+                'message' => 'Cannot delete this column because it is associated with tasks.',
             ]);
         }
 

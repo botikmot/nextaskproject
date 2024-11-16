@@ -116,6 +116,38 @@ const cancelEdit = () => {
     isColumnEdit.value = false
 }
 
+const removeColumn = () => {
+    console.log('removed')
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Once deleted, this Column cannot be recovered.",
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444', // Red for delete
+        cancelButtonColor: '#38A169', // Green for cancel
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.get(`/status-remove/${props.column.id}`, {
+                data: form,
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.reset()
+                    console.log('Successfully deleted.', usePage().props.flash.message)
+                    Swal.fire({
+                        icon: usePage().props.flash.success ? "success" : "error",
+                        text: usePage().props.flash.message
+                    });
+                },
+                onError: (error) => {
+                    console.error('Error deleting column', error)
+                }
+            })
+        }
+    });
+
+    
+}
+
 </script>
 
 <template>
@@ -136,13 +168,9 @@ const cancelEdit = () => {
                         <i class="fa-solid fa-ellipsis"></i>
                     </template>
                     <template #content>
-                        <DropdownLink
-                            as="button"
-                            class="hover:bg-crystal-blue"
-                            :href="route('status.remove', column.id)"
-                        >
+                        <div @click="removeColumn" class="px-4 text-sm py-2 hover:bg-crystal-blue">
                             Remove
-                        </DropdownLink>
+                        </div>
                         <div @click="isColumnEdit = true" class="px-4 text-sm py-2 hover:bg-crystal-blue">
                             Edit
                         </div>
