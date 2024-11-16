@@ -49,4 +49,21 @@ class StatusController extends Controller
             'message' => 'Status successfully deleted',
         ]);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $column = Status::findOrFail($id);
+        //$this->authorize('update', $column); // Ensure user is authorized to update
+        $column->name = $request->name;
+        $column->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Status successfully updated',
+        ]);
+    }
 }

@@ -1,4 +1,5 @@
 <script setup>
+import { usePage, useForm } from '@inertiajs/vue3';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { VueDraggable } from 'vue-draggable-plus'
@@ -12,6 +13,7 @@ import Swal from 'sweetalert2';
 const el = ref()
 let isTaskModalOpen = ref(false);
 let columnId = ref(null);
+let isColumnEdit = ref(false)
 
 const props = defineProps({
     column: Object,
@@ -19,6 +21,12 @@ const props = defineProps({
     project_id: String,
     project: Object,
 });
+
+const form = useForm({
+    name: '',
+});
+
+let newColumnName = ref(props.column.name)
 
 // Cloned version of tasks to avoid reactive proxies in VueDraggable
 const clonedTasks = computed(() => props.column.tasks.map(task => toRaw(task)));
@@ -82,12 +90,46 @@ const updateTasksOrder = (newTasks) => {
   props.column.tasks = newTasks.map((task, index) => ({ ...task, index }));
 };
 
+const updateColumn = () => {
+    if (newColumnName.value !== props.column.name && newColumnName.value != '') {
+        // Perform API call to save changes if the name has changed
+        console.log('update columsn', newColumnName.value)
+        form.name = newColumnName.value
+        form.put(`/status-update/${props.column.id}`, {
+            data: form,
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset()
+                console.log('Successfully updated.')
+            },
+            onError: (error) => {
+                console.error('Error updating column', error)
+            }
+        })
+
+    }
+    isColumnEdit.value = false; // Exit edit mode
+}
+
+const cancelEdit = () => {
+    newColumnName.value = props.column.name
+    isColumnEdit.value = false
+}
+
 </script>
 
 <template>
     <div class="w-[18rem]">
         <div class="flex justify-between">
-            <h2 class="text-lg text-navy-blue font-bold mb-4">{{ column.name }}</h2>
+            <h2 v-if="!isColumnEdit" class="text-lg text-navy-blue font-bold mb-4">{{ column.name }}</h2>
+            <input
+                v-else
+                v-model="newColumnName"
+                type="text"
+                class="text-lg text-navy-blue font-bold mb-4 border border-gray-300 p-2 rounded"
+                @keydown.enter="updateColumn"
+                @blur="cancelEdit"
+            />
             <div class="cursor-pointer relative" v-if="column.user_id == auth_id">
                 <Dropdown align="right" width="48">
                     <template #trigger>
@@ -101,13 +143,9 @@ const updateTasksOrder = (newTasks) => {
                         >
                             Remove
                         </DropdownLink>
-                        <DropdownLink
-                            as="button"
-                            class="hover:bg-crystal-blue"
-                            :href="route('status.update', column.id)"
-                        >
+                        <div @click="isColumnEdit = true" class="px-4 text-sm py-2 hover:bg-crystal-blue">
                             Edit
-                        </DropdownLink>
+                        </div>
                     </template>
                 </Dropdown>
                 
