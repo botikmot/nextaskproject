@@ -42,11 +42,13 @@ foreach ($routes as $uri => $view) {
             ->with(['users', 'statuses.tasks'])
             ->orderBy('created_at', 'desc')
             ->get()->append('progress');
+        $tasks = $user->tasks()->with('status')->get();
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
             'projects' => $projects,
             'userRole' => $userRole,
+            'tasks' => $tasks,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
 }

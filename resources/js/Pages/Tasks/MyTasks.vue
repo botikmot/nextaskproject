@@ -3,40 +3,18 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
-const tasks = [
-    {
-        id: 1,
-        title: "Design Landing Page",
-        status: "In Progress",
-        deadline: "2024-11-10",
-        priority: "High",
-        assignedTo: "Alice Johnson",
-        description: "Create a modern, responsive design for the homepage using Figma.",
-    },
-    {
-        id: 2,
-        title: "Set Up Database",
-        status: "Pending",
-        deadline: "2024-11-15",
-        priority: "Medium",
-        assignedTo: "Bob Smith",
-        description: "Initialize the database schema for the new project and set up sample data.",
-    },
-    {
-        id: 3,
-        title: "Review Codebase",
-        status: "Completed",
-        deadline: "2024-11-01",
-        priority: "Low",
-        assignedTo: "Carol White",
-        description: "Review and refactor the existing codebase for consistency and efficiency.",
-    },
-];
+const props = defineProps({
+  tasks: Object,
+  userRole: String,
+});
+
 let expandedTask = ref(false);
 
 const toggleTask = (index) => {
     expandedTask.value = expandedTask.value === index ? null : index;
 };
+
+console.log('tasks', props.tasks)
 
 
 </script>
@@ -46,33 +24,33 @@ const toggleTask = (index) => {
     <Head title="Tasks" />
 
     <AuthenticatedLayout pageTitle="My Tasks">
-        <div class="w-full">
+        <div class="w-full bg-linen p-4">
             <div>
-                <p>Track your progress, prioritize effectively, and stay on top of your responsibilities. Every task brings you one step closer to your goals.</p>
+                <p class="text-navy-blue font-bold text-xl">Track your progress, prioritize effectively, and stay on top of your responsibilities. Every task brings you one step closer to your goals.</p>
             </div>
-            <div class="w-1/3 px-4 py-6 sm:px-6 lg:px-8">
+            <div class="w-1/4 px-4 py-6 sm:px-6 lg:px-8">
                 <!-- Tasks List Section -->
                 <section class="space-y-4">
                     <div
                         v-for="(task, index) in tasks"
                         :key="task.id"
-                        class="bg-white shadow rounded p-4 cursor-pointer"
+                        class="bg-color-white shadow-lg rounded p-4 cursor-pointer"
                         @click="toggleTask(index)"
                     >
                         <div class="flex justify-between items-center">
-                            <h2 class="text-lg font-semibold">{{ task.title }}</h2>
+                            <h2 class="text-lg font-semibold capitalize">{{ task.title }}</h2>
                             <span
                                 :class="{
-                                    'text-blue-500': task.status === 'In Progress',
-                                    'text-green-500': task.status === 'Completed',
-                                    'text-yellow-500': task.status === 'Pending',
+                                    'text-blue-500': task.status.name === 'In Progress',
+                                    'text-green-500': task.status.name === 'Completed',
+                                    'text-yellow-500': task.status.name === 'To Do',
                                 }"
                             >
-                                {{ task.status }}
+                                {{ task.status.name }}
                             </span>
                         </div>
                         <div v-if="expandedTask === index" class="mt-2 text-sm text-gray-600">
-                            <p><strong>Deadline:</strong> {{ task.deadline }}</p>
+                            <p><strong>Deadline:</strong> {{ task.due_date }}</p>
                             <p><strong>Priority:</strong> {{ task.priority }}</p>
                             <p><strong>Assigned to:</strong> {{ task.assignedTo }}</p>
                             <p class="mt-2">{{ task.description }}</p>

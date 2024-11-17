@@ -18,6 +18,7 @@ const props = defineProps({
 
 const fileInput = ref(null);
 const attachments = ref([]);
+const activeTab = ref('subtask')
 
 const form = useForm({
     assigned_members: [],
@@ -228,6 +229,10 @@ const addDependency = () => {
     })
 }
 
+const selectTab = (tabName) => {
+  activeTab.value = tabName;
+}
+
 /* const getPriorityClass = (priority) => {
   switch (priority) {
     case 'high': return 'bg-[#EF4444]';
@@ -241,15 +246,64 @@ const addDependency = () => {
 
 <template>
     <div class="bg-color-white rounded-lg shadow-lg p-6 w-full">
-        <h3 class="text-lg text-navy-blue font-semibold mb-4">Task Details</h3>
-        <div class="mb-4">
+        <h3 class="text-2xl text-navy-blue font-semibold mb-4">{{ task.title }}</h3>
+
+        <div class="py-3">
+            <table class="text-md">
+                <tr>
+                    <td class="text-gray py-1">Status:</td>
+                    <td class="pl-4 py-1">{{ task.status.name }}</td>
+                </tr>
+                <tr>
+                    <td class="text-gray py-1">Assigned to:</td>
+                    <td class="pl-4 py-1">
+                        <div v-for="(user, index) in task.users" :key="index" class="flex items-center">
+                            <Dropdown align="right" width="40">
+                                <template #trigger>
+                                    <div class="flex cursor-pointer">
+                                        <img :src="'/' + user.profile_image" alt="User Avatar" class="w-7 h-7 rounded-full border-2 border-color-white" />
+                                        <span class="text-sm flex items-center text-navy-blue pl-1">{{ user.name }}</span>
+                                    </div>
+                                </template>
+                                <template #content>
+                                    <div
+                                        class="hover:bg-crystal-blue text-sm px-3 py-2 cursor-pointer"
+                                        @click="removeUser(user.id)"
+                                    >
+                                        Remove
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-gray py-1">Due Date:</td>
+                    <td class="pl-4 py-1">{{ task.due_date }}</td>
+                </tr>
+                <tr>
+                    <td class="text-gray py-1">Priority:</td>
+                    <td class="pl-4 py-1 capitalize">{{ task.priority }}</td>
+                </tr>
+                <tr>
+                    <td class="text-gray py-1">Labels/Tags:</td>
+                    <td class="pl-4 py-1">
+                        <span v-if="task.labels" v-for="(tag, index) in task.labels.split(', ')" :key="index" class="text-xs text-color-white bg-sky-blue px-2 py-1 rounded-full">
+                            {{ tag }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- <div class="mb-4">
             <label for="projectName" class="block text-sm font-medium">Task Name</label>
             <input type="text" id="projectName" v-model="task.title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue" required>
-        </div>
+        </div> -->
         
         <div>
             <div class="flex py-2 justify-between">
-                <label for="setDependency" class="block text-sm font-medium mb-2">Set Task Dependency:</label>
+                <label for="setDependency" class="block text-sm font-medium mb-2">Task Dependency:</label>
                 <div class="pl-2 cursor-pointer -mt-1 relative group" @click="isDependencyModalOpen = !isDependencyModalOpen">
                     <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
                 </div>
@@ -279,7 +333,7 @@ const addDependency = () => {
         </div>
 
 
-        <div class="mb-4">
+        <!-- <div class="mb-4">
             <label for="projectDescription" class="block text-sm font-medium">Description</label>
             <textarea id="projectDescription" rows="1" v-model="task.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
         </div>
@@ -317,7 +371,90 @@ const addDependency = () => {
                     <option value="Completed">Completed</option>
                 </select>
             </div>
+        </div> -->
+
+        <div>
+            <div class="mb-4 border-b border-dark-gray">
+            <ul
+                class="flex flex-wrap -mb-px text-sm font-medium text-center"
+                id="default-tab"
+                role="tablist"
+            >
+                <li class="me-2" role="presentation">
+                    <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray"
+                        id="subtask-tab"
+                        type="button"
+                        role="tab"
+                        :class="{ 'border-sky-blue text-sky-blue': activeTab === 'subtask' }"
+                        @click="selectTab('subtask')"
+                    >
+                        Subtask
+                    </button>
+                </li>
+                <li class="me-2" role="presentation">
+                <button
+                    class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
+                    id="comments-tab"
+                    type="button"
+                    role="tab"
+                    :class="{ 'border-sky-blue text-sky-blue': activeTab === 'comments' }"
+                    @click="selectTab('comments')"
+                >
+                    Comments
+                </button>
+                </li>
+                <li class="me-2" role="presentation">
+                <button
+                    class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
+                    id="description-tab"
+                    type="button"
+                    role="tab"
+                    :class="{ 'border-sky-blue text-sky-blue': activeTab === 'description' }"
+                    @click="selectTab('description')"
+                >
+                    Description
+                </button>
+                </li>
+            </ul>
+            </div>
+            <div id="default-tab-content">
+            <div
+                v-show="activeTab === 'subtask'"
+                class="p-4 rounded-lg bg-light-gray"
+                id="subtask"
+                role="tabpanel"
+            >
+                <p class="text-sm text-gray">
+                This is some placeholder content for the
+                <strong class="font-medium text-gray-800 dark:text-white">subtask tab's associated content</strong>.
+                </p>
+            </div>
+            <div
+                v-show="activeTab === 'comments'"
+                class="p-4 rounded-lg bg-light-gray"
+                id="comments"
+                role="tabpanel"
+            >
+                <p class="text-sm text-gray">
+                This is some placeholder content for the
+                <strong class="font-medium text-gray-800 dark:text-white">comments tab's associated content</strong>.
+                </p>
+            </div>
+            <div
+                v-show="activeTab === 'description'"
+                class="p-4 rounded-lg bg-light-gray"
+                id="description"
+                role="tabpanel"
+            >
+                <p class="text-sm text-gray">
+                This is some placeholder content for the
+                <strong class="font-medium text-gray-800 dark:text-white">description tab's associated content</strong>.
+                </p>
+            </div>
+            </div>
         </div>
+
         <div class="mb-4">
             <div class="flex py-2 justify-between">
                 <label for="assignedMembers" class="block text-sm font-medium mb-2">Assigned Members:</label>
