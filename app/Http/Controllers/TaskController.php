@@ -74,6 +74,15 @@ class TaskController extends Controller
         }
                 
         $tasksData = $request->input('tasks');
+        
+        $result = $this->canStartTask($request->input('task_id'));
+        if(!$result['canStart']){
+            return response()->json([
+                'success' => false,
+                'message' => "Dependency task <span style='color: red;'>'{$result['dependencyName']}'</span> is not yet completed.",
+            ]);
+        }
+
         foreach($tasksData as $data){
             $taskData = Task::find($data['id']);
             $taskData->index = $data['index'];
@@ -81,10 +90,6 @@ class TaskController extends Controller
             $taskData->save();
         }
        
-        /* return redirect()->back()->with([
-            'success' => true,
-            'message' => 'Tasks updated successfully',
-        ]); */
         return response()->json([
             'success' => true,
             'message' => 'Tasks updated successfully',
@@ -251,9 +256,8 @@ class TaskController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'is_completed' => 'required|boolean',
         ]);
-
+        
         $subtask = Subtask::findOrFail($subtaskId);
         //$this->authorize('update', $subtask); // Ensure user is authorized to update
 
@@ -267,5 +271,41 @@ class TaskController extends Controller
         ]);
 
     }
+
+
+    public function setDependency(Request $request, $taskId)
+    {
+        // Add dependency
+        $task = Task::find($taskId);
+        $task->dependencies()->syncWithoutDetaching($request->dependency);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Dependency added successfully.',
+        ]);
+    }
+
+    public function canStartTask($taskId)
+    {
+        $task = Task::with('dependencies')->findOrFail($taskId);
+        foreach ($task->dependencies as $dependency) {
+            // Get the completed status ID for the project this task belongs to
+            $completedStatusId = $dependency->project->completed_status_id ?? $dependency->project->statuses()->orderByDesc('created_at')->first()?->id;
+
+            // Check if the dependency task is in the completed status
+            if ($dependency->status_id !== $completedStatusId) {
+                return [
+                    'canStart' => false,
+                    'dependencyName' => $dependency->title ?? 'Unnamed Task',
+                ];
+            }
+        }
+
+        return [
+            'canStart' => true,
+        ];
+
+    }
+
 
 }

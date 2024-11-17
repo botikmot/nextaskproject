@@ -27,11 +27,11 @@ const form = useForm({
 });
 
 let newColumnName = ref(props.column.name)
-
+let prevTasks = ref(props.column.tasks);
 // Cloned version of tasks to avoid reactive proxies in VueDraggable
 const clonedTasks = computed(() => props.column.tasks.map(task => toRaw(task)));
 
-const onEnd = async () => {
+const onEnd = async (event) => {
     const updatedTasks = props.column.tasks.map((task, idx) => ({
         id: task.id,
         index: idx,
@@ -41,13 +41,21 @@ const onEnd = async () => {
     const data = {
         status_id: props.column.id,
         project_id: props.project_id,
-        tasks: updatedTasks
+        tasks: updatedTasks,
+        is_add: false,
+        task_id: event.data.id,
     }
     
-    updateTasks(props.column.id, data)    
+    const success = await updateTasks(props.column.id, data) 
+    if (!success) {
+        // Revert to previous state if update fails
+        props.column.tasks = prevTasks.value;
+    }else{
+        prevTasks.value = props.column.tasks
+    }   
 }
 
-const handleAddToColumn = () => {
+const handleAddToColumn = async (event) => {
     const updatedTasks = props.column.tasks.map((task, idx) => ({
         id: task.id,
         index: idx,
@@ -57,10 +65,18 @@ const handleAddToColumn = () => {
     const data = {
         status_id: props.column.id,
         project_id: props.project_id,
-        tasks: updatedTasks
+        tasks: updatedTasks,
+        is_add: true,
+        task_id: event.data.id,
     }
     
-    updateTasks(props.column.id, data)
+    const success = await updateTasks(props.column.id, data)
+    if (!success) {
+        // Revert to previous state if update fails
+        props.column.tasks = prevTasks.value;
+    }else{
+        prevTasks.value = props.column.tasks
+    }   
 }
 
 const columnHeight = computed(() => {
@@ -70,13 +86,23 @@ const columnHeight = computed(() => {
 const updateTasks = async (id, data) => {
     try {
         const response = await axios.post(`/tasks-update/${id}`, data);
-        console.log('Tasks updated successfully:', response.data.message);
+        if(!response.data.success){
+            Swal.fire({
+                icon: "error",
+                html: response.data.message,
+            });
+            return false
+        }else{
+            console.log('Tasks updated successfully:', response.data.message);
+            return true
+        }
     } catch (error) {
         console.error('Failed to update tasks:', error.response ? error.response.data : error.message);
         Swal.fire({
             icon: "error",
             text: 'You do not have permission to update task in this project.',
         });
+        return false
     }
 }
 
@@ -190,7 +216,7 @@ const removeColumn = () => {
                 @end="onEnd"
                 @update:model-value="updateTasksOrder"
             >
-                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.users" />
+                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.users" :tasks="project.tasks" />
             </VueDraggable>
         
         </div>

@@ -59,35 +59,34 @@ class ProjectController extends Controller
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) {
                 $query->orderBy('index');
-                $query->with(['users', 'subtasks', 'comments' => function ($query) {
+                $query->with(['dependencies', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
                         $query->with('user', 'attachments'); 
                     }
                 ]);
-            }, 'users' => function ($query) use ($id) {
+            }, 'tasks', 'users' => function ($query) use ($id) {
                 $query->with(['roles' => function ($roleQuery) use ($id) {
                     $roleQuery->wherePivot('project_id', $id);
                 }]);
-            }])->findOrFail($id); //'users.roles'])->findOrFail($id);
+            }])->findOrFail($id);
         }else{
             $project = Project::with(['statuses' => function ($query) {
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) use ($user_id) {
                 $query->orderBy('index')
-                      ->with(['users', 'subtasks', 'comments' => function ($query) {
+                      ->with(['dependencies', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
                           $query->with('user', 'attachments'); 
                       }])
                       ->where(function ($query) use ($user_id) {
-                          //$authUserId = Auth::id();
                           $query->where('user_id', $user_id) // Tasks created by the authenticated user
                                 ->orWhereHas('users', function ($userQuery) use ($user_id) {
                                     $userQuery->where('user_id', $user_id); // Tasks assigned to the authenticated user
                                 });
                       });
-            }, 'users' => function ($query) use ($id) {
+            }, 'tasks', 'users' => function ($query) use ($id) {
                 $query->with(['roles' => function ($roleQuery) use ($id) {
                     $roleQuery->wherePivot('project_id', $id);
                 }]);
-            }])->findOrFail($id); //'users.roles'])->findOrFail($id);
+            }])->findOrFail($id);
         }
 
         $project->progress = $project->progress;

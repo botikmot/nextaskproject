@@ -12,6 +12,7 @@ import { ref, computed } from 'vue';
 const props = defineProps({
     task: Object,
     members: Object,
+    tasks: Object,
 });
 
 let isTaskLogOpen = ref(false);
@@ -136,7 +137,7 @@ const totalAttachments = computed(() => {
         </div>
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
-            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members"/>
+            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks"/>
         </Modal>
     </div>
 </template>

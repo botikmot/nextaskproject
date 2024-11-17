@@ -1,17 +1,19 @@
 <script setup>
 import { usePage, useForm } from '@inertiajs/vue3'
 import Dropdown from '@/Components/Dropdown.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
 
 
 let isMemberModalOpen = ref(false);
 let isUpdateComment = ref(false);
 let showSubtask = ref(false)
+let isDependencyModalOpen = ref(false)
 
 const props = defineProps({
     task: Object,
     members: Object,
+    tasks: Object,
 });
 
 const fileInput = ref(null);
@@ -26,6 +28,7 @@ const form = useForm({
     subtask: '',
     name: '', // subtasks name
     is_completed: null,
+    dependency: null,
 });
 
 const openMemberModal = () => {
@@ -194,16 +197,33 @@ const submitSubtask = () => {
 
 const updateSubtaskStatus = (subtask) => {
     console.log('subtask', subtask)
+    subtask.is_completed = !subtask.is_completed;
+
     form.name = subtask.name
     form.is_completed = subtask.is_completed
     form.put(`/task/${subtask.id}/subtask`, {
         data: form,
         preserveScroll: true,
         onSuccess: () => {
-            //form.reset()
+            form.reset()
         },
         onError: (error) => {
-            console.error('Error updating subtasks', error)
+            console.error('Error updating subtasks', error)           
+        }
+    })
+}
+
+const addDependency = () => {
+    console.log('dependencies', form.dependency)
+    console.log('task_id', props.task.id)
+    form.post(`/tasks/${props.task.id}/set-dependency`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+        },
+        onError: (error) => {
+            console.error('Error setting dependency', error)           
         }
     })
 }
@@ -226,9 +246,42 @@ const updateSubtaskStatus = (subtask) => {
             <label for="projectName" class="block text-sm font-medium">Task Name</label>
             <input type="text" id="projectName" v-model="task.title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue" required>
         </div>
+        
+        <div>
+            <div class="flex py-2">
+                <label for="setDependency" class="block text-sm font-medium mb-2">Set Task Dependency:</label>
+                <div class="pl-2 cursor-pointer -mt-1 relative group" @click="isDependencyModalOpen = !isDependencyModalOpen">
+                    <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
+                </div>
+            </div>
+            <div class="pb-3" v-if="isDependencyModalOpen">
+                <select
+                    id="setDependencies"
+                    v-model="form.dependency"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                >
+                    <option
+                        class="text-navy-blue text-sm"
+                        v-for="task in tasks"
+                        :key="task.id"
+                        :value="task.id"
+                    >{{ task.title }}</option>
+                </select>
+                <div class="flex py-1 justify-end">
+                    <button
+                        @click="addDependency"
+                        class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                        >
+                        + Add Dependency
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
         <div class="mb-4">
             <label for="projectDescription" class="block text-sm font-medium">Description</label>
-            <textarea id="projectDescription" v-model="task.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
+            <textarea id="projectDescription" rows="1" v-model="task.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
         </div>
         <div class="block sm:flex w-full">
             <div class="mb-4 w-full sm:w-1/3 mr-1">
@@ -346,7 +399,7 @@ const updateSubtaskStatus = (subtask) => {
                 <!-- Checkbox -->
                 <input
                     type="checkbox"
-                    v-model="subtask.is_completed"
+                    :checked="subtask.is_completed"
                     @change="updateSubtaskStatus(subtask)"
                     class="form-checkbox h-4 w-4 text-blue-600"
                 />
@@ -356,10 +409,10 @@ const updateSubtaskStatus = (subtask) => {
                 </div>
             </div>
             <TextInput
-                placeholder="Create subtask"
+                placeholder="Enter subtask here..."
                 v-model="form.subtask"
                 v-if="showSubtask"
-                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
                 @keyup.enter="submitSubtask"
             />
         </div>
