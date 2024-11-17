@@ -23,6 +23,7 @@ const openModal = () => {
 console.log('userRole', props.userRole)
 const form = useForm({
     id: null,
+    filter: localStorage.getItem('taskView') || 'myTasks',
 });
 
 const navigateToProject = (projectId) => {
