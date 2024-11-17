@@ -54,6 +54,11 @@ class Project extends Model
             return 0;
         }
 
+        // Save the completed status ID to the database if it's not already set
+        if ($this->completed_status_id !== $completedStatusId) {
+            $this->update(['completed_status_id' => $completedStatusId]);
+        }
+
         $totalTasks = $this->statuses()->withCount('tasks')->get()->sum('tasks_count');
         $completedTasks = $this->statuses()->where('id', $completedStatusId)->first()->tasks()->count();
 

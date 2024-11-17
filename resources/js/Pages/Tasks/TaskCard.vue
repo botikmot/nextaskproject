@@ -13,6 +13,7 @@ const props = defineProps({
     task: Object,
     members: Object,
     tasks: Object,
+    completedId: String,
 });
 
 let isTaskLogOpen = ref(false);
@@ -84,21 +85,23 @@ const totalAttachments = computed(() => {
 
 
 <template>
-    <div @click="openTaskModal" class="bg-color-white p-3 mb-3 rounded shadow-lg border relative border-dark-gray cursor-pointer">
-        <div class="flex relative">
-            <i :class="[
-                    'fa-solid fa-flag text-xs pr-1 flex items-center',
-                    task.priority === 'low' ? 'text-[#38A169]' : 
-                    task.priority === 'medium' ? 'text-[#D97706]' : 
-                    task.priority === 'high' ? 'text-[#EF4444]' : ''
-                ]" :title="[
-                    task.priority === 'low' ? 'Low Priority' : 
-                    task.priority === 'medium' ? 'Medium Priority' : 
-                    task.priority === 'high' ? 'High Priority' : ''
-                ]">
-            </i>
-            <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
-            <div v-if="task.user_id == $page.props.auth.user.id" class="absolute text-sm right-0 top-0" @click.stop>
+    <div @click="openTaskModal" :class="`${ completedId == task.status_id ? 'bg-dark-gray' : 'bg-color-white shadow-lg' } p-3 mb-3 rounded border relative border-dark-gray cursor-pointer`">
+        <div class="flex justify-between">
+            <div class="flex">
+                <!-- <i :class="[
+                        'fa-solid fa-flag text-xs pr-1 flex items-center',
+                        task.priority === 'low' ? 'text-[#38A169]' : 
+                        task.priority === 'medium' ? 'text-[#D97706]' : 
+                        task.priority === 'high' ? 'text-[#EF4444]' : ''
+                    ]" :title="[
+                        task.priority === 'low' ? 'Low Priority' : 
+                        task.priority === 'medium' ? 'Medium Priority' : 
+                        task.priority === 'high' ? 'High Priority' : ''
+                    ]">
+                </i> -->
+                <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
+            </div>
+            <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm " @click.stop>
                 <Dropdown align="right" width="48">
                     <template #trigger>
                         <i class="fa-solid fa-ellipsis"></i>
@@ -115,7 +118,7 @@ const totalAttachments = computed(() => {
             </div>
         </div>
         <p class="text-xs text-gray">{{ task.description }}</p>
-        <p class="text-sm" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ remainingDays(task.due_date) }}</span></p>
+        <p class="text-xs" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ completedId == task.status_id ? formatDate(task.due_date) : remainingDays(task.due_date) }}</span></p>
         <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
         <div class="flex pt-1">
             <div v-if="task.comments.length" class="flex items-center">

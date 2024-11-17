@@ -248,7 +248,7 @@ const addDependency = () => {
         </div>
         
         <div>
-            <div class="flex py-2">
+            <div class="flex py-2 justify-between">
                 <label for="setDependency" class="block text-sm font-medium mb-2">Set Task Dependency:</label>
                 <div class="pl-2 cursor-pointer -mt-1 relative group" @click="isDependencyModalOpen = !isDependencyModalOpen">
                     <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
@@ -319,7 +319,7 @@ const addDependency = () => {
             </div>
         </div>
         <div class="mb-4">
-            <div class="flex py-2">
+            <div class="flex py-2 justify-between">
                 <label for="assignedMembers" class="block text-sm font-medium mb-2">Assigned Members:</label>
                 <div class="pl-2 cursor-pointer -mt-1 relative group" @click="openMemberModal">
                     <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
@@ -371,8 +371,6 @@ const addDependency = () => {
                         </template>
                     </Dropdown>
 
-                   <!--  <img :src="'/' + user.profile_image" alt="User Avatar" class="w-6 h-6 rounded-full border-2 border-white" />
-                    <span class="text-sm text-gray-700 pl-1">{{ user.name }}</span> -->
                 </div>
             </div>
         </div>
@@ -389,7 +387,7 @@ const addDependency = () => {
         
         <!------ Subtasks ----->
         <div class="py-4">
-            <div class="flex py-2">
+            <div class="flex py-2 justify-between">
                 <label for="subTasks" class="block text-sm font-medium mb-2">Subtasks:</label>
                 <div @click="toggleSubtask" class="pl-2 cursor-pointer -mt-1 relative group">
                     <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
@@ -505,7 +503,6 @@ const addDependency = () => {
                 </div>
             </div>
         </div>
-
 
         <!-- Progress Bar -->
         <div class="w-full h-2 bg-gray rounded-full my-4">

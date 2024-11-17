@@ -216,7 +216,7 @@ const removeColumn = () => {
                 @end="onEnd"
                 @update:model-value="updateTasksOrder"
             >
-                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.users" :tasks="project.tasks" />
+                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.users" :completedId="project.completed_status_id" :tasks="project.tasks" />
             </VueDraggable>
         
         </div>
