@@ -217,7 +217,8 @@ onBeforeUnmount(() => {
                     :auth_id="$page.props.auth.user.id"
                     :project_id="project.id"
                     :project="project"
-                    class="bg-linen p-4 min-w-72 mr-2 rounded shadow-lg mb-4 border border-dark-gray"
+                    class="p-4 min-w-72 mr-2 rounded shadow-lg mb-4"
+                    :style="{ backgroundColor: column.color }"
                 />
             </div>
 

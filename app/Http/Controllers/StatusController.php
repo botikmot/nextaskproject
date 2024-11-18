@@ -59,6 +59,7 @@ class StatusController extends Controller
         $column = Status::findOrFail($id);
         //$this->authorize('update', $column); // Ensure user is authorized to update
         $column->name = $request->name;
+        $column->color = $request->color;
         $column->save();
 
         return redirect()->back()->with([

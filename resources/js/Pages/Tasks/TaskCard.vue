@@ -138,6 +138,10 @@ const totalAttachments = computed(() => {
                 <span class="text-sm font-bold">+{{ task.users.length - 4 }}</span>
             </div>
         </div>
+        <!-- Progress Bar -->
+        <div v-if="task.subtasks.length" class="w-full h-2 bg-crystal-blue rounded-full my-1">
+            <div :style="{ width: task.progress + '%' }" class="h-full bg-sky-blue rounded-full"></div>
+        </div>
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
             <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks"/>

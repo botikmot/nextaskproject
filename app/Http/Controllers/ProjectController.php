@@ -68,6 +68,14 @@ class ProjectController extends Controller
                     $roleQuery->wherePivot('project_id', $id);
                 }]);
             }])->findOrFail($id);
+
+            // Calculate and append progress for each task
+            foreach ($project->statuses as $status) {
+                foreach ($status->tasks as $task) {
+                    $task->progress = $task->progress; // Access the accessor
+                }
+            }
+
         }else{
             $project = Project::with(['statuses' => function ($query) {
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
@@ -87,6 +95,14 @@ class ProjectController extends Controller
                     $roleQuery->wherePivot('project_id', $id);
                 }]);
             }])->findOrFail($id);
+
+            // Calculate and append progress for each task
+            foreach ($project->statuses as $status) {
+                foreach ($status->tasks as $task) {
+                    $task->progress = $task->progress; // Access the accessor
+                }
+            }
+
         }
 
         $project->progress = $project->progress;
@@ -165,7 +181,7 @@ class ProjectController extends Controller
                             ->orWhere('email', 'LIKE', "%{$query}%");
             })
             //->where('id', '!=', Auth::id()) // Exclude the authenticated user
-            ->whereNotIn('id', array_merge([$request->user()->id], $existingMemberIds))
+            ->whereNotIn('id', array_merge($existingMemberIds))
             ->take(10)
             ->get(['id', 'name', 'email']);
 

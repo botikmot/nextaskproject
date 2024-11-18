@@ -9,6 +9,7 @@ import axios from 'axios';
 import Modal from '@/Components/Modal.vue';
 import TaskCard from '../Tasks/TaskCard.vue';
 import Swal from 'sweetalert2';
+import UpdateColumnModal from './UpdateColumnModal.vue';
 
 const el = ref()
 let isTaskModalOpen = ref(false);
@@ -179,15 +180,15 @@ const removeColumn = () => {
 <template>
     <div class="w-[18rem]">
         <div class="flex justify-between">
-            <h2 v-if="!isColumnEdit" class="text-lg text-navy-blue font-bold mb-4">{{ column.name }}</h2>
-            <input
+            <h2 class="text-lg text-navy-blue font-bold mb-4">{{ column.name }}</h2>
+            <!-- <input
                 v-else
                 v-model="newColumnName"
                 type="text"
                 class="text-lg text-navy-blue font-bold mb-4 border border-gray-300 p-2 rounded"
                 @keydown.enter="updateColumn"
                 @blur="cancelEdit"
-            />
+            /> -->
             <div class="cursor-pointer relative" v-if="column.user_id == auth_id">
                 <Dropdown align="right" width="48">
                     <template #trigger>
@@ -231,6 +232,11 @@ const removeColumn = () => {
         <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
             <NewTaskModal @close="isTaskModalOpen = false" :project_id="project_id" :column_id="columnId" :project="project" :index="column.tasks.length"/>
         </Modal>
-      
+        
+        <!-- Edit Column Modal -->
+        <Modal :show="isColumnEdit" @close="isColumnEdit = false">
+            <UpdateColumnModal @close="isColumnEdit = false" :column="column" />
+        </Modal>
+
     </div>
 </template>

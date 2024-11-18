@@ -63,5 +63,13 @@ class Task extends Model
         return $this->belongsToMany(Task::class, 'task_dependencies', 'depends_on_task_id', 'task_id');
     }
 
+    public function getProgressAttribute()
+    {
+        $totalSubtasks = $this->subtasks()->count();
+        $completedSubtasks = $this->subtasks()->where('is_completed', true)->count();
+
+        return $totalSubtasks > 0 ? round(($completedSubtasks / $totalSubtasks) * 100, 0) : 0;
+    }
+
 
 }
