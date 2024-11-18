@@ -31,7 +31,7 @@ const form = useForm({
 });
 
 const formatDate = (date) => {
-    return moment(date).format('LL')
+    return moment(date).format('lll')
 }
 
 const openMemberModal = () => {
@@ -295,89 +295,119 @@ const selectTab = (tabName) => {
                     </button>
                 </li>
                 <li class="me-2" role="presentation">
-                <button
-                    class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
-                    id="comments-tab"
-                    type="button"
-                    role="tab"
-                    :class="{ 'border-sky-blue text-sky-blue': activeTab === 'comments' }"
-                    @click="selectTab('comments')"
-                >
-                    Comments <span class="pl-1"> ({{ task.comments.length }})</span>
-                </button>
+                    <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
+                        id="comments-tab"
+                        type="button"
+                        role="tab"
+                        :class="{ 'border-sky-blue text-sky-blue': activeTab === 'comments' }"
+                        @click="selectTab('comments')"
+                    >
+                        Comments <span class="pl-1"> ({{ task.comments.length }})</span>
+                    </button>
                 </li>
                 <li class="me-2" role="presentation">
-                <button
-                    class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
-                    id="description-tab"
-                    type="button"
-                    role="tab"
-                    :class="{ 'border-sky-blue text-sky-blue': activeTab === 'description' }"
-                    @click="selectTab('description')"
-                >
-                    Description
-                </button>
+                    <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
+                        id="description-tab"
+                        type="button"
+                        role="tab"
+                        :class="{ 'border-sky-blue text-sky-blue': activeTab === 'description' }"
+                        @click="selectTab('description')"
+                    >
+                        Description
+                    </button>
+                </li>
+                <li class="me-2" role="presentation">
+                    <button
+                        class="inline-block p-4 border-b-2 rounded-t-lg border-dark-gray text-gray hover:text-sky-blue hover:border-sky-blue"
+                        id="history-tab"
+                        type="button"
+                        role="tab"
+                        :class="{ 'border-sky-blue text-sky-blue': activeTab === 'history' }"
+                        @click="selectTab('history')"
+                    >
+                        History
+                    </button>
                 </li>
             </ul>
             </div>
             <div id="default-tab-content">
-            <div
-                v-show="activeTab === 'subtask'"
-                class="p-4 rounded-lg bg-light-gray"
-                id="subtask"
-                role="tabpanel"
-            >
-                <div class="">
-                    <!-- <div class="flex pb-2 justify-end">
-                        <div @click="toggleSubtask" class="pl-2 cursor-pointer -mt-1 relative group">
-                            <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
+                <div
+                    v-show="activeTab === 'subtask'"
+                    class="p-4 rounded-lg bg-light-gray"
+                    id="subtask"
+                    role="tabpanel"
+                >
+                    <div class="">
+                        <!-- <div class="flex pb-2 justify-end">
+                            <div @click="toggleSubtask" class="pl-2 cursor-pointer -mt-1 relative group">
+                                <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
+                            </div>
+                        </div> -->
+                        <div v-for="subtask in task.subtasks" :key="subtask.id" class="flex items-center py-1 space-x-2">
+                            <!-- Checkbox -->
+                            <input
+                                type="checkbox"
+                                :checked="subtask.is_completed"
+                                @change="updateSubtaskStatus(subtask)"
+                                class="form-checkbox h-4 w-4 text-blue-600"
+                            />
+                            <!-- Subtask Name -->
+                            <div class="text-sm" :class="{ 'line-through text-gray-500': subtask.is_completed }">
+                                {{ subtask.name }}
+                            </div>
                         </div>
-                    </div> -->
-                    <div v-for="subtask in task.subtasks" :key="subtask.id" class="flex items-center py-1 space-x-2">
-                        <!-- Checkbox -->
-                        <input
-                            type="checkbox"
-                            :checked="subtask.is_completed"
-                            @change="updateSubtaskStatus(subtask)"
-                            class="form-checkbox h-4 w-4 text-blue-600"
+                        <TextInput
+                            placeholder="Enter subtask here..."
+                            v-model="form.subtask"
+                            class="mt-4 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                            @keyup.enter="submitSubtask"
                         />
-                        <!-- Subtask Name -->
-                        <div class="text-sm" :class="{ 'line-through text-gray-500': subtask.is_completed }">
-                            {{ subtask.name }}
-                        </div>
                     </div>
-                    <TextInput
-                        placeholder="Enter subtask here..."
-                        v-model="form.subtask"
-                        class="mt-4 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
-                        @keyup.enter="submitSubtask"
-                    />
-                </div>
 
-            </div>
-            <div
-                v-show="activeTab === 'comments'"
-                class="p-4 rounded-lg bg-light-gray"
-                id="comments"
-                role="tabpanel"
-            >
-                <Comments :task="task"/>
-            </div>
-            <div
-                v-show="activeTab === 'description'"
-                class="p-4 rounded-lg bg-light-gray"
-                id="description"
-                role="tabpanel"
-            >
-                <div class="mb-4">
-                    <label for="projectDescription" class="block text-sm font-medium">Description</label>
-                    <textarea id="projectDescription" rows="1" v-model="task.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
                 </div>
-            </div>
+                <div
+                    v-show="activeTab === 'comments'"
+                    class="p-4 rounded-lg bg-light-gray"
+                    id="comments"
+                    role="tabpanel"
+                >
+                    <Comments :task="task"/>
+                </div>
+                <div
+                    v-show="activeTab === 'description'"
+                    class="p-4 rounded-lg bg-light-gray"
+                    id="description"
+                    role="tabpanel"
+                >
+                    <div class="mb-4">
+                        <label for="projectDescription" class="block text-sm font-medium">Description</label>
+                        <textarea id="projectDescription" rows="1" v-model="task.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
+                    </div>
+                </div>
+                <div
+                    v-show="activeTab === 'history'"
+                    class="p-4 rounded-lg bg-light-gray"
+                    id="history"
+                    role="tabpanel"
+                >
+                    <div v-if="task.histories.length" v-for="history in task.histories" :key="history.id">
+                        <p class="text-sm" v-if="history.attribute == 'status_id'">
+                            <strong>{{ history.user.name }}</strong> changed Status
+                            from <em class="font-bold">{{ history.old_status ? history.old_status.name : '' }}</em>
+                            to <em class="font-bold">{{ history.new_status ? history.new_status.name : '' }}</em>
+                            on {{ formatDate(history.created_at) }}.
+                        </p>
+                    </div>
+                    <div v-else>
+                        No History
+                    </div>
+                </div>
             </div>
         </div>
 
-        <hr class="text-dark-gray"/>
+        <!-- <hr class="text-dark-gray"/> -->
         
         <!-- Progress Bar -->
         <div class="w-full h-2 bg-crystal-blue rounded-full my-4">

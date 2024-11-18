@@ -71,5 +71,11 @@ class Task extends Model
         return $totalSubtasks > 0 ? round(($completedSubtasks / $totalSubtasks) * 100, 0) : 0;
     }
 
+    public function histories()
+    {
+        return $this->hasMany(TaskHistory::class)->orderBy('created_at', 'desc');
+    }
+
+
 
 }

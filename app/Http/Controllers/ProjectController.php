@@ -59,7 +59,7 @@ class ProjectController extends Controller
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) {
                 $query->orderBy('index');
-                $query->with(['dependencies', 'status', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
+                $query->with(['histories.user', 'histories.oldStatus', 'histories.newStatus', 'dependencies', 'status', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
                         $query->with('user', 'attachments'); 
                     }
                 ]);
@@ -81,7 +81,7 @@ class ProjectController extends Controller
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) use ($user_id) {
                 $query->orderBy('index')
-                      ->with(['dependencies', 'status', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
+                      ->with(['histories.user', 'histories.oldStatus', 'histories.newStatus', 'dependencies', 'status', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
                           $query->with('user', 'attachments'); 
                       }])
                       ->where(function ($query) use ($user_id) {
