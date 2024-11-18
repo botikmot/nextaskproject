@@ -9,16 +9,22 @@ import Comments from './Comments.vue';
 let isMemberModalOpen = ref(false);
 let showSubtask = ref(false)
 let isDependencyModalOpen = ref(false)
+let isEdit = ref(false)
 
 const props = defineProps({
     task: Object,
     members: Object,
     tasks: Object,
+    labels: Object,
 });
 
 const activeTab = ref('subtask')
 
 const form = useForm({
+    title: props.task.title,
+    due_date: props.task.due_date,
+    priority: props.task.priority,
+    labels:  props.task.labels.map(label => label.id), //props.task.labels,
     assigned_members: [],
     removed_users: [],
     comment: '',
@@ -127,6 +133,27 @@ const selectTab = (tabName) => {
   activeTab.value = tabName;
 }
 
+const updateTask = () => {
+
+    form.put(`/tasks-update/${props.task.id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+            isEdit.value = false
+        },
+        onError: (error) => {
+            console.error('Error updating tasks', error)           
+        }
+    })
+
+
+}
+
+const cancelUpdate = () => {
+    isEdit.value = false
+}
+
 /* const getPriorityClass = (priority) => {
   switch (priority) {
     case 'high': return 'bg-[#EF4444]';
@@ -140,7 +167,24 @@ const selectTab = (tabName) => {
 
 <template>
     <div class="bg-color-white rounded-lg shadow-lg p-6 w-full">
-        <h3 class="text-2xl text-navy-blue font-semibold mb-4">{{ task.title }}</h3>
+        <div class="flex justify-between">
+            <h3 v-if="!isEdit" class="text-2xl text-navy-blue font-semibold mb-4">{{ task.title }}</h3>
+            <TextInput
+                v-else
+                placeholder="Enter title here..."
+                v-model="form.title"
+                class="block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+            />
+            <div v-if="task.user_id == $page.props.auth.user.id">
+                <div @click="isEdit = true" class="px-3 cursor-pointer py-1 relative group">
+                    <i class="fa-regular fa-pen-to-square text-lg text-gray"></i>
+                    <span class="absolute top-full mt-1 right-0 transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
+                        Edit
+                    </span>
+                </div>
+            </div>
+        </div>
+        
 
         <div class="pb-3 block sm:flex justify-between">
             <div class="">
@@ -151,24 +195,61 @@ const selectTab = (tabName) => {
                     </tr>
                     <tr>
                         <td class="text-gray py-1 pr-3">Due Date:</td>
-                        <td class="pl-4 py-1">{{ task.due_date ? formatDate(task.due_date) : 'Not set' }}</td>
+                        <td class="pl-4 py-1">
+                            <div v-if="!isEdit">
+                                {{ task.due_date ? formatDate(task.due_date) : 'Not set' }}
+                            </div>
+                            <div v-else>
+                                <input
+                                    type="date"
+                                    id="dueDate"
+                                    v-model="form.due_date"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                                />
+                            </div>
+                        </td>
                     </tr>
                     <tr>
                         <td class="text-gray py-1 pr-3">Priority:</td>
                         <td class="pl-4 py-1 capitalize">
-                            <span class="font-bold" :class="[
-                                task.priority === 'low' ? 'text-[#38A169]' : 
-                                task.priority === 'medium' ? 'text-[#D97706]' : 
-                                task.priority === 'high' ? 'text-[#EF4444]' : ''
-                            ]">{{ task.priority }}</span>
+                            <div v-if="!isEdit">
+                                <span class="font-bold" :class="[
+                                    task.priority === 'low' ? 'text-[#38A169]' : 
+                                    task.priority === 'medium' ? 'text-[#D97706]' : 
+                                    task.priority === 'high' ? 'text-[#EF4444]' : ''
+                                ]">{{ task.priority }}</span>
+                            </div>
+                            <div v-else>
+                                <select
+                                    id="priority"
+                                    v-model="form.priority"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                                >
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
                         </td>
                     </tr>
                     <tr>
                         <td class="text-gray py-1 pr-3">Labels/Tags:</td>
                         <td class="pl-4 py-1">
-                            <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" :style="{ backgroundColor: tag.color }" class="text-xs px-2 py-1 ml-1 rounded-full">
-                                {{ tag.name }}
-                            </span>
+                            <div v-if="!isEdit">
+                                <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" :style="{ backgroundColor: tag.color }" class="text-xs px-2 py-1 ml-1 rounded-full">
+                                    {{ tag.name }}
+                                </span>
+                            </div>
+                            <div v-else>
+                                <select
+                                    id="assignedMembers"
+                                    v-model="form.labels"
+                                    multiple
+                                    class="mt-1 block w-full border-gray-300 rounded-md focus:ring focus:ring-sky-blue"
+                                >
+                                    <option class="text-navy-blue" v-for="label in labels" :key="label.id" :value="label.id">{{ label.name }}</option>
+                                </select>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -392,11 +473,17 @@ const selectTab = (tabName) => {
                     id="history"
                     role="tabpanel"
                 >
-                    <div v-if="task.histories.length" v-for="history in task.histories" :key="history.id">
+                    <div class="py-1" v-if="task.histories.length" v-for="history in task.histories" :key="history.id">
                         <p class="text-sm" v-if="history.attribute == 'status_id'">
-                            <strong>{{ history.user.name }}</strong> changed Status
+                            <strong>{{ history.user.name }}</strong> changed <strong>Status</strong>
                             from <em class="font-bold">{{ history.old_status ? history.old_status.name : '' }}</em>
                             to <em class="font-bold">{{ history.new_status ? history.new_status.name : '' }}</em>
+                            on {{ formatDate(history.created_at) }}.
+                        </p>
+                        <p class="text-sm" v-else>
+                            <strong>{{ history.user.name }}</strong> changed <strong class="capitalize">{{ history.attribute }}</strong>
+                            from <em class="font-bold">{{ history.old_value ? history.old_value : 'null' }}</em>
+                            to <em class="font-bold">{{ history.new_value ? history.new_value : 'null' }}</em>
                             on {{ formatDate(history.created_at) }}.
                         </p>
                     </div>
@@ -413,5 +500,11 @@ const selectTab = (tabName) => {
         <div class="w-full h-2 bg-crystal-blue rounded-full my-4">
             <div :style="{ width: task.progress + '%' }" class="h-full bg-navy-blue rounded-full"></div>
         </div>
+
+        <div v-if="isEdit" class="flex justify-end">
+            <button type="button" class="mr-2 bg-gray-300 text-navy-blue py-2 px-4 rounded" @click="cancelUpdate">Cancel</button>
+            <button type="submit" class="bg-sky-blue text-linen rounded-full py-2 px-4 hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg" @click="updateTask">Save</button>
+        </div>
+
     </div>
 </template>

@@ -63,6 +63,39 @@ class TaskController extends Controller
 
     public function updateTask(Request $request, $id)
     {
+        $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $taskData = Task::find($id);
+
+        $project = Project::findOrFail($taskData->project_id);
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'You do not have permission to update task in this project.',
+            ]);
+        }
+
+        $taskData->title = $request->title;
+        $taskData->due_date = $request->due_date;
+        $taskData->priority = $request->priority;
+        $taskData->save();
+
+        if ($request->labels && count($request->labels) > 0) {
+            $taskData->labels()->detach();
+            $taskData->labels()->attach($request->labels);
+        }
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Task updated successfully',
+        ]);
+
+    }
+
+    public function updateTaskStatus(Request $request, $id)
+    {
         // Find the status based on ID
         $status = Status::find($id);
         if (!$status) {

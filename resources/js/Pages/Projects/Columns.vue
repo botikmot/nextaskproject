@@ -28,7 +28,6 @@ const form = useForm({
     name: '',
 });
 
-let newColumnName = ref(props.column.name)
 let prevTasks = ref(props.column.tasks);
 // Cloned version of tasks to avoid reactive proxies in VueDraggable
 const clonedTasks = computed(() => props.column.tasks.map(task => toRaw(task)));
@@ -87,7 +86,7 @@ const columnHeight = computed(() => {
 
 const updateTasks = async (id, data) => {
     try {
-        const response = await axios.post(`/tasks-update/${id}`, data);
+        const response = await axios.post(`/tasks-update-status/${id}`, data);
         if(!response.data.success){
             Swal.fire({
                 icon: "error",
@@ -117,32 +116,6 @@ const updateTasksOrder = (newTasks) => {
   // Safely update the order of tasks in the column
   props.column.tasks = newTasks.map((task, index) => ({ ...task, index }));
 };
-
-const updateColumn = () => {
-    if (newColumnName.value !== props.column.name && newColumnName.value != '') {
-        // Perform API call to save changes if the name has changed
-        console.log('update columsn', newColumnName.value)
-        form.name = newColumnName.value
-        form.put(`/status-update/${props.column.id}`, {
-            data: form,
-            preserveScroll: true,
-            onSuccess: () => {
-                form.reset()
-                console.log('Successfully updated.')
-            },
-            onError: (error) => {
-                console.error('Error updating column', error)
-            }
-        })
-
-    }
-    isColumnEdit.value = false; // Exit edit mode
-}
-
-const cancelEdit = () => {
-    newColumnName.value = props.column.name
-    isColumnEdit.value = false
-}
 
 const removeColumn = () => {
     console.log('removed')
@@ -182,14 +155,6 @@ const removeColumn = () => {
     <div class="w-[18rem]">
         <div class="flex justify-between">
             <h2 class="text-lg text-navy-blue font-bold mb-4">{{ column.name }}</h2>
-            <!-- <input
-                v-else
-                v-model="newColumnName"
-                type="text"
-                class="text-lg text-navy-blue font-bold mb-4 border border-gray-300 p-2 rounded"
-                @keydown.enter="updateColumn"
-                @blur="cancelEdit"
-            /> -->
             <div class="cursor-pointer relative" v-if="column.user_id == auth_id">
                 <Dropdown align="right" width="48">
                     <template #trigger>
@@ -218,7 +183,7 @@ const removeColumn = () => {
                 @end="onEnd"
                 @update:model-value="updateTasksOrder"
             >
-                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :members="project.users" :completedId="project.completed_status_id" :tasks="project.tasks" />
+                <TaskCard v-for="item in clonedTasks" :key="item.id" :task="item" :labels="labels" :members="project.users" :completedId="project.completed_status_id" :tasks="project.tasks" />
             </VueDraggable>
         
         </div>

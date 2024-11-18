@@ -14,6 +14,7 @@ const props = defineProps({
     members: Object,
     tasks: Object,
     completedId: String,
+    labels: Object,
 });
 
 let isTaskLogOpen = ref(false);
@@ -144,7 +145,7 @@ const totalAttachments = computed(() => {
         </div>
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
-            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks"/>
+            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :labels="labels"/>
         </Modal>
     </div>
 </template>
