@@ -13,7 +13,7 @@ class Status extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
-    protected $fillable = ['name', 'project_id', 'user_id'];
+    protected $fillable = ['name', 'project_id', 'user_id', 'color'];
 
     protected static function boot()
     {

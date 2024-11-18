@@ -13,7 +13,7 @@ class Label extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'color'];
 
     protected static function boot()
     {

@@ -166,7 +166,7 @@ const selectTab = (tabName) => {
                     <tr>
                         <td class="text-gray py-1 pr-3">Labels/Tags:</td>
                         <td class="pl-4 py-1">
-                            <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" class="text-xs text-color-white bg-sky-blue px-2 py-1 ml-1 rounded-full">
+                            <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" :style="{ backgroundColor: tag.color }" class="text-xs px-2 py-1 ml-1 rounded-full">
                                 {{ tag.name }}
                             </span>
                         </td>

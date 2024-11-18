@@ -315,7 +315,10 @@ class TaskController extends Controller
             'name' => 'required|unique:labels|max:255',
         ]);
 
-        Label::create(['name' => $request->name]);
+        Label::create([
+            'name' => $request->name,
+            'color' => $request->color
+        ]);
 
         return redirect()->back()->with([
             'success' => true,
@@ -323,5 +326,21 @@ class TaskController extends Controller
         ]);
     }
 
+    public function updateLabel(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $label = Label::findOrFail($id);
+        $label->name = $request->name;
+        $label->color = $request->color;
+        $label->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Label successfully updated.',
+        ]);
+    }
 
 }
