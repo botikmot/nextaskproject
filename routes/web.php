@@ -83,12 +83,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/task-comment/{id}', [TaskController::class, 'taskComment'])->name('task.comment');
     Route::delete('/task-comment/{id}', [TaskController::class, 'removeComment'])->name('task.commentRemove');
     Route::put('/task-comment/{id}', [TaskController::class, 'updateComment'])->name('task.commentUpdate');
-
+    Route::post('/tasks/label', [TaskController::class, 'storeLabel'])->name('task.storeLabel');
     Route::post('/task/{taskId}/subtask', [TaskController::class, 'createSubtask'])->name('task.createSubtask');
     Route::put('/task/{subtaskId}/subtask', [TaskController::class, 'updateSubtask'])->name('task.updateSubtask');
 
     Route::get('/tasks/{taskId}/can-start', [TaskController::class, 'canStartTask'])->name('task.canStartTask');
     Route::post('/tasks/{taskId}/set-dependency', [TaskController::class, 'setDependency'])->name('task.setDependency');
+
+
 
 });
 

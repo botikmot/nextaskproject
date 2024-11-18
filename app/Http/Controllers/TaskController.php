@@ -10,6 +10,7 @@ use App\Models\Attachment;
 use App\Models\Status;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Label;
 
 class TaskController extends Controller
 {
@@ -41,7 +42,6 @@ class TaskController extends Controller
             'due_date' => $request->due_date,
             'priority' => $request->priority,
             'status' => $request->status,
-            'labels' => $request->labels,
             'index' => $request->index,
         ]);
 
@@ -50,9 +50,11 @@ class TaskController extends Controller
             $task->users()->attach($request->assigned_members);
         }
        
+        if ($request->labels && count($request->labels) > 0) {
+            // Attach users to the task
+            $task->labels()->attach($request->labels);
+       }
 
-
-        //return redirect()->route('projects.index')->with('success', 'Project created successfully!');
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Task created successfully',
@@ -305,6 +307,20 @@ class TaskController extends Controller
             'canStart' => true,
         ];
 
+    }
+
+    public function storeLabel(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|unique:labels|max:255',
+        ]);
+
+        Label::create(['name' => $request->name]);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Label added successfully.',
+        ]);
     }
 
 

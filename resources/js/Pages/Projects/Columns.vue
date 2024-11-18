@@ -21,6 +21,7 @@ const props = defineProps({
     auth_id: String,
     project_id: String,
     project: Object,
+    labels: Object,
 });
 
 const form = useForm({
@@ -230,7 +231,7 @@ const removeColumn = () => {
 
         <!-- Task Modal -->
         <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
-            <NewTaskModal @close="isTaskModalOpen = false" :project_id="project_id" :column_id="columnId" :project="project" :index="column.tasks.length"/>
+            <NewTaskModal @close="isTaskModalOpen = false" :project_id="project_id" :column_id="columnId" :project="project" :labels="labels" :index="column.tasks.length"/>
         </Modal>
         
         <!-- Edit Column Modal -->

@@ -8,9 +8,12 @@ import Columns from './Columns.vue';
 import Modal from '@/Components/Modal.vue';
 import { eventBus } from '../eventBus';
 import Dropdown from '@/Components/Dropdown.vue';
+import NewLabelModal from './NewLabelModal.vue';
 
 let isModalOpen = ref(false);
 let isMemberModalOpen = ref(false);
+let isLabelModalOpen = ref(false)
+
 const isLgScreen = ref(false);
 const isCollapsed = ref(false);
 const taskView = ref(localStorage.getItem('taskView') || 'myTasks');
@@ -19,6 +22,7 @@ const props = defineProps({
   project: Object,
   roles: Object,
   userRole: String,
+  labels: Object,
 });
 
 const page = usePage();
@@ -37,6 +41,10 @@ const openModal = () => {
 
 const openMemberModal = () => {
     isMemberModalOpen.value = true;
+}
+
+const openLabelModal = () => {
+    isLabelModalOpen.value = true;
 }
 
 function checkScreenSize() {
@@ -184,6 +192,9 @@ onBeforeUnmount(() => {
                                 <div @click="openMemberModal" class="hover:bg-crystal-blue px-3 flex items-center py-2">
                                     <i class="fa-solid fa-users-gear"></i> <span class="pl-2 text-sm">Members</span>
                                 </div>
+                                <div @click="openLabelModal" class="hover:bg-crystal-blue px-3 flex items-center py-2">
+                                    <i class="fa-solid fa-tag"></i> <span class="pl-2 text-sm">Labels/Tags</span>
+                                </div>
                                 <div class="hover:bg-crystal-blue px-3 flex items-center py-2">
                                     <i class="fa-solid fa-check-double"></i> <span class="pl-2 text-sm">Completion Indicator</span>
                                 </div>
@@ -217,6 +228,7 @@ onBeforeUnmount(() => {
                     :auth_id="$page.props.auth.user.id"
                     :project_id="project.id"
                     :project="project"
+                    :labels="labels"
                     class="p-4 min-w-72 mr-2 rounded shadow-lg mb-4"
                     :style="{ backgroundColor: column.color }"
                 />
@@ -227,10 +239,15 @@ onBeforeUnmount(() => {
                 <NewColumnModal @close="isModalOpen = false" :project_id="project.id"/>
             </Modal>
             
-            
             <Modal :show="isMemberModalOpen" @close="isMemberModalOpen = false">
                 <AddMemberModal @close="isMemberModalOpen = false" :project_id="project.id" :members="project.users" :roles="roles"/>
             </Modal>
+
+            <Modal :show="isLabelModalOpen" @close="isLabelModalOpen = false">
+                <NewLabelModal :labels="labels" @close="isLabelModalOpen = false" />
+            </Modal>
+
+            
         </div>
     </AuthenticatedLayout>
 </template>

@@ -9,6 +9,7 @@ const props = defineProps({
   column_id: String,
   project: Object,
   index: Number,
+  labels: Object,
 });
 
 const form = useForm({
@@ -17,7 +18,7 @@ const form = useForm({
     due_date: '',
     status: 'To Do',
     priority: 'medium',
-    labels: '',
+    labels: [],
     status_id: props.column_id,
     assigned_members: [],
     index: props.index
@@ -112,14 +113,15 @@ const submitTask = () => {
                 </select>
             </div>
             <div class="mb-4">
-                <label for="labels" class="block text-sm font-medium">Labels <span class="text-xs text-gray pl-1">(e.g., Bug, Feature, Enhancement)</span></label>
-                <input
-                    type="text"
-                    id="labels"
+                <label for="labels" class="block text-sm font-medium">Labels/Tags</label>
+                <select
+                    id="assignedMembers"
                     v-model="form.labels"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
-                    placeholder="Add labels, separated by commas"
-                />
+                    multiple
+                    class="mt-1 block w-full border-gray-300 rounded-md focus:ring focus:ring-sky-blue"
+                >
+                    <option class="text-navy-blue" v-for="label in labels" :key="label.id" :value="label.id">{{ label.name }}</option>
+                </select>
             </div>
 
             <div class="flex justify-end">

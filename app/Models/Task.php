@@ -76,6 +76,9 @@ class Task extends Model
         return $this->hasMany(TaskHistory::class)->orderBy('created_at', 'desc');
     }
 
-
+    public function labels()
+    {
+        return $this->belongsToMany(Label::class, 'task_label');
+    }
 
 }

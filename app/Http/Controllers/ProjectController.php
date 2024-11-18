@@ -9,6 +9,7 @@ use App\Models\Status;
 use App\Models\Task;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Label;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
@@ -42,7 +43,6 @@ class ProjectController extends Controller
             'description' => $request->description,
         ]);
 
-        //return redirect()->route('projects.index')->with('success', 'Project created successfully!');
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Project created successfully',
@@ -59,7 +59,17 @@ class ProjectController extends Controller
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) {
                 $query->orderBy('index');
-                $query->with(['histories.user', 'histories.oldStatus', 'histories.newStatus', 'dependencies', 'status', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
+                $query->with([
+                    'histories.user',
+                    'histories.oldStatus',
+                    'histories.newStatus',
+                    'dependencies',
+                    'status',
+                    'dependentTasks',
+                    'users',
+                    'labels',
+                    'subtasks',
+                    'comments' => function ($query) {
                         $query->with('user', 'attachments'); 
                     }
                 ]);
@@ -81,7 +91,17 @@ class ProjectController extends Controller
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) use ($user_id) {
                 $query->orderBy('index')
-                      ->with(['histories.user', 'histories.oldStatus', 'histories.newStatus', 'dependencies', 'status', 'dependentTasks', 'users', 'subtasks', 'comments' => function ($query) {
+                      ->with([
+                        'histories.user',
+                        'histories.oldStatus',
+                        'histories.newStatus',
+                        'dependencies',
+                        'status',
+                        'dependentTasks',
+                        'users',
+                        'labels',
+                        'subtasks',
+                        'comments' => function ($query) {
                           $query->with('user', 'attachments'); 
                       }])
                       ->where(function ($query) use ($user_id) {
@@ -108,10 +128,12 @@ class ProjectController extends Controller
         $project->progress = $project->progress;
         $user = Auth::user();
         $userRole = $user->mainRoles->pluck('name')->first();
+        $labels = Label::all();
         return Inertia::render('Projects/Board', [
             'project' => $project,
             'roles' => $roles,
             'userRole' => $userRole,
+            'labels' => $labels,
         ]);
     }
 
@@ -120,8 +142,7 @@ class ProjectController extends Controller
         $request->validate([
             'completed_status_id' => 'required|exists:statuses,id',
         ]);
-        //dd($project);
-        //$project->update(['completed_status_id' => $request->completed_status_id]);
+        
         $project = Project::findOrFail($id);
 
         $project->completed_status_id = $request->completed_status_id;

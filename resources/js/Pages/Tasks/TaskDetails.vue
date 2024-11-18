@@ -142,7 +142,7 @@ const selectTab = (tabName) => {
     <div class="bg-color-white rounded-lg shadow-lg p-6 w-full">
         <h3 class="text-2xl text-navy-blue font-semibold mb-4">{{ task.title }}</h3>
 
-        <div class="py-3 block sm:flex justify-between">
+        <div class="pb-3 block sm:flex justify-between">
             <div class="">
                 <table class="text-md">
                     <tr>
@@ -166,8 +166,8 @@ const selectTab = (tabName) => {
                     <tr>
                         <td class="text-gray py-1 pr-3">Labels/Tags:</td>
                         <td class="pl-4 py-1">
-                            <span v-if="task.labels" v-for="(tag, index) in task.labels.split(', ')" :key="index" class="text-xs text-color-white bg-sky-blue px-2 py-1 rounded-full">
-                                {{ tag }}
+                            <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" class="text-xs text-color-white bg-sky-blue px-2 py-1 ml-1 rounded-full">
+                                {{ tag.name }}
                             </span>
                         </td>
                     </tr>
