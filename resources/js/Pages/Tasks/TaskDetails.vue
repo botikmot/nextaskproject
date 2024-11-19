@@ -34,6 +34,7 @@ const form = useForm({
     name: '', // subtasks name
     is_completed: null,
     dependency: null,
+    depends_on_task_id: null,
 });
 
 const formatDate = (date) => {
@@ -154,6 +155,23 @@ const cancelUpdate = () => {
     isEdit.value = false
 }
 
+const removeDependency = (dependency, id) => {
+    console.log(dependency.depends_on_task_id)
+    console.log(id)
+    form.depends_on_task_id = dependency.depends_on_task_id
+    form.post(`/tasks/${id}/remove-dependency`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+        },
+        onError: (error) => {
+            console.error('Error removing dependency', error)           
+        }
+    })
+
+}
+
 /* const getPriorityClass = (priority) => {
   switch (priority) {
     case 'high': return 'bg-[#EF4444]';
@@ -265,7 +283,7 @@ const cancelUpdate = () => {
         <hr class="text-dark-gray"/>
 
         <div>
-            <div class="flex py-2 justify-between">
+            <div class="flex pt-2 justify-between">
                 <label for="setDependency" class="block text-gray font-medium mb-2">Task Dependency:</label>
                 <div class="pl-2 cursor-pointer -mt-1 relative group" @click="isDependencyModalOpen = !isDependencyModalOpen">
                     <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
@@ -293,6 +311,35 @@ const cancelUpdate = () => {
                     </button>
                 </div>
             </div>
+
+            <div class="pb-3">
+                <div class="ml-4 pb-1" v-for="dependency in task.dependencies" :key="dependency.id">
+                    <div class="flex items-center">
+                        <div class="px-3 py-1 text-sm text-linen rounded-full bg-sky-blue">{{ dependency.title }}</div>
+                        <div class="pl-3 text-sm flex items-center italic text-navy-blue">
+                            <span class="font-bold">{{ dependency.status.name }}</span>
+                        </div>
+                        <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm cursor-pointer pl-3 pt-1">
+                            <Dropdown align="right" width="48">
+                                <template #trigger>
+                                    <i class="fa-solid fa-ellipsis"></i>
+                                </template>
+                                <template #content>
+                                    <div
+                                        class="hover:bg-crystal-blue px-3 py-2"
+                                        @click.stop="removeDependency(dependency.pivot, task.id)"
+                                    >
+                                        Remove
+                                    </div>
+                                </template>
+                            </Dropdown>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
         </div>
 
         <hr class="text-dark-gray"/>

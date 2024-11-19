@@ -376,4 +376,27 @@ class TaskController extends Controller
         ]);
     }
 
+    public function removeDependency(Request $request, $taskId)
+    {
+        $dependsOnTaskId = $request->depends_on_task_id;
+        // Validate that the dependency exists
+        $task = Task::findOrFail($taskId);
+        $dependencyExists = $task->dependencies()->where('depends_on_task_id', $dependsOnTaskId)->exists();
+
+        if (!$dependencyExists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'The specified dependency does not exist.',
+            ], 404);
+        }
+        // Remove the dependency
+        $task->dependencies()->detach($dependsOnTaskId);
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Dependency removed successfully.',
+        ]);
+    }
+
+
+
 }
