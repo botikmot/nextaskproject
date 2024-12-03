@@ -118,7 +118,7 @@ const totalAttachments = computed(() => {
                 </Dropdown>
             </div>
         </div>
-        <p class="text-xs text-gray">{{ task.description }}</p>
+        <!-- <p class="text-xs text-gray">{{ task.description }}</p> -->
         <p class="text-xs" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ completedId == task.status_id ? formatDate(task.due_date) : remainingDays(task.due_date) }}</span></p>
         <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
         <div class="flex pt-1">

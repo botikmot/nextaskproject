@@ -1,8 +1,9 @@
 <script setup>
 import { usePage, useForm } from '@inertiajs/vue3'
 import Dropdown from '@/Components/Dropdown.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
+import TaskDescription from './TaskDescription.vue';
 import moment from 'moment';
 import Comments from './Comments.vue';
 
@@ -35,6 +36,7 @@ const form = useForm({
     is_completed: null,
     dependency: null,
     depends_on_task_id: null,
+    description: props.task.description,
 });
 
 const formatDate = (date) => {
@@ -171,6 +173,38 @@ const removeDependency = (dependency, id) => {
     })
 
 }
+
+/* const taskDesc = ref({
+    description: props.task.description,
+}); */
+
+const updateDesc = () => {
+    console.log('description', newDesc.value)
+    form.description = newDesc.value
+    form.put(`/task-description/${props.task.id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+        },
+        onError: (error) => {
+            console.error('Error removing dependency', error)           
+        }
+    })
+
+}
+
+const newDesc = ref(props.task.description);
+
+
+// Watch for changes in task description (prop)
+watch(
+    () => props.task.description,
+    (newValue) => {
+        newDesc.value = newValue; // Keep the reactive description updated
+    }
+);
+
 
 /* const getPriorityClass = (priority) => {
   switch (priority) {
@@ -406,7 +440,7 @@ const removeDependency = (dependency, id) => {
         <div>
             <div class="mb-4 border-b border-dark-gray">
             <ul
-                class="flex flex-wrap -mb-px text-sm font-medium text-center"
+                class="flex flex-wrap -mb-[5px] text-sm font-medium text-center list-none"
                 id="default-tab"
                 role="tablist"
             >
@@ -468,20 +502,15 @@ const removeDependency = (dependency, id) => {
                     role="tabpanel"
                 >
                     <div class="">
-                        <!-- <div class="flex pb-2 justify-end">
-                            <div @click="toggleSubtask" class="pl-2 cursor-pointer -mt-1 relative group">
-                                <i class="fas fa-circle-plus text-xl text-sky-blue"></i>
-                            </div>
-                        </div> -->
                         <div v-for="subtask in task.subtasks" :key="subtask.id" class="flex items-center py-1 space-x-2">
-                            <!-- Checkbox -->
+                            
                             <input
                                 type="checkbox"
                                 :checked="subtask.is_completed"
                                 @change="updateSubtaskStatus(subtask)"
                                 class="form-checkbox h-4 w-4 text-blue-600"
                             />
-                            <!-- Subtask Name -->
+                            
                             <div class="text-sm" :class="{ 'line-through text-gray-500': subtask.is_completed }">
                                 {{ subtask.name }}
                             </div>
@@ -505,13 +534,21 @@ const removeDependency = (dependency, id) => {
                 </div>
                 <div
                     v-show="activeTab === 'description'"
-                    class="p-4 rounded-lg bg-light-gray"
+                    class="rounded-lg bg-light-gray"
                     id="description"
                     role="tabpanel"
                 >
                     <div class="mb-4">
-                        <label for="projectDescription" class="block text-sm font-medium">Description</label>
-                        <textarea id="projectDescription" rows="1" v-model="task.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
+                        <TaskDescription :task="{ description: newDesc }" @update:desc="(value) => (newDesc = value)"/>
+                        <div class="flex pb-2 justify-end pr-2">
+                            <button
+                                @click="updateDesc"
+                                class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                                >
+                                Save
+                            </button>
+                        </div>
+
                     </div>
                 </div>
                 <div

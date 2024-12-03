@@ -82,7 +82,7 @@ onUnmounted(() => {
                 </button>
             </div>
             <nav class="text-linen">
-                <ul class="">
+                <ul class="list-none pl-0">
                     <li class="py-3 pl-6 hover:bg-dark-navy relative group" :class="{'bg-dark-navy text-sky-blue': route().current('dashboard')}">
                         <a :href="route('dashboard')" class="block">
                             <i class="fas fa-home mr-2"></i><span v-if="!isCollapsed">Dashboard</span>

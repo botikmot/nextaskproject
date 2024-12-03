@@ -92,7 +92,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasks/{taskId}/can-start', [TaskController::class, 'canStartTask'])->name('task.canStartTask');
     Route::post('/tasks/{taskId}/set-dependency', [TaskController::class, 'setDependency'])->name('task.setDependency');
     Route::post('/tasks/{taskId}/remove-dependency', [TaskController::class, 'removeDependency'])->name('task.removeDependency');
-
+    Route::put('/task-description/{id}', [TaskController::class, 'updateTaskDescription'])->name('task.taskDescription');
 
 
 });

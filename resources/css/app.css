@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+ul {
+    list-style-type: disc; /* Display bullets */
+    padding-left: 20px; /* Add some indentation */
+    margin: 0; /* Optional: reset margin */
+  }
+  
+  ol {
+    list-style-type: decimal; /* Display numbers */
+    padding-left: 20px; /* Add some indentation */
+    margin: 0; /* Optional: reset margin */
+  }
+  
+  li {
+    margin-bottom: 5px; /* Optional: add spacing between list items */
+  }
+  
+  .ProseMirror-focused {
+    border: none !important; /* Remove border */
+    outline: none !important; /* Remove any focus outline */
+    }
+
+    .ProseMirror {
+        border: none; /* Ensure the base editor also has no border */
+    }

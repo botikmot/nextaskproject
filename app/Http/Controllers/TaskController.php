@@ -397,6 +397,24 @@ class TaskController extends Controller
         ]);
     }
 
+    public function updateTaskDescription(Request $request, $taskId)
+    {
+        $request->validate([
+            'description' => 'required',
+        ]);
+
+        $task = Task::findOrFail($taskId);
+
+        $task->description = $request->description;
+        $task->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Task updated successfully',
+        ]);
+
+    }
+
 
 
 }
