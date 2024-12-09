@@ -114,7 +114,7 @@ onBeforeUnmount(() => {
 <template>
     <Head :title="`${project.title}`" />
 
-    <AuthenticatedLayout :pageTitle="`${project.title} - Kanban Board (${project.progress}%)`">
+    <AuthenticatedLayout :pageTitle="`Board - ${project.title} (${project.progress}%)`">
         <div class="w-full bg-crystal-blue p-4">
             <div class="justify-between flex mb-2">
                 <div class="flex items-center">

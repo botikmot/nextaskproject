@@ -3,6 +3,7 @@
 import { usePage, useForm } from '@inertiajs/vue3'
 import { ref, computed } from 'vue';
 import Dropdown from '@/Components/Dropdown.vue';
+import moment from 'moment';
 
 const props = defineProps({
     task: Object,
@@ -122,15 +123,24 @@ const getFileExtension = (filename) => {
     return filename.split('.').pop();
 }
 
+const formatDate = (date) => {
+    return moment(date).fromNow()
+}
+
 </script>
 
 <template>
     <div v-if="task.comments.length" class="">
-        <div class="items-center border-b border-dark-gray py-1" v-for="comment in task.comments" :key="comment.id">
-            <div class="flex relative items-center justify-between">
-                <div class="flex">
-                    <img :src="'/' + comment.user.profile_image" alt="Profile" class="w-7 h-7 rounded-full border-2 border-color-white" />
-                    <div class="text-sm pl-1 pt-1" v-html="comment.content.replace(/\n/g, '<br>')"></div>
+        <div class="items-center border-b border-dark-gray py-2" v-for="comment in task.comments" :key="comment.id">
+            <div class="flex py-1 relative border-b border-dark-gray items-center justify-between">
+                <div>
+                    <div class="flex">
+                        <img :src="'/' + comment.user.profile_image" alt="Profile" class="w-8 h-8 rounded-full border-2 border-color-white" />
+                        <div class="pl-2">
+                            <div class="font-bold text-sm">{{ comment.user.name }}</div>
+                            <div class="text-xs">{{ formatDate(comment.created_at) }}</div>
+                        </div>
+                    </div>
                 </div>
                 <div v-if="comment.user_id == $page.props.auth.user.id" class="text-sm cursor-pointer right-0 top-3">
                     <Dropdown align="right" width="48">
@@ -154,6 +164,7 @@ const getFileExtension = (filename) => {
                     </Dropdown>
                 </div>
             </div>
+            <div class="text-sm pl-2 pt-1" v-html="comment.content.replace(/\n/g, '<br>')"></div>
             <div class="flex py-3 pl-10" v-if="comment.attachments.length">
                 <div class="pl-2" v-for="attachment in comment.attachments" :key="attachment.id">
                     <div v-if="isImage(attachment)" class="max-w-36">

@@ -122,13 +122,19 @@ const totalAttachments = computed(() => {
         <p class="text-xs" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ completedId == task.status_id ? formatDate(task.due_date) : remainingDays(task.due_date) }}</span></p>
         <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
         <div class="flex pt-1">
-            <div v-if="task.comments.length" class="flex items-center">
+            <div v-if="task.comments.length" class="flex items-center pr-3">
                 <i class="fa-solid fa-comment text-gray text-sm"></i>
-                <span class="text-gray pl-1 text-sm">{{ task.comments.length }}</span>
+                <span class="text-gray pl-1 text-xs">{{ task.comments.length }}</span>
             </div>
-            <div v-if="totalAttachments > 0" class="flex items-center pl-3">
+            <div v-if="totalAttachments > 0" class="flex items-center pr-3">
                 <i class="fa-solid fa-paperclip text-gray text-sm"></i>
-                <span class="text-gray pl-1 text-sm">{{ totalAttachments }}</span>
+                <span class="text-gray pl-1 text-xs">{{ totalAttachments }}</span>
+            </div>
+            <div v-if="task.subtasks.length > 0" class="flex items-center pr-3">
+                <i class="fa-solid fa-list-check text-gray text-sm"></i>
+                <span class="text-gray pl-1 text-xs">
+                    {{ task.subtasks.filter(subtask => subtask.is_completed).length }}/{{ task.subtasks.length }}
+                </span>
             </div>
         </div>
         <div class="absolute flex items-center bottom-2 right-4">
