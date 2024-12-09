@@ -15,11 +15,41 @@ defineProps({
 });
 
 const user = usePage().props.auth.user;
+let imgURL = user.profile_image
 
 const form = useForm({
     name: user.name,
     email: user.email,
+    profile_image: user.profile_image
 });
+
+
+const handleFileUpload = (event) => {
+    form.profile_image = event.target.files[0];
+    imgURL = URL.createObjectURL(form.profile_image);
+};
+
+const submitForm = () => {
+    // Create a new FormData object
+    const formData = new FormData();
+
+    // Append form fields to the FormData object
+    formData.append('name', form.name);
+    formData.append('email', form.email);
+
+    // Append the profile photo if it exists
+    if (form.profile_image) {
+        formData.append('profile_image', form.profile_image);
+    }
+
+    // Submit the form with FormData
+    form.post(route('profile.update'), {
+        forceFormData: true,
+        onFinish: () => form.reset('profile_image'),
+    });
+};
+
+
 </script>
 
 <template>
@@ -35,9 +65,29 @@ const form = useForm({
         </header>
 
         <form
-            @submit.prevent="form.patch(route('profile.update'))"
+            @submit.prevent="submitForm"
             class="mt-6 space-y-6"
         >
+            <div>
+                <InputLabel for="profile_photo" value="Profile Photo" />
+
+                <img
+                    v-if="form.profile_image"
+                    :src="imgURL"
+                    alt="Profile Photo"
+                    class="block w-52 h-auto"
+                />
+
+                <input
+                    id="profile_photo"
+                    type="file"
+                    class="mt-1 block w-full"
+                    @change="handleFileUpload"
+                />
+
+                <InputError class="mt-2" :message="form.errors.profile_photo" />
+            </div>
+
             <div>
                 <InputLabel for="name" value="Name" />
 

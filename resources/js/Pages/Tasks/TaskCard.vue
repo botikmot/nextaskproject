@@ -139,7 +139,7 @@ const totalAttachments = computed(() => {
         </div>
         <div class="absolute flex items-center bottom-2 right-4">
             <div v-for="(member, index) in task.users.slice(0, 4)" :key="member.id" class="relative -mr-3">
-                <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 rounded-full border-2 border-color-white" />
+                <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 object-cover rounded-full border-2 border-color-white" />
             </div>
             <div v-if="task.users.length > 4" class="flex items-center text-navy-blue ml-3">
                 <span class="text-sm font-bold">+{{ task.users.length - 4 }}</span>

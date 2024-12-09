@@ -128,7 +128,7 @@ const formatDate = (date) => {
                                 <div class="pt-2 flex justify-start">
                                     <div class="relative flex items-center">
                                         <div v-for="(member, index) in project.users.slice(0, 5)" :key="member.id" class="relative -mr-3">
-                                            <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full border-2 border-color-white" />
+                                            <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
                                         </div>
                                         
                                         <div v-if="project.users.length > 5" class="flex items-center text-navy-blue ml-6">

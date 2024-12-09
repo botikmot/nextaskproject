@@ -388,7 +388,7 @@ watch(
                     <Dropdown align="right" width="40">
                         <template #trigger>
                             <div class="flex cursor-pointer">
-                                <img :src="'/' + user.profile_image" alt="User Avatar" class="w-7 h-7 rounded-full border-2 border-color-white" />
+                                <img :src="'/' + user.profile_image" alt="User Avatar" class="w-7 h-7 rounded-full border-2 object-cover border-color-white" />
                                 <span class="text-sm flex items-center text-navy-blue pl-1">{{ user.name }}</span>
                             </div>
                         </template>
