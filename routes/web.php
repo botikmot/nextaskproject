@@ -88,6 +88,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/tasks/label/{id}', [TaskController::class, 'updateLabel'])->name('task.updateLabel');
     Route::post('/task/{taskId}/subtask', [TaskController::class, 'createSubtask'])->name('task.createSubtask');
     Route::put('/task/{subtaskId}/subtask', [TaskController::class, 'updateSubtask'])->name('task.updateSubtask');
+    Route::delete('/task/{subtaskId}/subtask', [TaskController::class, 'removeSubtask'])->name('task.removeSubtask');
 
     Route::get('/tasks/{taskId}/can-start', [TaskController::class, 'canStartTask'])->name('task.canStartTask');
     Route::post('/tasks/{taskId}/set-dependency', [TaskController::class, 'setDependency'])->name('task.setDependency');

@@ -307,6 +307,17 @@ class TaskController extends Controller
 
     }
 
+    public function removeSubtask($subtaskId)
+    {
+        $subtask = Subtask::findOrFail($subtaskId);
+        $subtask->delete();
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Subtask successfully deleted.',
+        ]);
+    }
+
+
 
     public function setDependency(Request $request, $taskId)
     {

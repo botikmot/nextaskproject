@@ -4,8 +4,10 @@ import Dropdown from '@/Components/Dropdown.vue';
 import { ref, computed, watch } from 'vue';
 import TextInput from '@/Components/TextInput.vue';
 import TaskDescription from './TaskDescription.vue';
+import SubTasks from './SubTasks.vue';
 import moment from 'moment';
 import Comments from './Comments.vue';
+import Swal from 'sweetalert2';
 
 let isMemberModalOpen = ref(false);
 let showSubtask = ref(false)
@@ -81,42 +83,6 @@ const removeUser = (id) => {
     })
 }
 
-const submitSubtask = () => {
-    console.log(form.subtask)
-
-    form.post(`/task/${props.task.id}/subtask`, {
-        data: form,
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
-            showSubtask.value = false
-            form.subtask = ''
-        },
-        onError: (error) => {
-            console.error('Error adding subtasks', error)
-        }
-    })
-
-}
-
-const updateSubtaskStatus = (subtask) => {
-    console.log('subtask', subtask)
-    subtask.is_completed = !subtask.is_completed;
-
-    form.name = subtask.name
-    form.is_completed = subtask.is_completed
-    form.put(`/task/${subtask.id}/subtask`, {
-        data: form,
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
-        },
-        onError: (error) => {
-            console.error('Error updating subtasks', error)           
-        }
-    })
-}
-
 const addDependency = () => {
     console.log('dependencies', form.dependency)
     console.log('task_id', props.task.id)
@@ -174,18 +140,23 @@ const removeDependency = (dependency, id) => {
 
 }
 
-/* const taskDesc = ref({
-    description: props.task.description,
-}); */
-
 const updateDesc = () => {
-    console.log('description', newDesc.value)
     form.description = newDesc.value
     form.put(`/task-description/${props.task.id}`, {
         data: form,
         preserveScroll: true,
         onSuccess: () => {
             form.reset()
+            Swal.fire({
+                text: "Description successfully saved!",
+                position: 'bottom-end',
+                backdrop: false,
+                timer: 2000,
+                showConfirmButton: false,
+                toast:true,
+                icon: 'success',
+            });
+
         },
         onError: (error) => {
             console.error('Error removing dependency', error)           
@@ -497,30 +468,18 @@ watch(
             <div id="default-tab-content">
                 <div
                     v-show="activeTab === 'subtask'"
-                    class="p-4 rounded-lg bg-light-gray"
+                    class="rounded-lg"
                     id="subtask"
                     role="tabpanel"
                 >
                     <div class="">
-                        <div v-for="subtask in task.subtasks" :key="subtask.id" class="flex items-center py-1 space-x-2">
-                            
-                            <input
-                                type="checkbox"
-                                :checked="subtask.is_completed"
-                                @change="updateSubtaskStatus(subtask)"
-                                class="form-checkbox h-4 w-4 text-blue-600"
-                            />
-                            
-                            <div class="text-sm" :class="{ 'line-through text-gray-500': subtask.is_completed }">
-                                {{ subtask.name }}
-                            </div>
-                        </div>
-                        <TextInput
+                        <SubTasks :task="task"/>
+                        <!-- <TextInput
                             placeholder="Enter subtask here..."
                             v-model="form.subtask"
                             class="mt-4 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
                             @keyup.enter="submitSubtask"
-                        />
+                        /> -->
                     </div>
 
                 </div>
@@ -557,17 +516,17 @@ watch(
                     id="history"
                     role="tabpanel"
                 >
-                    <div class="py-1" v-if="task.histories.length" v-for="history in task.histories" :key="history.id">
-                        <p class="text-sm" v-if="history.attribute == 'status_id'">
+                    <div class="py-2" v-if="task.histories.length" v-for="history in task.histories" :key="history.id">
+                        <p class="text-xs" v-if="history.attribute == 'status_id'">
                             <strong>{{ history.user.name }}</strong> changed <strong>Status</strong>
                             from <em class="font-bold">{{ history.old_status ? history.old_status.name : '' }}</em>
                             to <em class="font-bold">{{ history.new_status ? history.new_status.name : '' }}</em>
                             on {{ formatDate(history.created_at) }}.
                         </p>
-                        <p class="text-sm" v-else>
+                        <p class="text-xs" v-else>
                             <strong>{{ history.user.name }}</strong> changed <strong class="capitalize">{{ history.attribute }}</strong>
-                            from <em class="font-bold">{{ history.old_value ? history.old_value : 'null' }}</em>
-                            to <em class="font-bold">{{ history.new_value ? history.new_value : 'null' }}</em>
+                            from <em class="font-bold" v-html="history.old_value ? history.old_value : 'null'"></em>
+                            to <em class="font-bold" v-html="history.new_value ? history.new_value : 'null'"></em>
                             on {{ formatDate(history.created_at) }}.
                         </p>
                     </div>

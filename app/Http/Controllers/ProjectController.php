@@ -56,7 +56,7 @@ class ProjectController extends Controller
         $roles = Role::all();
         if($request->filter == 'all'){
             $project = Project::with(['statuses' => function ($query) {
-                    $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
+                    $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at asc
                 }, 'statuses.tasks' => function ($query) {
                 $query->orderBy('index');
                 $query->with([
@@ -68,7 +68,9 @@ class ProjectController extends Controller
                     'dependentTasks',
                     'users',
                     'labels',
-                    'subtasks',
+                    'subtasks' => function ($subtaskQuery) {
+                        $subtaskQuery->orderBy('created_at', 'asc');
+                    },
                     'comments' => function ($query) {
                         $query->with('user', 'attachments'); 
                     }
@@ -100,7 +102,9 @@ class ProjectController extends Controller
                         'dependentTasks',
                         'users',
                         'labels',
-                        'subtasks',
+                        'subtasks' => function ($subtaskQuery) {
+                            $subtaskQuery->orderBy('created_at', 'asc');
+                        },
                         'comments' => function ($query) {
                           $query->with('user', 'attachments'); 
                       }])
