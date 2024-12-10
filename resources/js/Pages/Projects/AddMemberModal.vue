@@ -117,7 +117,7 @@ const assignedRole = (roleId, memberId) => {
                         <td class="border border-dark-gray">
                             <div class="flex items-center">
                                 <div>
-                                    <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 rounded-full border-2 border-color-white" />
+                                    <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 rounded-full object-cover border-2 border-color-white" />
                                 </div>
                                 <div class="pl-1">{{ member.name }}</div>
                             </div>

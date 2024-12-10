@@ -9,10 +9,12 @@ import Modal from '@/Components/Modal.vue';
 import { eventBus } from '../eventBus';
 import Dropdown from '@/Components/Dropdown.vue';
 import NewLabelModal from './NewLabelModal.vue';
+import CompletionIndicator from './CompletionIndicator.vue';
 
 let isModalOpen = ref(false);
 let isMemberModalOpen = ref(false);
 let isLabelModalOpen = ref(false)
+let isCompletionModalOpen = ref(false)
 
 const isLgScreen = ref(false);
 const isCollapsed = ref(false);
@@ -28,7 +30,7 @@ const props = defineProps({
 const page = usePage();
 console.log('project', props.project)
 console.log('userRole', props.userRole)
-const selectedCompletedStatus = ref(props.project.completed_status_id);
+//const selectedCompletedStatus = ref(props.project.completed_status_id);
 const form = useForm({
     filter: '',
     user_id: null,
@@ -61,7 +63,7 @@ const containerWidth = computed(() => {
     //return 'calc(100vw - 60px)'; 
 });
 
-const updateCompletedStatus = () => {
+/* const updateCompletedStatus = () => {
     console.log('selectedCompletedStatus', selectedCompletedStatus.value)
     form.completed_status_id = selectedCompletedStatus.value
     form.post(`/projects/${props.project.id}/update-completed-status`, {
@@ -75,7 +77,7 @@ const updateCompletedStatus = () => {
             console.error('Error updating project', error)
         }
     })
-}
+} */
 
 const filterTasks = () => {
     form.filter = taskView.value
@@ -195,7 +197,7 @@ onBeforeUnmount(() => {
                                 <div @click="openLabelModal" class="hover:bg-crystal-blue px-3 flex items-center py-2">
                                     <i class="fa-solid fa-tag"></i> <span class="pl-2 text-sm">Labels/Tags</span>
                                 </div>
-                                <div class="hover:bg-crystal-blue px-3 flex items-center py-2">
+                                <div @click="isCompletionModalOpen = true" class="hover:bg-crystal-blue px-3 flex items-center py-2">
                                     <i class="fa-solid fa-check-double"></i> <span class="pl-2 text-sm">Completion Indicator</span>
                                 </div>
                             </template>
@@ -247,6 +249,9 @@ onBeforeUnmount(() => {
                 <NewLabelModal :labels="labels" @close="isLabelModalOpen = false" />
             </Modal>
 
+            <Modal :show="isCompletionModalOpen" @close="isCompletionModalOpen = false">
+                <CompletionIndicator :project="project" @close="isCompletionModalOpen = false" />
+            </Modal>
             
         </div>
     </AuthenticatedLayout>
