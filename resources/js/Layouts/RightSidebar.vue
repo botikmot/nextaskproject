@@ -26,7 +26,7 @@ const createTask = async () => {
 
 <template>
     <div class="mb-6 text-lg font-semibold text-gray-800 dark:text-gray-100">Quick Actions </div>
-    <button @click="createTask" class="block w-full mb-4 py-2 text-linen bg-sky-blue rounded-full hover:bg-navy-blue">Create New Task</button>
+    <button @click="createTask" class="block w-full mb-4 py-2 text-linen hover:font-bold bg-sky-blue rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg">Create New Task</button>
     <!-- <button class="block w-full mb-4 py-2 text-white bg-blue-500 rounded">Join Meeting</button> -->
     <div class="mt-6">
         <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-2">People You May Know</h3>

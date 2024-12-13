@@ -207,8 +207,8 @@ watch(
                 v-model="form.title"
                 class="block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
             />
-            <div v-if="task.user_id == $page.props.auth.user.id">
-                <div @click="isEdit = true" class="px-3 cursor-pointer py-1 relative group">
+            <div v-if="task.user_id == $page.props.auth.user.id || task.users.some(user => user.id === $page.props.auth.user.id)">
+                <div @click="isEdit = !isEdit" class="px-3 cursor-pointer py-1 relative group">
                     <i class="fa-regular fa-pen-to-square text-lg text-gray"></i>
                     <span class="absolute top-full mt-1 right-0 transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
                         Edit
@@ -223,7 +223,7 @@ watch(
                 <table class="text-md">
                     <tr>
                         <td class="text-gray py-1 pr-3">Status:</td>
-                        <td class="pl-4 py-1"><span class="text-xs py-1 px-3 rounded-full" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span></td>
+                        <td class="pl-4 py-1"><span class="text-xs py-1 px-3 border border-dark-gray rounded-full" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span></td>
                     </tr>
                     <tr>
                         <td class="text-gray py-1 pr-3">Due Date:</td>

@@ -127,7 +127,7 @@ onMounted(() => {
                         task.priority === 'high' ? 'High Priority' : ''
                     ]">
                 </i> -->
-                <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
+                <h3 :class="`${ completedId == task.status.id ? 'line-through' : '' } text-md text-navy-blue font-semibold`">{{ task.title }}</h3>
             </div>
             <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm " @click.stop>
                 <Dropdown align="right" width="48">
@@ -150,7 +150,7 @@ onMounted(() => {
         <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
         <div class="flex pt-1">
             <div v-if="task.subtasks && task.subtasks.length" class="flex items-center pr-3">
-                <span class="text-gray text-xs">Progress: {{ task.progress }}%</span>
+                <span class="text-red-warning text-xs font-bold">Progress: {{ task.progress }}%</span>
             </div>
             <div v-if="task.comments && task.comments.length" class="flex items-center pr-3">
                 <i class="fa-solid fa-comment text-gray text-sm"></i>
@@ -182,8 +182,13 @@ onMounted(() => {
 
         <div class="pt-2 flex items-center" v-if="isTaskPage">
             <div class="text-xs font-bold pr-2">{{ task.project.title }}</div>
+            <span v-if="task.priority == 'high'" class="text-xs px-3 mr-1 py-1 bg-red-warning text-color-white rounded-full">Priority</span>
             <span class="text-xs px-3 py-1 rounded-full border border-dark-gray" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span>
         </div>
+        <div v-else>
+            <span v-if="task.priority == 'high'" class="text-xs px-3 py-1 bg-red-warning text-color-white rounded-full">Priority</span>
+        </div>
+        
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
             <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :labels="labels"/>

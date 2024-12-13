@@ -75,7 +75,7 @@ onMounted(() => {
 
 <template>
     <div class="bg-color-white rounded-lg shadow-lg p-6 w-full">
-        <h3 class="text-lg text-navy-blue font-semibold mb-4">Add Task</h3>
+        <h3 class="text-lg text-navy-blue font-semibold mb-4">New Task</h3>
         <form @submit.prevent="createTask">
 
             <div v-if="!hideSidebar">

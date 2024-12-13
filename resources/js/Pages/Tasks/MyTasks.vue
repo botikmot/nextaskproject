@@ -37,7 +37,7 @@ console.log('tasks', props.tasks)
                 <section 
                     class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3 gap-4 items-start"
                 >
-                    <TaskCard v-for="(item, index) in tasks" :key="item.id" :task="item" :tasks="item.project.tasks" :members="item.project.users" />
+                    <TaskCard v-for="(item, index) in tasks" :key="item.id" :task="item" :tasks="item.project.tasks" :completedId="item.project.completed_status_id" :members="item.project.users" />
                 </section>
             </div>
         </div>

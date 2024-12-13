@@ -32,7 +32,7 @@ const submitProject = () => {
 </script>
 
 <template>
-    <div class="bg-linen rounded-lg shadow-lg p-6 w-11/12 lg:w-1/3">
+    <div class="bg-linen rounded-lg shadow-lg p-6">
         <h3 class="text-lg text-navy-blue font-semibold mb-4">Create New Project</h3>
         <form @submit.prevent="createProject">
             <div class="mb-4">

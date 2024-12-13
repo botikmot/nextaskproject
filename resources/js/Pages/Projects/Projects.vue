@@ -7,6 +7,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import { useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
 import moment from 'moment';
+import Modal from '@/Components/Modal.vue';
 
 let isModalOpen = ref(false);
 
@@ -190,7 +191,7 @@ const formatDate = (date) => {
             </section>
         </div>
 
-        <div v-else class="flex flex-col space-y-6 w-full">
+        <div v-else class="flex flex-col space-y-6 w-full bg-linen p-4">
             <section>
                 <!-- <h1 class="text-2xl text-sky-blue font-semibold">My Projects</h1> -->
                 <p class="text-navy-blue text-xl mt-3">
@@ -203,8 +204,7 @@ const formatDate = (date) => {
             </section>
 
             <!-- No Projects Section for Newly Registered User -->
-            <section class="flex-1 bg-white p-4 shadow rounded">
-                <h2 class="text-lg font-semibold mb-2 text-navy-blue">You currently have no projects</h2>
+            <section class="flex-1">
                 <p class="text-navy-blue mb-4">
                     Start your journey by creating a new project!
                 </p>
@@ -218,9 +218,11 @@ const formatDate = (date) => {
         </div>
 
         <!-- Modal -->
-        <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+        <!-- <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"> -->
+        <Modal :show="isModalOpen" @close="isModalOpen = false">
             <CreateProjectModal @close="isModalOpen = false"/>
-        </div>
+        </Modal>
+        <!-- </div> -->
 
     </AuthenticatedLayout>
 </template>
