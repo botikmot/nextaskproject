@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref, defineEmits, computed, onMounted } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
 const emit = defineEmits();
@@ -7,10 +7,14 @@ const emit = defineEmits();
 const props = defineProps({
   project_id: String,
   column_id: String,
+  projects: Array,
   project: Object,
   index: Number,
   labels: Object,
 });
+
+const statuses = ref([])
+const project_id = ref(null)
 
 const form = useForm({
     title: '',
@@ -21,19 +25,25 @@ const form = useForm({
     labels: [],
     status_id: props.column_id,
     assigned_members: [],
-    index: props.index
+    index: props.index,
+    project: null,
 });
 
+const hideSidebar = computed(() => route().current('project.show'));
 
 const cancel = () => {
     emit('close');
 }
 
 const submitTask = () => {    
+    
+    let projectId = props.project_id ? props.project_id : project_id.value
+    
+    if(!projectId){
+        return
+    }
 
-    console.log(form)
-
-    form.post(`/task/${props.project_id}`, {
+    form.post(`/task/${projectId}`, {
         data: form,
         preserveScroll: true,
         onSuccess: () => {
@@ -51,12 +61,50 @@ const submitTask = () => {
     })
 }
 
+const selectProject = () => {
+    statuses.value = form.project.statuses
+    project_id.value = form.project.id
+    form.status_id = form.project.statuses[0].id
+}
+
+onMounted(() => {
+    form.assigned_members.push(usePage().props.auth.user.id)
+});
+
 </script>
 
 <template>
     <div class="bg-color-white rounded-lg shadow-lg p-6 w-full">
         <h3 class="text-lg text-navy-blue font-semibold mb-4">Add Task</h3>
         <form @submit.prevent="createTask">
+
+            <div v-if="!hideSidebar">
+                <div class="mb-4">
+                    <label for="status" class="block text-sm font-medium">Projects</label>
+                    <select
+                        id="status"
+                        v-model="form.project"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                        @change="selectProject"
+                        required
+                    >
+                        <option v-for="project in projects" :key="project.id" :value="project">{{ project.title }}</option>
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="status" class="block text-sm font-medium">Status/Column</label>
+                    <select
+                        id="status"
+                        v-model="form.status_id"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                        required
+                    >
+                        <option v-for="status in statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="mb-4">
                 <label for="projectName" class="block text-sm font-medium">Task Name</label>
                 <input type="text" id="projectName" v-model="form.title" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue" required>
@@ -104,6 +152,7 @@ const submitTask = () => {
             <div class="mb-4">
                 <label for="assignedMembers" class="block text-sm font-medium">Assigned Members</label>
                 <select
+                    v-if="hideSidebar"
                     id="assignedMembers"
                     v-model="form.assigned_members"
                     multiple

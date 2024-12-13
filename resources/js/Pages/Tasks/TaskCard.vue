@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { usePage, useForm } from '@inertiajs/vue3'
 import TaskDetails from './TaskDetails.vue';
 import Modal from '@/Components/Modal.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 
 const props = defineProps({
@@ -22,6 +22,8 @@ let isTaskLogOpen = ref(false);
 const formatDate = (date) => {
     return moment(date).fromNow()
 }
+
+const isTaskPage = ref(false);
 
 const form = useForm({
     id: props.task.id,
@@ -40,9 +42,23 @@ const confirmDelete = (id) => {
             form.delete(`/task-remove/${form.id}`, {
                 data: form,
                 preserveScroll: true,
-                onSuccess: () => {
-                    form.reset()
-                    console.log('Successfully deleted.')
+                onSuccess: (response) => {
+                    console.log(response.props.flash.success)
+                    if(response.props.flash.success){
+                        form.reset()
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'The task has been successfully deleted.',
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            //title: 'Deleted!',
+                            text: response.props.flash.message,
+                        });
+                    }
+                    
                 },
                 onError: (error) => {
                     console.error('Error deleting task', error)
@@ -77,9 +93,20 @@ const remainingDays = (due_date) => {
 }
 
 const totalAttachments = computed(() => {
+    if(props.task.comments){
     return props.task.comments.reduce((sum, comment) => {
         return sum + (comment.attachments ? comment.attachments.length : 0);
     }, 0);
+    }else {
+        return 0
+    }
+});
+
+onMounted(() => {
+  // Add a slight delay to ensure Inertia updates the title
+  setTimeout(() => {
+    isTaskPage.value = document.title.includes('Tasks');
+  }, 100); // 100ms delay
 });
 
 </script>
@@ -122,7 +149,10 @@ const totalAttachments = computed(() => {
         <p class="text-xs" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ completedId == task.status_id ? formatDate(task.due_date) : remainingDays(task.due_date) }}</span></p>
         <p class="text-sm text-gray text-xs">Created {{ formatDate(task.created_at) }}</p>
         <div class="flex pt-1">
-            <div v-if="task.comments.length" class="flex items-center pr-3">
+            <div v-if="task.subtasks && task.subtasks.length" class="flex items-center pr-3">
+                <span class="text-gray text-xs">Progress: {{ task.progress }}%</span>
+            </div>
+            <div v-if="task.comments && task.comments.length" class="flex items-center pr-3">
                 <i class="fa-solid fa-comment text-gray text-sm"></i>
                 <span class="text-gray pl-1 text-xs">{{ task.comments.length }}</span>
             </div>
@@ -130,14 +160,14 @@ const totalAttachments = computed(() => {
                 <i class="fa-solid fa-paperclip text-gray text-sm"></i>
                 <span class="text-gray pl-1 text-xs">{{ totalAttachments }}</span>
             </div>
-            <div v-if="task.subtasks.length > 0" class="flex items-center pr-3">
+            <div v-if="task.subtasks && task.subtasks.length > 0" class="flex items-center pr-3">
                 <i class="fa-solid fa-list-check text-gray text-sm"></i>
                 <span class="text-gray pl-1 text-xs">
                     {{ task.subtasks.filter(subtask => subtask.is_completed).length }}/{{ task.subtasks.length }}
                 </span>
             </div>
         </div>
-        <div class="absolute flex items-center bottom-2 right-4">
+        <div v-if="task.users" class="absolute flex items-center bottom-2 right-4">
             <div v-for="(member, index) in task.users.slice(0, 4)" :key="member.id" class="relative -mr-3">
                 <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 object-cover rounded-full border-2 border-color-white" />
             </div>
@@ -146,8 +176,13 @@ const totalAttachments = computed(() => {
             </div>
         </div>
         <!-- Progress Bar -->
-        <div v-if="task.subtasks.length" class="w-full h-2 bg-crystal-blue rounded-full my-1">
-            <div :style="{ width: task.progress + '%' }" class="h-full bg-sky-blue rounded-full"></div>
+        <div v-if="task.subtasks && task.subtasks.length" class="w-full h-2 bg-crystal-blue absolute rounded-tr rounded-tl -top-1 left-0 my-1">
+            <div :style="{ width: task.progress + '%' }" :class="`h-full bg-sky-blue rounded-tl ${ task.progress == 100 ? 'rounded-tr' : ''}`"></div>
+        </div>
+
+        <div class="pt-2 flex items-center" v-if="isTaskPage">
+            <div class="text-xs font-bold pr-2">{{ task.project.title }}</div>
+            <span class="text-xs px-3 py-1 rounded-full border border-dark-gray" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span>
         </div>
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">

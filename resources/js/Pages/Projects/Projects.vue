@@ -122,7 +122,7 @@ const formatDate = (date) => {
                         <hr class="pb-3 text-gray"/>
                         <div class="flex">
                             <div class="w-1/2 text-navy-blue">
-                                <h3 class="text-md font-medium">{{ project.description }}</h3>
+                                <!-- <h3 class="text-md font-medium">{{ project.description }}</h3> -->
                                 <p class="text-sm">Created: {{ formatDate(project.created_at) }}</p>
                                 <p class="text-sm">Members: {{  project.users.length }}</p>
                                 <div class="pt-2 flex justify-start">
@@ -140,7 +140,7 @@ const formatDate = (date) => {
                             <div class="w-1/2 flex justify-center">
                                 <div class="text-sky-blue">
                                     <div class="text-5xl font-bold">{{ project.progress }}%</div>
-                                    <div class="text-center text-gray">Complete</div>
+                                    <div class="text-center text-gray">Progress</div>
                                 </div>
                             </div>
                         </div>

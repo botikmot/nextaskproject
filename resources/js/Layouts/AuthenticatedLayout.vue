@@ -7,18 +7,22 @@ import { Link, usePage } from '@inertiajs/vue3';
 import AuthImage from '@/Components/AuthImage.vue'
 import ApplicationLogoAlt from '@/Components/ApplicationLogoAlt.vue';
 import { eventBus } from '@/Pages/eventBus';
+import RightSidebar from './RightSidebar.vue';
 
 let showingNavigationDropdown = ref(false);
 const isLargeScreen = ref(false);
 
-defineProps({
+const props = defineProps({
     pageTitle: {
         type: String,
         default: 'Dashboard',
     },
+    projects: {
+        type: Object,
+    }
 });
 const page = usePage();
-
+console.log('projects',props.projects)
 const isCollapsed = ref(false);
 
 const toggleLeftSidebar = () => {
@@ -257,13 +261,7 @@ onUnmounted(() => {
 
         <!-- Right Sidebar (Hidden on Mobile) -->
         <aside v-if="!hideSidebar" class="w-full lg:w-64 bg-color-white p-4 dark:bg-gray-800 hidden xl:block">
-            <div class="mb-6 text-lg font-semibold text-gray-800 dark:text-gray-100">Quick Actions </div>
-            <button class="block w-full mb-4 py-2 text-linen bg-sky-blue rounded-full">Create New Task</button>
-            <!-- <button class="block w-full mb-4 py-2 text-white bg-blue-500 rounded">Join Meeting</button> -->
-            <div class="mt-6">
-                <h3 class="font-semibold text-gray-800 dark:text-gray-100 mb-2">People You May Know</h3>
-                <!-- Placeholder for connection suggestions -->
-            </div>
+            <RightSidebar :projects="projects"/>
         </aside>
     </div>
 </template>

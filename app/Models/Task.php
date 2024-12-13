@@ -13,6 +13,8 @@ class Task extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
+    protected $appends = ['progress'];
+
     protected $fillable = ['title', 'description', 'user_id', 'project_id', 'status_id', 'priority', 'index', 'due_date', 'status', 'labels'];
 
     protected static function boot()

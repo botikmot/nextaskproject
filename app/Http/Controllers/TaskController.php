@@ -61,6 +61,27 @@ class TaskController extends Controller
         ]);
     }
 
+    public function getTasks()
+    {
+        $projects = Project::where('user_id', auth()->id()) // Check if the user is the creator
+            ->orWhereHas('users', function ($query) {
+                $query->where('user_id', auth()->id()); // Check if the user is a member
+            })
+            ->with(['users', 'statuses' => function ($query) {
+                $query->orderBy('created_at', 'asc');
+            }, 'statuses.tasks'])
+            ->orderBy('created_at', 'desc')
+            ->get()->append('progress');
+
+        $labels = Label::all();
+
+        return response()->json([
+                'success' => true,
+                'projects' => $projects,
+                'labels' => $labels,
+            ]);
+    }
+
     public function updateTask(Request $request, $id)
     {
         $request->validate([
@@ -132,18 +153,18 @@ class TaskController extends Controller
 
     }
 
-    // Delete a status
+    // Delete a task
     public function destroy($id)
     {
         $task = Task::findOrFail($id);
 
         // Check if the task has associated users
-        /* if ($task->users()->exists()) {
+        if ($task->comments()->exists() || $task->users()->exists()) {
             return redirect()->back()->with([
                 'success' => false,
-                'message' => 'Cannot delete task because it is associated with users.',
+                'message' => 'Task cannot be deleted because it has related data.',
             ]);
-        } */
+        }
 
         $task->delete();
 

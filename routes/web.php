@@ -42,7 +42,22 @@ foreach ($routes as $uri => $view) {
             ->with(['users', 'statuses.tasks'])
             ->orderBy('created_at', 'desc')
             ->get()->append('progress');
-        $tasks = $user->tasks()->with('status')->get();
+        $tasks = $user->tasks()->with([
+            'histories.user',
+            'histories.oldStatus',
+            'histories.newStatus',
+            'dependencies.status',
+            'labels',
+            'project.users',
+            'project.tasks',
+            'users',
+            'status',
+            'subtasks' => function ($subtaskQuery) {
+                $subtaskQuery->orderBy('created_at', 'asc');
+            },
+            'comments' => function ($query) {
+                $query->with('user', 'attachments'); 
+            }])->get();
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
@@ -69,7 +84,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/search-members', [ProjectController::class, 'searchMembers'])->name('search.members');
 
     Route::post('/project/update-user-role', [ProjectController::class, 'addUserRole'])->name('projects.addUserRole');
-
+    Route::get('/tasks', [TaskController::class, 'getTasks'])->name('task.getTasks');
     
     Route::post('/status/{id}', [StatusController::class, 'store'])->name('status.store');
     Route::get('/status-remove/{id}', [StatusController::class, 'destroy'])->name('status.remove');

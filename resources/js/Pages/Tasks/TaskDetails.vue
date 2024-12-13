@@ -110,6 +110,15 @@ const updateTask = () => {
         onSuccess: () => {
             form.reset()
             isEdit.value = false
+            Swal.fire({
+                text: "Task successfully updated!",
+                position: 'bottom-end',
+                backdrop: false,
+                timer: 2000,
+                showConfirmButton: false,
+                toast:true,
+                icon: 'success',
+            });
         },
         onError: (error) => {
             console.error('Error updating tasks', error)           
