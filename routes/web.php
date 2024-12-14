@@ -50,6 +50,7 @@ foreach ($routes as $uri => $view) {
             'labels',
             'project.users',
             'project.tasks',
+            'project.statuses',
             'users',
             'status',
             'subtasks' => function ($subtaskQuery) {

@@ -19,6 +19,7 @@ const props = defineProps({
     members: Object,
     tasks: Object,
     labels: Object,
+    project: Object,
 });
 
 const activeTab = ref('subtask')
@@ -39,6 +40,7 @@ const form = useForm({
     dependency: null,
     depends_on_task_id: null,
     description: props.task.description,
+    status: props.task.status.id,
 });
 
 const formatDate = (date) => {
@@ -223,7 +225,17 @@ watch(
                 <table class="text-md">
                     <tr>
                         <td class="text-gray py-1 pr-3">Status:</td>
-                        <td class="pl-4 py-1"><span class="text-xs py-1 px-3 border border-dark-gray rounded-full" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span></td>
+                        <td class="pl-4 py-1">
+                            <span v-if="!isEdit" class="text-xs py-1 px-3 border border-dark-gray rounded-full" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span>
+                            <select
+                                v-else
+                                id="status"
+                                v-model="form.status"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                            >
+                                <option v-for="status in project.statuses" :key="status.id" :value="status.id">{{ status.name }}</option>
+                            </select>
+                        </td>
                     </tr>
                     <tr>
                         <td class="text-gray py-1 pr-3">Due Date:</td>

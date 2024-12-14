@@ -15,6 +15,7 @@ const props = defineProps({
     tasks: Object,
     completedId: String,
     labels: Object,
+    project: Object,
 });
 
 let isTaskLogOpen = ref(false);
@@ -127,7 +128,8 @@ onMounted(() => {
                         task.priority === 'high' ? 'High Priority' : ''
                     ]">
                 </i> -->
-                <h3 :class="`${ completedId == task.status.id ? 'line-through' : '' } text-md text-navy-blue font-semibold`">{{ task.title }}</h3>
+                <!-- <h3 :class="`${ completedId == task.status.id ? 'line-through' : '' } text-md text-navy-blue font-semibold`">{{ task.title }}</h3> -->
+                <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
             </div>
             <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm " @click.stop>
                 <Dropdown align="right" width="48">
@@ -191,7 +193,7 @@ onMounted(() => {
         
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
-            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :labels="labels"/>
+            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :project="project" :labels="labels"/>
         </Modal>
     </div>
 </template>

@@ -131,8 +131,9 @@ onMounted(() => {
           <!-- Filter Dropdown -->
           <Dropdown align="right" width="64">
             <template #trigger>
+              
               <div class="flex text-color-white cursor-pointer rounded-full px-3 bg-sky-blue py-1 items-center hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg">
-                <i class="fa fa-filter" aria-hidden="true"></i>
+                <i class="fa-solid fa-gear"></i>
                 <span class="pl-2">Filter</span>
               </div>
             </template>
@@ -229,6 +230,7 @@ onMounted(() => {
             :tasks="item.project.tasks"
             :completedId="item.project.completed_status_id"
             :members="item.project.users"
+            :project="item.project"
           />
         </section>
       </div>

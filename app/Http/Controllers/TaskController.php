@@ -101,6 +101,7 @@ class TaskController extends Controller
         $taskData->title = $request->title;
         $taskData->due_date = $request->due_date;
         $taskData->priority = $request->priority;
+        $taskData->status_id = $request->status;
         $taskData->save();
 
         if ($request->labels && count($request->labels) > 0) {
