@@ -87,6 +87,10 @@ const formatDate = (date) => {
     return moment(date).fromNow()
 }
 
+const formatDeadline = (date) => {
+    return moment(date).format('LL');
+}
+
 </script>
 
 <template>
@@ -139,7 +143,8 @@ const formatDate = (date) => {
                         <div class="flex">
                             <div class="w-1/2 text-navy-blue">
                                 <!-- <h3 class="text-md font-medium">{{ project.description }}</h3> -->
-                                <p class="text-sm">Created: {{ formatDate(project.created_at) }}</p>
+                                <!-- <p class="text-sm">Created: {{ formatDate(project.created_at) }}</p> -->
+                                <p class="text-sm">Deadline: {{ formatDeadline(project.deadline) }}</p>
                                 <p class="text-sm">Members: {{  project.users.length }}</p>
                                 <div class="pt-2 flex justify-start">
                                     <div class="relative flex items-center">

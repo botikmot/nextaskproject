@@ -3,6 +3,7 @@ import { usePage, useForm } from '@inertiajs/vue3'
 import Dropdown from '@/Components/Dropdown.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { ref, computed } from 'vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     task: Object,
@@ -26,8 +27,20 @@ const updateSubtaskStatus = (subtask) => {
     form.put(`/task/${subtask.id}/subtask`, {
         data: form,
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
+        onSuccess: (response) => {
+            if(response.props.flash.success){
+                form.reset()
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
         },
         onError: (error) => {
             console.error('Error updating subtasks', error)           
@@ -45,9 +58,21 @@ const submitSubtask = () => {
     form.post(`/task/${props.task.id}/subtask`, {
         data: form,
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
-            form.subtask = ''
+        onSuccess: (response) => {            
+            if(response.props.flash.success){
+                form.reset()
+                form.subtask = ''
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
         },
         onError: (error) => {
             console.error('Error adding subtasks', error)
@@ -69,10 +94,23 @@ const updateSubtask = () => {
     form.put(`/task/${form.subtask_id}/subtask`, {
         data: form,
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
-            isUpdateSubtask.value = false
-            form.subtask = ''
+        onSuccess: (response) => {
+            if(response.props.flash.success){
+                form.reset()
+                isUpdateSubtask.value = false
+                form.subtask = ''
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
+
         },
         onError: (error) => {
             console.error('Error updating subtasks', error)
@@ -86,8 +124,20 @@ const confirmDelete = (id) => {
     form.delete(`/task/${id}/subtask`, {
         data: form,
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
+        onSuccess: (response) => {
+            if(response.props.flash.success){
+                form.reset()
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
         },
         onError: (error) => {
             console.error('Error deleting subtasks', error)

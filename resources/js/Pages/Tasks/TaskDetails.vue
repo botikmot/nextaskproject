@@ -60,8 +60,20 @@ const assignMember = () => {
     form.post(`/assign-member/${props.task.id}`, {
         data: form,
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
+        onSuccess: (response) => {
+            if(response.props.flash.success){
+                form.reset()
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
         },
         onError: (error) => {
             console.error('Error assigning users', error)
@@ -91,8 +103,22 @@ const addDependency = () => {
     form.post(`/tasks/${props.task.id}/set-dependency`, {
         data: form,
         preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
+        onSuccess: (response) => {
+            console.log('res', response.props.flash.success)
+            if(response.props.flash.success){
+                form.reset()
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
+            
         },
         onError: (error) => {
             console.error('Error setting dependency', error)           

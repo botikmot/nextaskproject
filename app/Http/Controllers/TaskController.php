@@ -179,6 +179,15 @@ class TaskController extends Controller
     {
         $task = Task::findOrFail($id);
 
+        $project = Project::findOrFail($task->project_id);
+
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Unauthorized.',
+            ]);
+        }
+
         if ($request->assigned_members && count($request->assigned_members) > 0) {
             // Attach users to the task
            $task->users()->attach($request->assigned_members);
@@ -296,6 +305,15 @@ class TaskController extends Controller
 
         $parentTask = Task::findOrFail($taskId);
 
+        $project = Project::findOrFail($parentTask->project_id);
+
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Unauthorized.',
+            ]);
+        }
+
         $subtask = new Subtask([
             'name' => $request->subtask,
         ]);
@@ -317,6 +335,18 @@ class TaskController extends Controller
         
         $subtask = Subtask::findOrFail($subtaskId);
         //$this->authorize('update', $subtask); // Ensure user is authorized to update
+        $parentTask = Task::findOrFail($subtask->parent_id);
+
+        $project = Project::findOrFail($parentTask->project_id);
+
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Unauthorized.',
+            ]);
+        }
+
+
 
         $subtask->name = $request->name;
         $subtask->is_completed = $request->is_completed;
@@ -332,6 +362,18 @@ class TaskController extends Controller
     public function removeSubtask($subtaskId)
     {
         $subtask = Subtask::findOrFail($subtaskId);
+
+        $parentTask = Task::findOrFail($subtask->parent_id);
+
+        $project = Project::findOrFail($parentTask->project_id);
+
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Unauthorized.',
+            ]);
+        }
+
         $subtask->delete();
         return redirect()->back()->with([
             'success' => true,
@@ -345,6 +387,18 @@ class TaskController extends Controller
     {
         // Add dependency
         $task = Task::find($taskId);
+
+        $project = Project::findOrFail($task->project_id);
+
+        if (!$project->userHasPermission(auth()->user(), 'update_task')) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Unauthorized.',
+            ]);
+            //return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+
         $task->dependencies()->syncWithoutDetaching($request->dependency);
 
         return redirect()->back()->with([
