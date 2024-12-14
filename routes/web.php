@@ -51,6 +51,7 @@ foreach ($routes as $uri => $view) {
             'project.users',
             'project.tasks',
             'project.statuses',
+            'project.labels',
             'users',
             'status',
             'subtasks' => function ($subtaskQuery) {
@@ -100,7 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/task-comment/{id}', [TaskController::class, 'taskComment'])->name('task.comment');
     Route::delete('/task-comment/{id}', [TaskController::class, 'removeComment'])->name('task.commentRemove');
     Route::put('/task-comment/{id}', [TaskController::class, 'updateComment'])->name('task.commentUpdate');
-    Route::post('/tasks/label', [TaskController::class, 'storeLabel'])->name('task.storeLabel');
+    Route::post('/tasks/label/{projectId}', [TaskController::class, 'storeLabel'])->name('task.storeLabel');
     Route::put('/tasks/label/{id}', [TaskController::class, 'updateLabel'])->name('task.updateLabel');
     Route::post('/task/{taskId}/subtask', [TaskController::class, 'createSubtask'])->name('task.createSubtask');
     Route::put('/task/{subtaskId}/subtask', [TaskController::class, 'updateSubtask'])->name('task.updateSubtask');

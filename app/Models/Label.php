@@ -13,7 +13,7 @@ class Label extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
-    protected $fillable = ['name', 'color'];
+    protected $fillable = ['name', 'color', 'project_id'];
 
     protected static function boot()
     {
@@ -28,5 +28,10 @@ class Label extends Model
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'task_label');
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 }

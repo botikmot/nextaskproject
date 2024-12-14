@@ -24,7 +24,6 @@ const props = defineProps({
   project: Object,
   roles: Object,
   userRole: String,
-  labels: Object,
 });
 
 const page = usePage();
@@ -230,7 +229,7 @@ onBeforeUnmount(() => {
                     :auth_id="$page.props.auth.user.id"
                     :project_id="project.id"
                     :project="project"
-                    :labels="labels"
+                    :labels="project.labels"
                     class="p-4 min-w-72 mr-2 rounded shadow-lg mb-4"
                     :style="{ backgroundColor: column.color }"
                 />
@@ -246,7 +245,7 @@ onBeforeUnmount(() => {
             </Modal>
 
             <Modal :show="isLabelModalOpen" @close="isLabelModalOpen = false">
-                <NewLabelModal :labels="labels" @close="isLabelModalOpen = false" />
+                <NewLabelModal :labels="project.labels" :project_id="project.id" @close="isLabelModalOpen = false" />
             </Modal>
 
             <Modal :show="isCompletionModalOpen" @close="isCompletionModalOpen = false">

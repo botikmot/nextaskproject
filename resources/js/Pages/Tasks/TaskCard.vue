@@ -114,7 +114,7 @@ onMounted(() => {
 
 
 <template>
-    <div @click="openTaskModal" :class="`${ completedId == task.status_id ? 'bg-dark-gray' : 'bg-color-white shadow-lg' } p-3 mb-3 rounded border relative border-dark-gray cursor-pointer`">
+    <div @click="openTaskModal" :class="`${ completedId == task.status_id ? 'bg-dark-gray' : 'bg-color-white shadow-lg' } ${ isTaskPage ? 'px-3 pt-3 pb-7' : 'p-3'} mb-3 rounded border relative border-dark-gray cursor-pointer`">
         <div class="flex justify-between">
             <div class="flex">
                 <!-- <i :class="[
@@ -169,7 +169,7 @@ onMounted(() => {
                 </span>
             </div>
         </div>
-        <div v-if="task.users" class="absolute flex items-center bottom-2 right-4">
+        <div v-if="task.users" :class="`absolute flex items-center ${ isTaskPage ? 'bottom-6' : 'bottom-2'} right-4`">
             <div v-for="(member, index) in task.users.slice(0, 4)" :key="member.id" class="relative -mr-3">
                 <img :src="'/' + member.profile_image" alt="Profile" class="w-6 h-6 object-cover rounded-full border-2 border-color-white" />
             </div>
@@ -183,14 +183,23 @@ onMounted(() => {
         </div>
 
         <div class="pt-2 flex items-center" v-if="isTaskPage">
-            <div class="text-xs font-bold pr-2">{{ task.project.title }}</div>
             <span v-if="task.priority == 'high'" class="text-xs px-3 mr-1 py-1 bg-red-warning text-color-white rounded-full">Priority</span>
             <span class="text-xs px-3 py-1 rounded-full border border-dark-gray" :style="{ backgroundColor: task.status.color }">{{ task.status.name }}</span>
+            <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" :style="{ backgroundColor: tag.color }" class="text-xs px-2 py-1 ml-1 rounded-full">
+                {{ tag.name }}
+            </span>
         </div>
         <div v-else>
-            <span v-if="task.priority == 'high'" class="text-xs px-3 py-1 bg-red-warning text-color-white rounded-full">Priority</span>
+            <span v-if="task.priority == 'high'" class="text-xs px-3 py-1 mr-1 bg-red-warning text-color-white rounded-full">Priority</span>
+            <span v-if="task.labels" v-for="(tag, index) in task.labels" :key="index" :style="{ backgroundColor: tag.color }" class="text-xs px-2 py-1 mr-1 rounded-full">
+                {{ tag.name }}
+            </span>
         </div>
         
+        <div v-if="isTaskPage" class="w-full text-sm rounded-br rounded-bl flex justify-center left-0 bottom-0 text-dark-gray absolute" :style="{ backgroundColor: task.project.color }">
+            {{ task.project.title }}
+        </div>
+
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
             <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :project="project" :labels="labels"/>

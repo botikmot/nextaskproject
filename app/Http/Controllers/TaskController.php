@@ -375,17 +375,21 @@ class TaskController extends Controller
 
     }
 
-    public function storeLabel(Request $request)
+    public function storeLabel(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|unique:labels|max:255',
+            'name' => 'required|max:255',
         ]);
 
-        Label::create([
+        $project = Project::find($id);
+
+        $label = new Label([
             'name' => $request->name,
             'color' => $request->color
         ]);
 
+        $project->labels()->save($label);
+       
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Label added successfully.',

@@ -1,11 +1,13 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3'
+import Swal from 'sweetalert2';
 
 const emit = defineEmits();
 
 const props = defineProps({
   labels: Object,
+  project_id: String,
 });
 
 const form = useForm({
@@ -37,13 +39,21 @@ const updateLabel = (label) => {
 
 const submitLabel = () => {
     if(!isUpdate.value){    
-        form.post('/tasks/label', {
+        form.post(`/tasks/label/${props.project_id}`, {
             data: form,
             preserveScroll: true,
             onSuccess: () => {
                 form.reset()
                 console.log('Successfully created.')
-                emit('close')
+                Swal.fire({
+                    text: "Label/Tag successfully created!",
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'success',
+                });
             },
             onError: (error) => {
                 console.error('Error creating label', error)
@@ -59,6 +69,15 @@ const submitLabel = () => {
                 isUpdate.value = false
                 labelId.value = null
                 console.log('Successfully updated.')
+                Swal.fire({
+                    text: "Label/Tag successfully updated!",
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'success',
+                });
             },
             onError: (error) => {
                 console.error('Error updating label', error)

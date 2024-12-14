@@ -8,8 +8,11 @@ import { useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import Modal from '@/Components/Modal.vue';
+import UpdateProjectModal from './UpdateProjectModal.vue';
 
 let isModalOpen = ref(false);
+let isProjectModalOpen = ref(false);
+let project = ref({})
 
 const props = defineProps({
   projects: Object,
@@ -21,6 +24,12 @@ console.log(props.projects);
 const openModal = () => {
     isModalOpen.value = true;
 }
+
+const openProjectModal = (data) => {
+    project.value = data
+    isProjectModalOpen.value = true;
+}
+
 console.log('userRole', props.userRole)
 const form = useForm({
     id: null,
@@ -112,9 +121,15 @@ const formatDate = (date) => {
                                     <template #content>
                                         <div
                                             class="hover:bg-crystal-blue px-3 py-2"
-                                            @click.stop="confirmDelete(project.id)"
+                                            @click="confirmDelete(project.id)"
                                         >
-                                            Delete Project
+                                            Delete
+                                        </div>
+                                        <div
+                                            class="hover:bg-crystal-blue px-3 py-2"
+                                            @click="openProjectModal(project)"
+                                        >
+                                            Edit
                                         </div>
                                     </template>
                                 </Dropdown>
@@ -221,6 +236,10 @@ const formatDate = (date) => {
         <!-- <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"> -->
         <Modal :show="isModalOpen" @close="isModalOpen = false">
             <CreateProjectModal @close="isModalOpen = false"/>
+        </Modal>
+
+        <Modal :show="isProjectModalOpen" @close="isProjectModalOpen = false">
+            <UpdateProjectModal @close="isProjectModalOpen = false" :project="project"/>
         </Modal>
         <!-- </div> -->
 

@@ -49,13 +49,32 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $project = Project::findOrFail($id);
+        $project->title = $request->title;
+        $project->description = $request->description;
+        $project->deadline = $request->deadline;
+        $project->color = $request->color;
+        $project->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Project successfully updated',
+        ]);
+    }
+
      // Show a specific project
     public function show(Request $request, $id)
     {  
         $user_id = $request->user_id ? $request->user_id : Auth::id();
         $roles = Role::all();
         if($request->filter == 'all'){
-            $project = Project::with(['statuses' => function ($query) {
+            $project = Project::with(['labels', 'statuses' => function ($query) {
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at asc
                 }, 'statuses.tasks' => function ($query) {
                 $query->orderBy('index');
@@ -89,7 +108,7 @@ class ProjectController extends Controller
             }
 
         }else{
-            $project = Project::with(['statuses' => function ($query) {
+            $project = Project::with(['labels', 'statuses' => function ($query) {
                     $query->orderBy('created_at', 'asc'); // Sorting statuses by created_at desc
                 }, 'statuses.tasks' => function ($query) use ($user_id) {
                 $query->orderBy('index')
@@ -132,12 +151,10 @@ class ProjectController extends Controller
         $project->progress = $project->progress;
         $user = Auth::user();
         $userRole = $user->mainRoles->pluck('name')->first();
-        $labels = Label::all();
         return Inertia::render('Projects/Board', [
             'project' => $project,
             'roles' => $roles,
             'userRole' => $userRole,
-            'labels' => $labels,
         ]);
     }
 

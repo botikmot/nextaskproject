@@ -30,11 +30,10 @@ class Project extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    /* public function members()
+    public function labels()
     {
-        //return $this->belongsToMany(User::class);
-        return $this->hasMany(ProjectUser::class);
-    } */
+        return $this->hasMany(Label::class);
+    }
 
     public function statuses()
     {

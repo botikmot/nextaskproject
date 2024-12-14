@@ -231,6 +231,7 @@ onMounted(() => {
             :completedId="item.project.completed_status_id"
             :members="item.project.users"
             :project="item.project"
+            :labels="item.project.labels"
           />
         </section>
       </div>
