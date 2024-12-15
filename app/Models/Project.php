@@ -13,7 +13,7 @@ class Project extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
-    protected $fillable = ['title', 'description', 'deadline', 'status', 'user_id', 'completed_status_id'];
+    protected $fillable = ['title', 'description', 'deadline', 'status', 'user_id', 'completed_status_id', 'color'];
 
     protected static function boot()
     {

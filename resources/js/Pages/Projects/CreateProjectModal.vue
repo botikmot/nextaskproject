@@ -7,6 +7,7 @@ const form = useForm({
     title: '',
     description: '',
     deadline: '',
+    color: '#FFFFFF',
 });
 
 
@@ -42,6 +43,27 @@ const submitProject = () => {
             <div class="mb-4">
                 <label for="projectDescription" class="block text-sm font-medium text-navy-blue">Description</label>
                 <textarea id="projectDescription" v-model="form.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="projectDescription" class="block text-sm font-medium text-navy-blue">Project Deadline</label>
+                <input
+                    type="date"
+                    id="dueDate"
+                    v-model="form.deadline"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                />
+            </div>
+            <div class="mb-4">
+                <label for="columnColor" class="block text-sm font-medium text-navy-blue">Color</label>
+                <div class="flex items-center">
+                    <input 
+                        type="color" 
+                        id="columnColor" 
+                        v-model="form.color" 
+                        class="mt-1 block border-gray-300 rounded-md h-12 shadow-sm focus:ring focus:ring-sky-blue"
+                    > 
+                    <input type="text" id="projectColor" v-model="form.color" class="mt-1 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue">
+                </div>
             </div>
             <div class="flex justify-end">
                 <button type="button" class="mr-2 bg-gray-300 text-navy-blue py-2 px-4 rounded" @click="cancel">Cancel</button>

@@ -41,6 +41,8 @@ class ProjectController extends Controller
             'user_id' => Auth::id(), // Automatically set the admin to the creator
             'title' => $request->title,
             'description' => $request->description,
+            'deadline' => $request->deadline,
+            'color' => $request->color,
         ]);
 
         return redirect()->back()->with([

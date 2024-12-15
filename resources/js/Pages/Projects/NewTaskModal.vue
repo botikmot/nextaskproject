@@ -40,7 +40,7 @@ const submitTask = () => {
     
     let projectId = props.project_id ? props.project_id : project_id.value
     
-    if(!projectId){
+    if(!projectId || !form.status_id){
         return
     }
 

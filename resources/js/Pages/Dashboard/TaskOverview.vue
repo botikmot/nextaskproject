@@ -78,7 +78,7 @@ const getEndOfWeek = () => {
                 class="mt-6 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                 :href="route('my-tasks')"
             >
-                Create Your First Task
+                View Tasks
             </a>
         </template>
         <template v-else-if="tasksDueToday === 0">

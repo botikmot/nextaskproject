@@ -116,7 +116,7 @@ onBeforeUnmount(() => {
     <Head :title="`${project.title}`" />
 
     <AuthenticatedLayout :pageTitle="`Board - ${project.title} (${project.progress}%)`">
-        <div class="w-full bg-crystal-blue p-4">
+        <div class="w-full bg-linen p-4">
             <div class="justify-between flex mb-2">
                 <div class="flex items-center">
                     <div>
