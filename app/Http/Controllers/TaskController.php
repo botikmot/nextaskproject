@@ -67,18 +67,18 @@ class TaskController extends Controller
             ->orWhereHas('users', function ($query) {
                 $query->where('user_id', auth()->id()); // Check if the user is a member
             })
-            ->with(['users', 'statuses' => function ($query) {
+            ->with(['labels', 'users', 'statuses' => function ($query) {
                 $query->orderBy('created_at', 'asc');
             }, 'statuses.tasks'])
             ->orderBy('created_at', 'desc')
             ->get()->append('progress');
 
-        $labels = Label::all();
+        //$labels = Label::all();
 
         return response()->json([
                 'success' => true,
                 'projects' => $projects,
-                'labels' => $labels,
+                //'labels' => $labels,
             ]);
     }
 

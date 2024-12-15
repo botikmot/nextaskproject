@@ -4,6 +4,8 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import TaskCard from './TaskCard.vue';
 import Dropdown from '@/Components/Dropdown.vue';
+import Modal from '@/Components/Modal.vue';
+import NewTaskModal from '../Projects/NewTaskModal.vue';
 
 const props = defineProps({
   tasks: Object,
@@ -11,6 +13,9 @@ const props = defineProps({
   projects: Array,
 });
 
+let isTaskModalOpen = ref(false);
+let tasksProjects = ref([])
+let labels = ref(null)
 const selectedProjects = ref([]);
 const selectedStatuses = ref([]);
 const sortBy = ref('title');
@@ -22,6 +27,21 @@ const sortingOptions = [
       { label: 'Status', value: 'status' },
       { label: 'Created At', value: 'created_at' },
     ];
+
+const hasStatuses = computed(() => {
+    return props.projects.some(project => project.statuses && project.statuses.length > 0);
+});
+
+const createTask = async () => {
+    const response = await axios.get('/tasks');
+    if(response.data.success){
+        console.log(response)
+        tasksProjects.value = response.data.projects
+        labels.value = response.data.labels
+        isTaskModalOpen.value = true
+    }
+}
+
 
 const filteredTasks = computed(() => {
     let tasks = props.tasks.filter(task => {
@@ -122,7 +142,7 @@ onMounted(() => {
 
     <AuthenticatedLayout pageTitle="My Tasks">
     <div class="w-full bg-linen p-4">
-      <div class="flex justify-between">
+      <div v-if="tasks.length > 0" class="flex justify-between">
         <p class="text-navy-blue text-lg">
           Track your progress, prioritize effectively, and stay on top of your responsibilities. 
           Every task brings you one step closer to your goals.
@@ -222,7 +242,40 @@ onMounted(() => {
         </div>
       </div>
       <div class="w-full px-4 py-6 sm:px-6 lg:px-8">
-        <section class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3 gap-4 items-start">
+
+        <!-- Conditional Placeholder Messages -->
+      <section v-if="projects.length === 0" class="text-center text-gray">
+        <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
+        <p class="pb-6">Create a project and add a status to start managing your tasks.</p>
+        <a
+            class="mt-12 px-6 py-3 cursor-pointer bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
+            :href="route('projects')"
+          >
+            Set Up Your First Project
+        </a>
+      </section>
+
+      <section v-else-if="projects.length > 0 && !hasStatuses" class="text-center text-gray-500">
+        <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
+        <p class="pb-6">You have projects but no statuses. Add statuses to your project to categorize tasks.</p>
+        <a
+            class="mt-12 px-6 py-3 cursor-pointer bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
+            :href="route('projects')"
+          >
+            Set Up Your First Project
+        </a>
+      </section>
+
+      <section v-else-if="projects.length > 0 && hasStatuses && tasks.length === 0" class="text-center text-gray-500">
+        <p>You have projects and statuses, but no tasks. Add tasks to get started.</p>
+        <button
+            class="mt-3 px-6 py-2 bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
+            @click="createTask"
+          >
+            Create New Task
+        </button>
+      </section>
+        <section v-else class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3 gap-4 items-start">
           <TaskCard
             v-for="(item, index) in filteredTasks"
             :key="item.id"
@@ -234,7 +287,21 @@ onMounted(() => {
             :labels="item.project.labels"
           />
         </section>
+        <!-- <div v-else class="text-center py-10">
+          <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
+          <p class="text-gray-500">Create a project and add a status to start managing your tasks.</p>
+          <button
+            class="mt-4 px-6 py-2 bg-sky-blue text-white rounded hover:bg-crystal-blue"
+            @click="navigateToCreateProject"
+          >
+            Create a Project
+          </button>
+        </div> -->
       </div>
+
+      <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
+        <NewTaskModal @close="isTaskModalOpen = false" :projects="tasksProjects" :labels="labels"/>
+      </Modal>
     </div>
   </AuthenticatedLayout>
 

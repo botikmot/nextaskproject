@@ -10,11 +10,12 @@ const props = defineProps({
   projects: Array,
   project: Object,
   index: Number,
-  labels: Object,
+  //labels: Object,
 });
 
 const statuses = ref([])
 const project_id = ref(null)
+const labels = ref(props.project ? props.project.labels : [])
 
 const form = useForm({
     title: '',
@@ -62,9 +63,11 @@ const submitTask = () => {
 }
 
 const selectProject = () => {
+    console.log('form.project', form.project)
     statuses.value = form.project.statuses
     project_id.value = form.project.id
     form.status_id = form.project.statuses[0].id
+    labels.value = form.project.labels
 }
 
 onMounted(() => {
