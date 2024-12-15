@@ -467,6 +467,18 @@ class TaskController extends Controller
         ]);
     }
 
+    public function removeLabel($id)
+    {
+        $label = Label::findOrFail($id);
+
+        $label->delete();
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Label successfully deleted.',
+        ]);
+    }
+
+
     public function removeDependency(Request $request, $taskId)
     {
         $dependsOnTaskId = $request->depends_on_task_id;

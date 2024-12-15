@@ -37,6 +37,37 @@ const updateLabel = (label) => {
     labelId.value = label.id
 }
 
+const removeLabel = () => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Once deleted, this Label/Tag cannot be recovered.",
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444', // Red for delete
+        cancelButtonColor: '#38A169', // Green for cancel
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.delete(`/tasks/label/${labelId.value}`, {
+                data: form,
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.reset()
+                    isUpdate.value = false
+                    labelId.value = null
+                    console.log('Successfully deleted.', usePage().props.flash.message)
+                    Swal.fire({
+                        icon: usePage().props.flash.success ? "success" : "error",
+                        text: usePage().props.flash.message
+                    });
+                },
+                onError: (error) => {
+                    console.error('Error deleting label', error)
+                }
+            })
+        }
+    });
+}
+
 const submitLabel = () => {
     if(!isUpdate.value){    
         form.post(`/tasks/label/${props.project_id}`, {
@@ -92,8 +123,8 @@ const submitLabel = () => {
 <template>
     <div class="bg-linen rounded-lg shadow-lg p-6 w-full">
         <h3 class="text-lg text-navy-blue font-semibold mb-4">Add New Label/Tag</h3>
-        <div class="pb-3">
-            <div class="my-2" v-for="label in labels" :key="label.id">
+        <div class="pb-3 flex">
+            <div class="my-2 mr-2" v-for="label in labels" :key="label.id">
                 <span @click="updateLabel(label)" :style="{ backgroundColor: label.color }" class="text-sm cursor-pointer rounded-full px-3 py-1">{{ label.name }}</span>
             </div>
         </div>
@@ -110,16 +141,20 @@ const submitLabel = () => {
                         id="columnColor" 
                         v-model="form.color" 
                         class="mt-1 block border-gray-300 rounded-md h-12 shadow-sm focus:ring focus:ring-sky-blue"
-                    > <span class="pl-3">{{ form.color }}</span>
+                    > 
+                    <input type="text" id="projectColor" v-model="form.color" class="mt-1 border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue">
                 </div>
 
             </div>
             <div class="flex justify-end">
                 <button type="button" class="mr-2 bg-gray-300 text-navy-blue py-2 px-4 rounded" @click="cancel">
-                    {{ isUpdate ? 'Cancel Update' : 'Cancel'}}
+                    Cancel
                 </button>
                 <button type="submit" class="bg-sky-blue text-linen rounded-full py-2 px-4 hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg" @click="submitLabel">
                     {{ isUpdate ? 'Update' : 'Add'}}
+                </button>
+                <button v-if="isUpdate" type="submit" class="bg-red-warning text-linen rounded-full py-2 px-4 ml-2 hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg" @click="removeLabel">
+                   Delete
                 </button>
             </div>
         </form>

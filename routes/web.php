@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/task-comment/{id}', [TaskController::class, 'updateComment'])->name('task.commentUpdate');
     Route::post('/tasks/label/{projectId}', [TaskController::class, 'storeLabel'])->name('task.storeLabel');
     Route::put('/tasks/label/{id}', [TaskController::class, 'updateLabel'])->name('task.updateLabel');
+    Route::delete('/tasks/label/{id}', [TaskController::class, 'removeLabel'])->name('task.removeLabel');
     Route::post('/task/{taskId}/subtask', [TaskController::class, 'createSubtask'])->name('task.createSubtask');
     Route::put('/task/{subtaskId}/subtask', [TaskController::class, 'updateSubtask'])->name('task.updateSubtask');
     Route::delete('/task/{subtaskId}/subtask', [TaskController::class, 'removeSubtask'])->name('task.removeSubtask');
