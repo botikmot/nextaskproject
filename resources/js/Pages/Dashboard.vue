@@ -1,10 +1,14 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import TaskOverview from './Dashboard/TaskOverview.vue';
+import ProjectsWidget from './Dashboard/ProjectsWidget.vue';
 
 const props = defineProps({
     userName: String,
     userRole: String,
+    tasks: Object,
+    projects: Array,
 });
 
 </script>
@@ -13,65 +17,133 @@ const props = defineProps({
     <Head title="Dashboard" />
 
     <AuthenticatedLayout pageTitle="Dashboard">
-        <!-- Welcome Message and Summary Snapshot -->
-        <div class="flex flex-col space-y-6 w-full">
-            <section>
-                <div v-if="$page.props.auth.user.is_new">
-                    <h1 class="text-2xl font-semibold">Welcome to NexTask, {{ userName }}!</h1>
-                    <p>We’re excited to have you on board! Start by setting up your first project, adding tasks, and connecting with your team to unlock productivity.</p>
-                </div>
-                <div v-else>
-                    <h1 class="text-2xl font-semibold">Welcome back, {{ userName }}! </h1>
-                    <p>Stay on top of your tasks and connect with your team to accomplish more together.</p>
-                </div>
-            </section>
+        <div class="dashboard flex-col w-full bg-linen p-6">
+            <!-- Welcome Banner -->
+            <div class="bg-sky-blue text-color-white p-6 rounded-lg shadow-md mb-6">
+            <h1 class="text-2xl font-bold">Welcome back, {{ $page.props.auth.user.name }}!</h1>
+            <p class="mt-2">Here's a summary of your day:</p>
+            <p class="text-sm text-linen">{{ currentDate }}</p>
+            </div>
 
-            <!-- Welcome Section for New User -->
-            <section class="bg-white p-6 shadow rounded mt-4">
-                <!-- <h2 class="text-xl font-semibold">Welcome to NexTask, [User's Name]!</h2> -->
-                <p class="text-gray-600 mt-2">We're excited to help you get started. Here are some quick steps to set up your workspace:</p>
-                <ul class="mt-4 space-y-3">
-                    <li>✅ <button class="text-blue-500">Complete Your Profile</button></li>
-                    <li>✅ <button class="text-blue-500">Create Your First Project</button></li>
-                    <li>✅ <button class="text-blue-500">Invite Team Members</button></li>
+            <!-- Main Grid Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Task Overview -->
+                <TaskOverview :tasks="tasks"/>
+            <!-- Project Highlights -->
+                <ProjectsWidget :projects="projects"/>
+
+            <!-- Calendar Preview -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-lg font-bold text-navy-blue">Upcoming Events</h2>
+                <ul class="mt-2">
+                <li v-for="event in upcomingEvents" :key="event.id" class="py-2">
+                    <p class="font-semibold">{{ event.title }}</p>
+                    <p class="text-sm text-gray-500">{{ event.date }}</p>
+                </li>
                 </ul>
-                <button class="mt-6 bg-blue-500 text-white py-2 px-4 rounded">Start Tutorial</button>
-            </section>
+                <button
+                class="mt-4 px-4 py-2 bg-sky-blue text-white rounded-full hover:bg-crystal-blue"
+                @click="navigateToCalendar"
+                >
+                View Calendar
+                </button>
+            </div>
 
-            <!-- Sample Data Panel -->
-            <section class="bg-gray-100 p-4 shadow rounded mt-4">
-                <h3 class="font-semibold text-lg">Explore a Sample Project</h3>
-                <p class="text-gray-600">We've created a sample project to help you familiarize yourself with task management. Feel free to complete or explore it!</p>
-                <div class="mt-3 bg-white p-4 rounded shadow">
-                    <h4 class="font-semibold">Sample Project: Website Redesign</h4>
-                    <ul class="mt-2 space-y-2">
-                        <li>📋 Design Homepage - <span class="text-gray-500">Due Nov 10</span></li>
-                        <li>📋 Update User Profile - <span class="text-gray-500">Due Nov 12</span></li>
-                    </ul>
-                </div>
-            </section>
-
-            <!-- Suggested Actions Panel -->
-            <section class="bg-white p-4 shadow rounded mt-4">
-                <h3 class="font-semibold text-lg">Suggested Actions</h3>
-                <ul class="mt-3 space-y-3">
-                    <li>📨 Invite your team to start collaborating</li>
-                    <li>🎯 Set productivity goals</li>
-                    <li>📅 Add upcoming meetings to your calendar</li>
+            <!-- Social Highlights -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-lg font-bold text-navy-blue">Social Highlights</h2>
+                <ul class="mt-2">
+                <li v-for="post in recentPosts" :key="post.id" class="py-2">
+                    <p class="font-semibold">{{ post.author }}</p>
+                    <p class="text-sm text-gray-500">{{ post.content }}</p>
+                </li>
                 </ul>
-            </section>
+                <button
+                class="mt-4 px-4 py-2 bg-sky-blue text-white rounded-full hover:bg-crystal-blue"
+                @click="navigateToSocialPage"
+                >
+                View All Posts
+                </button>
+            </div>
+            </div>
 
-            <!-- Quick Links and Resources -->
-            <section class="bg-white p-4 shadow rounded mt-4">
-                <h3 class="font-semibold text-lg">Resources to Help You Get Started</h3>
-                <ul class="mt-3 space-y-2">
-                    <li><a href="#" class="text-blue-500">Getting Started Guide</a></li>
-                    <li><a href="#" class="text-blue-500">FAQ & Support Center</a></li>
-                    <li><a href="#" class="text-blue-500">Watch Intro Video</a></li>
+            <!-- Bottom Widgets -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <!-- Notifications -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-lg font-bold text-navy-blue">Notifications</h2>
+                <ul class="mt-2">
+                <li v-for="notification in notifications" :key="notification.id" class="py-2">
+                    <p class="text-sm text-gray-500">{{ notification.message }}</p>
+                </li>
                 </ul>
-            </section>
+            </div>
+
+            <!-- Recent Chats -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-lg font-bold text-navy-blue">Recent Chats</h2>
+                <ul class="mt-2">
+                <li v-for="chat in recentChats" :key="chat.id" class="py-2">
+                    <p class="font-semibold">{{ chat.sender }}</p>
+                    <p class="text-sm text-gray-500">{{ chat.message }}</p>
+                </li>
+                </ul>
+                <button
+                class="mt-4 px-4 py-2 bg-sky-blue text-white rounded-full hover:bg-crystal-blue"
+                @click="navigateToChat"
+                >
+                Open Chat
+                </button>
+            </div>
+            </div>
         </div>
     </AuthenticatedLayout>
 </template>
 
 
+<script>
+export default {
+  data() {
+    return {
+      user: { name: "John Doe" },
+      currentDate: new Date().toLocaleDateString(),
+      tasksDueToday: 2,
+      taskCompletionRate: 70,
+      activeProjects: [
+        { id: 1, title: "Project A", progress: 50 },
+        { id: 2, title: "Project B", progress: 80 },
+      ],
+      upcomingEvents: [
+        { id: 1, title: "Team Meeting", date: "2024-12-16" },
+        { id: 2, title: "Deadline: Report", date: "2024-12-18" },
+      ],
+      recentPosts: [
+        { id: 1, author: "Jane Smith", content: "Excited for the new release!" },
+      ],
+      notifications: [
+        { id: 1, message: "Task deadline approaching: 'Finish Proposal'" },
+      ],
+      recentChats: [
+        { id: 1, sender: "Alice", message: "Can we discuss this later?" },
+      ],
+    };
+  },
+  methods: {
+    navigateToTasks() {
+      console.log("Navigating to tasks...");
+    },
+    navigateToProjects() {
+      console.log("Navigating to projects...");
+    },
+    navigateToCalendar() {
+      console.log("Navigating to calendar...");
+    },
+    navigateToSocialPage() {
+      console.log("Navigating to social page...");
+    },
+    navigateToChat() {
+      console.log("Navigating to chat...");
+    },
+  },
+};
+</script>
