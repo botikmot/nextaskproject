@@ -10,6 +10,8 @@ console.log('tasks', props.tasks)
 const totalTasksThisWeek = computed(() => {
     const startOfWeek = getStartOfWeek();
     const endOfWeek = getEndOfWeek();
+    console.log('startOfWeek', startOfWeek)
+    console.log('endOfWeek', endOfWeek)
     return props.tasks.filter(task => {
       const taskDate = new Date(task.created_at);
       return taskDate >= startOfWeek && taskDate <= endOfWeek;
@@ -58,13 +60,20 @@ const getStartOfWeek = () => {
     const today = new Date();
     const day = today.getDay(); // 0 (Sunday) to 6 (Saturday)
     const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when it's Sunday
-    return new Date(today.setDate(diff));
+    //return new Date(today.setDate(diff));
+    const startOfWeek = new Date(today.setDate(diff)); // Set to the start of the week
+    startOfWeek.setHours(0, 0, 0, 0); // Set time to 8:00 AM
+
+    return startOfWeek;
 }
 const getEndOfWeek = () => {
-    const startOfWeek = getStartOfWeek()
-    return new Date(startOfWeek.setDate(startOfWeek.getDate() + 6));
-}
-
+    const startOfWeek = getStartOfWeek();
+    const endOfWeek = new Date(startOfWeek); // Clone the startOfWeek date
+    endOfWeek.setDate(startOfWeek.getDate() + 6); // Add 6 days to get the end of the week
+    endOfWeek.setHours(23, 59, 59, 999); // Optionally, set to the end of the day
+    return endOfWeek;
+};
+console.log('totalTasksThisWeek', totalTasksThisWeek.value)
 
 </script>
 
@@ -72,7 +81,7 @@ const getEndOfWeek = () => {
     <div class="bg-color-white p-6 rounded-lg shadow-md">
         <h2 class="text-lg font-bold text-navy-blue border-b border-dark-gray pb-2">Task Overview</h2>
         <template v-if="totalTasksThisWeek === 0">
-            <p class="mt-2 text-gray-500">No tasks have been created yet.</p>
+            <p class="mt-2 text-gray-500">No tasks have been created this week yet.</p>
             <p class="text-gray-500 mb-8">Start by creating your first task to manage your productivity!</p>
             <a
                 class="mt-6 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"

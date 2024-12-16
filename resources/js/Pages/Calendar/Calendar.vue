@@ -39,16 +39,6 @@ const handleDateClick = (info) => {
   //alert(`Date clicked: ${info.dateStr}`);
 };
 
-const formatToCustomDateTime = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
-};
-
 // Calendar options using reactive for reactivity
 const calendarOptions = reactive({
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -60,7 +50,7 @@ const calendarOptions = reactive({
         {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            right: window.innerWidth > 768 ? 'dayGridMonth,timeGridWeek,timeGridDay' : 'timeGridDay' //'dayGridMonth,timeGridWeek,timeGridDay'
         },
     editable: true,
     selectable: true,
@@ -111,7 +101,7 @@ const viewEventDetails = (details) => {
                                 <h3 class="font-semibold text-sky-blue">{{ event.title }}</h3>
                                 <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
                             </div>
-                            <span class="text-gray px-3 py-1 border rounded-full">View details</span>
+                            <span class="text-gray px-3 text-center py-1 border rounded-full hidden 2xl:flex">View details</span>
                         </li>
                     </template>
 
@@ -163,5 +153,26 @@ const viewEventDetails = (details) => {
 }
 .fc-col-header-cell-cushion {
     color: #16325B !important;
+}
+
+@media screen and (max-width: 768px) {
+    .fc-toolbar {
+        flex-wrap: wrap;
+    }
+    .fc-toolbar-title {
+        font-size: 1rem; /* Smaller title */
+    }
+    .fc-header-toolbar {
+        font-size: 0.8rem; /* Smaller buttons */
+    }
+    .fc-view {
+        overflow-x: auto; /* Ensure calendar doesn't overflow on smaller screens */
+    }
+    .fc-daygrid-day-number {
+        font-size: 0.8rem;
+    }
+    .fc {
+        font-size: 0.8rem; /* Adjust overall font size */
+    }
 }
 </style>

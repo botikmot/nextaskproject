@@ -3,12 +3,14 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import TaskOverview from './Dashboard/TaskOverview.vue';
 import ProjectsWidget from './Dashboard/ProjectsWidget.vue';
+import UpcomingEvents from './Dashboard/UpcomingEvents.vue';
 
 const props = defineProps({
     userName: String,
     userRole: String,
     tasks: Object,
     projects: Array,
+    events: Array,
 });
 
 </script>
@@ -33,21 +35,7 @@ const props = defineProps({
                 <ProjectsWidget :projects="projects"/>
 
             <!-- Calendar Preview -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-lg font-bold text-navy-blue">Upcoming Events</h2>
-                <ul class="mt-2">
-                <li v-for="event in upcomingEvents" :key="event.id" class="py-2">
-                    <p class="font-semibold">{{ event.title }}</p>
-                    <p class="text-sm text-gray-500">{{ event.date }}</p>
-                </li>
-                </ul>
-                <button
-                class="mt-4 px-4 py-2 bg-sky-blue text-white rounded-full hover:bg-crystal-blue"
-                @click="navigateToCalendar"
-                >
-                View Calendar
-                </button>
-            </div>
+                <UpcomingEvents :events="events"/>
 
             <!-- Social Highlights -->
             <div class="bg-white p-6 rounded-lg shadow-md">
