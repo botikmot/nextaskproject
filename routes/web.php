@@ -4,12 +4,14 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Project;
+use App\Models\Event;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -60,12 +62,38 @@ foreach ($routes as $uri => $view) {
             'comments' => function ($query) {
                 $query->with('user', 'attachments'); 
             }])->get();
+        $events = Event::with(['creator', 'participants'])
+            ->where('creator_id', $user->id)  // Check if the user is the creator
+            ->orWhereHas('participants', function($query) use ($user) {
+                $query->where('user_id', $user->id); // Check if the user is a participant
+            })
+            ->get();
+        
+        $formattedEvents = $events->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->title,
+                'start' => $event->start,
+                'end' => $event->end,
+                'allDay' => $event->all_day,
+                'location' => $event->location,
+                'participants' => $event->participants,
+                'backgroundColor' => $event->background_color,
+                'extendedProps' => [
+                    'description' => $event->description,
+                    'creator' => $event->creator->name,
+                    'creator_id' => $event->creator->id,
+                ],
+            ];
+        });
+
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
             'projects' => $projects,
             'userRole' => $userRole,
             'tasks' => $tasks,
+            'events' => $formattedEvents,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
 }
@@ -112,6 +140,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{taskId}/set-dependency', [TaskController::class, 'setDependency'])->name('task.setDependency');
     Route::post('/tasks/{taskId}/remove-dependency', [TaskController::class, 'removeDependency'])->name('task.removeDependency');
     Route::put('/task-description/{id}', [TaskController::class, 'updateTaskDescription'])->name('task.taskDescription');
+
+    Route::post('/events', [EventController::class, 'store'])->name('event.store');
+    Route::post('/events/{id}', [EventController::class, 'update'])->name('event.update');
 
 
 });

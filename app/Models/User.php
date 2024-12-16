@@ -110,7 +110,13 @@ class User extends Authenticatable
         $this->mainRoles()->attach($role);
     }
 
+    public function createdEvents()
+    {
+        return $this->hasMany(Event::class, 'creator_id');
+    }
 
-
-
+    public function events()
+    {
+        return $this->belongsToMany(Event::class, 'event_user');
+    }
 }

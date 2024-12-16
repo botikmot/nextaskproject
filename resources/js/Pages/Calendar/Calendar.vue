@@ -1,22 +1,52 @@
 <script setup>
-import { ref, onMounted, reactive} from 'vue';
+import { ref, computed, reactive} from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-
+import CreateEventModal from './CreateEventModal.vue';
+import EventDetails from './EventDetails.vue';
+import Modal from '@/Components/Modal.vue';
+import moment from 'moment';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
+let isEventModalOpen = ref(false);
+let isEventDetailsModalOpen = ref(false);
+let event = ref({});
+
+const props = defineProps({
+  projects: Object,
+  events: Array,
+});
+
+const upcomingEvents = computed(() => {
+    const now = new Date();
+
+    // Filter events to include only those starting in the future
+    const filteredEvents = props.events.filter(event => new Date(event.start) > now);
+
+    // Sort events by their start date in ascending order (nearest first)
+    return filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+});
 
 const handleEventClick = (info) => {
-    console.log('info event', info)
-  alert(`Event clicked: ${info.event.end}`);
+    console.log('info event', info.event)
 };
 
 const handleDateClick = (info) => {
     console.log('info', info)
-  alert(`Date clicked: ${info.dateStr}`);
+  //alert(`Date clicked: ${info.dateStr}`);
+};
+
+const formatToCustomDateTime = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
 // Calendar options using reactive for reactivity
@@ -25,10 +55,7 @@ const calendarOptions = reactive({
     initialView: 'dayGridMonth',
     dateClick: handleDateClick,
     eventClick: handleEventClick,
-    events: [
-        { title: 'event 1', start: '2024-12-19', end: '2024-12-21', allDay: true },
-        { title: 'event 2', date: '2024-12-25', allDay: true }
-    ],
+    events: props.events,
     headerToolbar: 
         {
             left: 'prev,next today',
@@ -41,6 +68,15 @@ const calendarOptions = reactive({
     backgroundColor: 'white',
 });
 
+const formatDate = (date) => {
+    return moment(date).format('lll');
+}
+
+const viewEventDetails = (details) => {
+    console.log('event', details)
+    event.value = details
+    isEventDetailsModalOpen.value = true
+}
 
 </script>
 
@@ -48,73 +84,62 @@ const calendarOptions = reactive({
     <Head title="Calendar" />
 
     <AuthenticatedLayout pageTitle="Calendar">
-        <div class="flex bg-linen h-screen w-full space-x-4">
+        <div class="block lg:flex bg-linen h-full w-full space-x-4">
             <!-- Upcoming Events Sidebar -->
-            <aside class="w-1/4 bg-gray-100 p-4 rounded-lg shadow">
-                <h2 class="text-lg font-semibold mb-4">Upcoming Events</h2>
+            <aside class="w-full lg:w-1/4 bg-gray-100 p-4 rounded-lg shadow">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg pl-3 text-navy-blue font-semibold mb-4">{{ events.length > 0 ? 'Upcoming Events' : 'Events' }}</h2>
+                    <div>
+                        <button @click="isEventModalOpen = true" class="block w-full mb-4 px-6 py-2 text-linen hover:font-bold bg-sky-blue rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg">
+                            Create Event
+                        </button>
+                    </div>
+                </div>
+                
 
-                <!-- Sample Upcoming Events List -->
+                <!-- Upcoming Events List -->
                 <ul class="space-y-2">
-                    <li class="flex justify-between bg-white p-2 rounded-lg shadow">
-                        <div>
-                            <h3 class="font-semibold">Team Meeting</h3>
-                            <p class="text-sm text-gray-500">Tomorrow, 10:00 AM</p>
-                        </div>
-                        <span class="text-xs text-blue-500">Edit</span>
-                    </li>
-                    <li class="flex justify-between bg-white p-2 rounded-lg shadow">
-                        <div>
-                            <h3 class="font-semibold">Project Deadline</h3>
-                            <p class="text-sm text-gray-500">November 10, 5:00 PM</p>
-                        </div>
-                        <span class="text-xs text-blue-500">Edit</span>
-                    </li>
-                    <li class="flex justify-between bg-white p-2 rounded-lg shadow">
-                        <div>
-                            <h3 class="font-semibold">Lunch with Client</h3>
-                            <p class="text-sm text-gray-500">November 15, 12:30 PM</p>
-                        </div>
-                        <span class="text-xs text-blue-500">Edit</span>
-                    </li>
+                    <!-- Loop through events and display only upcoming ones -->
+                    <template v-if="events.length > 0">
+                        <li
+                            v-for="event in upcomingEvents"
+                            :key="event.id"
+                            class="flex items-center justify-between bg-color-white cursor-pointer p-3 rounded-lg shadow"
+                            @click="viewEventDetails(event)"
+                        >
+                            <div>
+                                <h3 class="font-semibold text-sky-blue">{{ event.title }}</h3>
+                                <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
+                            </div>
+                            <span class="text-gray px-3 py-1 border rounded-full">View details</span>
+                        </li>
+                    </template>
+
+                    <!-- Placeholder if no upcoming events -->
+                    <template v-else>
+                        <li class="flex justify-between bg-color-white p-2 rounded-lg shadow">
+                            <div class="text-center text-gray-500 w-full">
+                                No upcoming events
+                            </div>
+                        </li>
+                    </template>
                 </ul>
             </aside>
 
             <!-- Calendar View -->
-            <section class="flex-1 bg-white p-4 rounded-lg shadow">
-                <h2 class="text-lg font-semibold mb-4">Calendar</h2>
-
+            <section class="flex-1 p-4 rounded-lg">
                 <!-- Calendar Component -->
                 <FullCalendar ref="fullCalendar" :options="calendarOptions" />
-                <!-- <div class="calendar">
-                    <div class="grid grid-cols-7 gap-2">
-                        <div v-for="day in days" :key="day" class="text-center font-bold">{{ day }}</div>
-                        <div v-for="day in calendarDays" :key="day.date" class="border p-2 text-center">
-                            <span>{{ day.getDate() }}</span>
-                        </div>
-                    </div>
-                </div> -->
-
-                <!-- New Event Form -->
-                <!-- <div class="mt-6">
-                    <h3 class="text-lg font-semibold">Create New Event</h3>
-                    <form @submit.prevent="createEvent" class="flex flex-col space-y-2">
-                        <input
-                            type="text"
-                            v-model="newEvent.title"
-                            placeholder="Event Title"
-                            class="border p-2 rounded-md"
-                            required
-                        />
-                        <input
-                            type="datetime-local"
-                            v-model="newEvent.date"
-                            class="border p-2 rounded-md"
-                            required
-                        />
-                        <button class="bg-blue-500 text-white py-2 px-4 rounded shadow hover:bg-blue-600">Add Event</button>
-                    </form>
-                </div> -->
             </section>
+
+            <Modal :show="isEventModalOpen" @close="isEventModalOpen = false">
+                <CreateEventModal @close="isEventModalOpen = false" :projects="projects"/>
+            </Modal>
+
+            <Modal :show="isEventDetailsModalOpen" @close="isEventDetailsModalOpen = false">
+                <EventDetails @close="isEventDetailsModalOpen = false" :event="event" :projects="projects"/>
+            </Modal>
+
         </div>
     </AuthenticatedLayout>
 </template>
@@ -130,5 +155,13 @@ const calendarOptions = reactive({
 
 .fc-view {
     background-color: white !important;
+}
+
+.fc-toolbar-title {
+    color: #40a2e3 !important;
+    font-weight: 600;
+}
+.fc-col-header-cell-cushion {
+    color: #16325B !important;
 }
 </style>

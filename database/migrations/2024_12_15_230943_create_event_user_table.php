@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('labels', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->string('name');
-            $table->uuid('project_id'); // Add the project_id column
-            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+        Schema::create('event_user', function (Blueprint $table) {
+            $table->id();
+            $table->uuid('event_id');
+            $table->uuid('user_id');
+            $table->foreign('event_id')->references('id')->on('events')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('labels');
+        Schema::dropIfExists('event_user');
     }
 };

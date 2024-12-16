@@ -36,7 +36,7 @@ const activeProjects = computed(() => {
                 class="flex justify-between border-b border-dark-gray items-center py-1"
             >
                 <span class="font-semibold text-sky-blue">{{ project.title }}</span>
-                <span class="text-red-warning font-bold">{{ project.progress }}% complete</span>
+                <span class="text-navy-blue font-bold">{{ project.progress }}% complete</span>
             </li>
         </ul>
         <a
