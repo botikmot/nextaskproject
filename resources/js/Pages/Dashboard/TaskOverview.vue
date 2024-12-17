@@ -15,14 +15,14 @@ const totalTasksThisWeek = computed(() => {
     const endOfWeek = getEndOfWeek();     // Returns the end of the week
     
     // Get tasks created this week
-    const tasksCreatedThisWeek = props.tasks.filter(task => {
+    /* const tasksCreatedThisWeek = props.tasks.filter(task => {
         const taskCreatedAt = new Date(task.created_at);
         return (
             taskCreatedAt >= startOfWeek &&          // Task created this week
             taskCreatedAt <= endOfWeek &&
             task.user_id === authUserId           // Task created by the auth user
         );
-    }).length;
+    }).length; */
 
     // Get tasks assigned to the user this week (exclude tasks where the user is the creator)
     const tasksAssignedThisWeek = props.tasks.filter(task => {
@@ -31,17 +31,15 @@ const totalTasksThisWeek = computed(() => {
             return (
                 user.id === authUserId &&               // User is assigned
                 pivotCreatedAt >= startOfWeek &&        // Assigned this week
-                pivotCreatedAt <= endOfWeek &&
-                task.user_id !== authUserId          // Exclude tasks where the user is the creator
+                pivotCreatedAt <= endOfWeek //&&
+                //task.user_id !== authUserId          // Exclude tasks where the user is the creator
             );
         });
     }).length;
 
-    console.log('tasksCreatedThisWeek', tasksCreatedThisWeek);
     console.log('tasksAssignedThisWeek', tasksAssignedThisWeek);
-
     // Add both counts
-    return tasksCreatedThisWeek + tasksAssignedThisWeek;
+    return tasksAssignedThisWeek;
 });
 
 // Get completed tasks this week
