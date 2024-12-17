@@ -47,7 +47,13 @@ class TaskController extends Controller
 
         if ($request->assigned_members && count($request->assigned_members) > 0) {
              // Attach users to the task
-            $task->users()->attach($request->assigned_members);
+            //$task->users()->attach($request->assigned_members);
+            $timestamp = now(); // Current timestamp
+            $assignedMembersWithTimestamps = collect($request->assigned_members)
+                ->mapWithKeys(fn ($id) => [$id => ['created_at' => $timestamp, 'updated_at' => $timestamp]])
+                ->toArray();
+
+            $task->users()->attach($assignedMembersWithTimestamps);
         }
        
         if ($request->labels && count($request->labels) > 0) {
@@ -190,7 +196,14 @@ class TaskController extends Controller
 
         if ($request->assigned_members && count($request->assigned_members) > 0) {
             // Attach users to the task
-           $task->users()->attach($request->assigned_members);
+           //$task->users()->attach($request->assigned_members);
+           // Attach users to the task with timestamps
+            $timestamp = now(); // Current timestamp
+            $assignedMembersWithTimestamps = collect($request->assigned_members)
+                ->mapWithKeys(fn ($id) => [$id => ['created_at' => $timestamp, 'updated_at' => $timestamp]])
+                ->toArray();
+
+            $task->users()->attach($assignedMembersWithTimestamps);
         }
 
         return redirect()->back()->with([
