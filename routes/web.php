@@ -5,6 +5,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Project;
 use App\Models\Event;
+use App\Models\Post;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -87,6 +89,8 @@ foreach ($routes as $uri => $view) {
             ];
         });
 
+        $posts = Post::with(['user', 'comments.user', 'likes'])->latest()->get();
+        $suggestedFriends = $user->suggestedFriends();
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
@@ -94,6 +98,8 @@ foreach ($routes as $uri => $view) {
             'userRole' => $userRole,
             'tasks' => $tasks,
             'events' => $formattedEvents,
+            'posts' => $posts,
+            'suggestedFriends' => $suggestedFriends,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
 }
@@ -105,6 +111,8 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+
+    // Projects Tasks
     Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('/project/{id}', [ProjectController::class, 'show'])->name('project.show');
     Route::put('/projects/{id}', [ProjectController::class, 'update']);
@@ -141,8 +149,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{taskId}/remove-dependency', [TaskController::class, 'removeDependency'])->name('task.removeDependency');
     Route::put('/task-description/{id}', [TaskController::class, 'updateTaskDescription'])->name('task.taskDescription');
 
+    // Calendar Events
     Route::post('/events', [EventController::class, 'store'])->name('event.store');
     Route::post('/events/{id}', [EventController::class, 'update'])->name('event.update');
+
+    // Social
+    Route::post('/post', [PostController::class, 'store'])->name('post.store');
+
+
 
 
 });

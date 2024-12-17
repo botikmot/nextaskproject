@@ -71,7 +71,7 @@ class User extends Authenticatable
 
     public function projectMemberships()
     {
-        return $this->belongsToMany(Project::class);
+        return $this->belongsToMany(Project::class, 'project_user_role')->withTimestamps();
     }
 
     public function tasks()
@@ -119,4 +119,84 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Event::class, 'event_user');
     }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id');
+    }
+
+    public function sentFriendRequests()
+    {
+        return $this->hasMany(FriendRequest::class, 'sender_id');
+    }
+
+    public function receivedFriendRequests()
+    {
+        return $this->hasMany(FriendRequest::class, 'receiver_id');
+    }
+
+    public function suggestedFriends($max = 5)
+    {
+        $friendIds = $this->friends()->pluck('friend_id')->toArray();
+        $friendIds[] = $this->id; // Include the current user's ID to exclude themselves
+
+        // Get IDs of users with pending friend requests
+        $pendingRequestsSenderIds = $this->sentFriendRequests()->where('status', 'pending')->pluck('receiver_id')->toArray();
+        $pendingRequestsReceiverIds = $this->receivedFriendRequests()->where('status', 'pending')->pluck('sender_id')->toArray();
+
+        $excludedIds = array_merge($friendIds, $pendingRequestsSenderIds, $pendingRequestsReceiverIds);
+
+        // Fetch project members where the auth user is a participant
+        $projectMemberIds = Project::whereHas('users', function ($query) {
+                $query->where('user_id', $this->id);
+            })->with('users')
+            ->get()
+            ->flatMap(function ($project) {
+                return $project->users->pluck('id');
+            })
+            ->unique()
+            ->reject(fn($id) => in_array($id, $excludedIds))
+            ->values();
+
+        // Step 1: Prioritize users in projects
+        $suggestedFriends = User::whereIn('id', $projectMemberIds)
+            ->inRandomOrder()
+            ->take($max)
+            ->get()
+            ->map(function ($suggestedUser) {
+                // Calculate the number of mutual projects between the auth user and suggested user
+                $mutualProjectsCount = $this->projectMemberships->pluck('id')
+                    ->intersect($suggestedUser->projectMemberships->pluck('id'))
+                    ->count();
+
+                // Add mutual projects count to each user
+                $suggestedUser->mutual_projects = $mutualProjectsCount;
+                return $suggestedUser;
+            });
+
+        // Step 2: If not enough friends, fill remaining with other users
+        if ($suggestedFriends->count() < $max) {
+            $remainingCount = $max - $suggestedFriends->count();
+
+            $additionalFriends = User::whereNotIn('id', array_merge($excludedIds, $projectMemberIds->toArray()))
+                ->inRandomOrder()
+                ->take($remainingCount)
+                ->get()
+                ->map(function ($suggestedUser) {
+                    // Calculate the number of mutual projects for the additional suggested users
+                    $mutualProjectsCount = $this->projectMemberships->pluck('id')
+                        ->intersect($suggestedUser->projectMemberships->pluck('id'))
+                        ->count();
+
+                    // Add mutual projects count to each user
+                    $suggestedUser->mutual_projects = $mutualProjectsCount;
+                    return $suggestedUser;
+                });
+
+            $suggestedFriends = $suggestedFriends->merge($additionalFriends);
+        }
+
+        return $suggestedFriends;
+    }
+
 }
