@@ -57,9 +57,22 @@ class FriendshipController extends Controller
         $friendRequest->sender->friends()->attach($friendRequest->receiver_id);
         $friendRequest->receiver->friends()->attach($friendRequest->sender_id);
 
+        // Get the updated list of friends and their mutual projects
+        $friendsWithMutualProjects = $friendRequest->receiver->friends->map(function ($friend) use ($friendRequest) {
+            // Calculate mutual projects between the current user and the friend
+            $mutualProjectsCount = $friend->projectMemberships->pluck('id')
+                ->intersect($friendRequest->receiver->projectMemberships->pluck('id'))
+                ->count();
+
+            $friend->mutual_projects = $mutualProjectsCount;
+            return $friend;
+        });
+
+
         return redirect()->back()->with([
             'success' => true,
             'message' => 'You have a new friend.',
+            'friends' => $friendsWithMutualProjects,
         ]);
     }
 

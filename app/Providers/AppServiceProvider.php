@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
                 'success' => Session::get('success'),
                 'error' => Session::get('error'),
                 'message' => Session::get('message'),
+                'friends' => Session::get('friends'),
             ];
         });
 

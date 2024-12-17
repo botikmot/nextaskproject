@@ -1,11 +1,17 @@
 <script setup>
 import { usePage, useForm } from '@inertiajs/vue3'
+import { ref, computed } from 'vue';
+
 const page = usePage();
 
 const trendingTopics = ['#VueJS', '#ProjectManagement', '#Productivity', '#NexTask']
 const sharedFriends = page.props.sharedFriends || [];
 
 console.log('sharedFriends', sharedFriends)
+
+const friends = computed(() => {
+    return page.props.flash.friends || sharedFriends;
+});
 </script>
 
 <template>
@@ -14,11 +20,11 @@ console.log('sharedFriends', sharedFriends)
         <ul class="mt-4">
             <li v-for="topic in trendingTopics" :key="topic" class="text-blue-600 hover:underline mb-2">{{ topic }}</li>
         </ul>
-        <div v-if="sharedFriends.length > 0" class="mt-6">
+        <div v-if="friends.length > 0" class="mt-6">
             <h4 class="text-xl font-semibold mb-3">Friends</h4>
             <div
                 class="py-1 px-3 mb-2 border-b border-dark-gray hover:bg-light-gray"
-                v-for="friend in sharedFriends"
+                v-for="friend in friends"
                 :key="friend.id"
             >
                 <div class="flex items-center justify-between">

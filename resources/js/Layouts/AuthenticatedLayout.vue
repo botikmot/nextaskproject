@@ -260,7 +260,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Right Sidebar (Hidden on Mobile) -->
-        <aside v-if="!hideSidebar" class="w-full lg:w-64 bg-color-white p-4 dark:bg-gray-800 hidden xl:block">
+        <aside v-if="!hideSidebar" class="w-full lg:w-72 bg-color-white p-4 dark:bg-gray-800 hidden xl:block">
             <RightSidebar :projects="projects"/>
         </aside>
     </div>
