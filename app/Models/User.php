@@ -125,6 +125,22 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id');
     }
 
+    public function friendsWithMutualProjects()
+    {
+        return $this->friends()->get()->map(function ($friend) {
+            // Calculate mutual projects count
+            $mutualProjectsCount = $this->projectMemberships()
+                ->pluck('id')
+                ->intersect($friend->projectMemberships()->pluck('id'))
+                ->count();
+
+            // Append the mutual_projects count to the friend model
+            $friend->mutual_projects = $mutualProjectsCount;
+
+            return $friend;
+        });
+    }
+
     public function sentFriendRequests()
     {
         return $this->hasMany(FriendRequest::class, 'sender_id');
@@ -132,7 +148,7 @@ class User extends Authenticatable
 
     public function receivedFriendRequests()
     {
-        return $this->hasMany(FriendRequest::class, 'receiver_id');
+        return $this->hasMany(FriendRequest::class, 'receiver_id')->with('sender')->pending();
     }
 
     public function suggestedFriends($max = 5)

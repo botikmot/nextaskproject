@@ -6,6 +6,7 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -90,7 +91,7 @@ foreach ($routes as $uri => $view) {
         });
 
         $posts = Post::with(['user', 'comments.user', 'likes'])->latest()->get();
-        $suggestedFriends = $user->suggestedFriends();
+        
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
@@ -99,7 +100,6 @@ foreach ($routes as $uri => $view) {
             'tasks' => $tasks,
             'events' => $formattedEvents,
             'posts' => $posts,
-            'suggestedFriends' => $suggestedFriends,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
 }
@@ -155,8 +155,9 @@ Route::middleware('auth')->group(function () {
 
     // Social
     Route::post('/post', [PostController::class, 'store'])->name('post.store');
-
-
+    Route::post('/friend-requests', [FriendshipController::class, 'send']);
+    Route::post('/friend-requests/{id}/accept', [FriendshipController::class, 'accept']);
+    Route::post('/friend-requests/{id}/reject', [FriendshipController::class, 'reject']);
 
 
 });

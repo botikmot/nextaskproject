@@ -30,6 +30,7 @@ export default {
             'dark-gray': '#E2E8F0',
             'gray': 'rgb(117 127 141)',
             'red-warning': '#cb2f2f',
+            'green': '#25af15',
         }
     },
 

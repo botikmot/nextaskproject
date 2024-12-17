@@ -20,4 +20,9 @@ class FriendRequest extends Model
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
 }
