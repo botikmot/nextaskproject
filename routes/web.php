@@ -78,9 +78,7 @@ foreach ($routes as $uri => $view) {
                 ],
             ];
         });
-
-        $posts = Post::with(['user', 'comments.user', 'likes'])->latest()->get();
-        
+   
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
@@ -88,7 +86,6 @@ foreach ($routes as $uri => $view) {
             'userRole' => $userRole,
             'tasks' => $tasks,
             'events' => $formattedEvents,
-            'posts' => $posts,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
 }
@@ -150,6 +147,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/friend-requests', [FriendshipController::class, 'send']);
     Route::post('/friend-requests/{id}/accept', [FriendshipController::class, 'accept']);
     Route::post('/friend-requests/{id}/reject', [FriendshipController::class, 'reject']);
+    Route::get('/social', [PostController::class, 'index'])->name('social');
 
 
 });

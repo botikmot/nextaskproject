@@ -5,9 +5,28 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\PostMedia;
+use Inertia\Inertia;
 
 class PostController extends Controller
 {
+    public function index()
+    {
+        // Get the authenticated user's ID
+        $user = auth()->user();
+        $friends = $user->friends()->pluck('friend_id')->toArray();
+        
+        $posts = Post::whereIn('user_id', $friends)
+                ->orWhere('user_id', $user->id)
+                ->with(['user', 'media', 'likes', 'comments.user'])
+                ->orderBy('created_at', 'desc')
+                ->whereNull('deleted_at')
+                ->paginate(10);
+
+        return Inertia::render('Social/SocialFeed', [
+            'posts' => $posts,
+        ]);
+
+    }
 
     public function store(Request $request)
     {

@@ -47,12 +47,23 @@ console.log('posts', props.posts)
         </div>
 
         <div class="post-feed">
-            <PostFeed
-                v-for="post in posts"
-                :key="post.id"
-                :post="post"
-                class="post bg-color-white p-4 rounded-lg shadow mb-3"
-            />
+            <!-- Conditional Rendering for Posts -->
+            <div v-if="posts.data && posts.data.length > 0">
+                <PostFeed
+                    v-for="post in posts.data"
+                    :key="post.id"
+                    :post="post"
+                    class="post bg-color-white p-4 rounded-lg shadow mb-3"
+                />
+            </div>
+
+            <!-- Empty State Placeholder -->
+            <div v-else class="empty-state text-center p-6 bg-color-light rounded-lg">
+                <h3 class="text-xl font-semibold text-color-dark mb-2">No posts yet</h3>
+                <p class="text-color-gray">
+                    Start by sharing your thoughts or connecting with your network.
+                </p>
+            </div>
         </div>
     </div>
 </template>
