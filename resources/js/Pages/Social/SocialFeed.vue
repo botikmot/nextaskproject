@@ -7,7 +7,7 @@ import FeedSection from './FeedSection.vue';
 import SidebarSection from './SidebarSection.vue';
 
 const props = defineProps({
-    posts: Array,
+    posts: Object,
     suggestedFriends: Array,
 });
 

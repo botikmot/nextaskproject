@@ -3,6 +3,7 @@ import { usePage, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import { ref, computed, onMounted } from 'vue';
+import MediaPost from './MediaPost.vue';
 
 const props = defineProps({
     post: Object,
@@ -23,6 +24,11 @@ const formatDate = (date) => {
             </div>
         </div>
         <p class="mt-2">{{ post.content }}</p>
+
+        <div v-if="post.media.length" class="post-media mt-3">
+            <MediaPost :post="post"/>
+        </div>
+
         <div class="post-actions mt-4 text-sm flex gap-4">
             <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">Like</button>
             <button @click="commentOnPost(post.id)" class="text-navy-blue hover:text-sky-blue">Comment</button>
