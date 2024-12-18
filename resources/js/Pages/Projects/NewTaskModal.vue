@@ -2,6 +2,8 @@
 import { ref, defineEmits, computed, onMounted } from 'vue';
 import { usePage, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
+import { eventBus } from '../eventBus';
+
 const emit = defineEmits();
 
 const props = defineProps({
@@ -50,6 +52,8 @@ const submitTask = () => {
         onSuccess: () => {
             form.reset()
             console.log('Successfully created.')
+            // Emit taskAdded event
+            eventBus.emitTaskAdded(); 
             Swal.fire({
                 icon: usePage().props.flash.success ? "success" : "error",
                 text: usePage().props.flash.message

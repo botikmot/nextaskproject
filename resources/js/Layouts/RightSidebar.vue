@@ -25,7 +25,7 @@ const suggestedFriends = page.props.suggestedFriends || [];
 const receivedFriendRequests = page.props.receivedFriendRequests || [];
 
 const createTask = async () => {
-    const response = await axios.get('/tasks');
+    const response = await axios.get('/tasks-project');
     if(response.data.success){
         console.log(response)
         projects.value = response.data.projects

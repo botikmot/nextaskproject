@@ -1,25 +1,43 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage, useForm } from '@inertiajs/vue3';
 import TaskCard from './TaskCard.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import Modal from '@/Components/Modal.vue';
 import NewTaskModal from '../Projects/NewTaskModal.vue';
+import axios from 'axios';
+
 
 const props = defineProps({
   tasks: Object,
   userRole: String,
   projects: Array,
+  selectedProjects: Array,
+  selectedStatuses: Array,
+  sortBy: String,
+  sortOrder: String,
 });
 
 let isTaskModalOpen = ref(false);
 let tasksProjects = ref([])
 let labels = ref(null)
-const selectedProjects = ref([]);
-const selectedStatuses = ref([]);
-const sortBy = ref('title');
-const sortOrder = ref('asc');
+
+const totalPages = ref(props.tasks.data ? props.tasks.last_page : 1);
+const currentPage = ref(props.tasks.data ? props.tasks.current_page :1);
+const selectedProjects = ref(props.selectedProjects ? props.selectedProjects : []);
+const selectedStatuses = ref(props.selectedStatuses ? props.selectedStatuses : []);
+const sortBy = ref(props.sortBy ? props.sortBy : 'title');
+const sortOrder = ref(props.sortOrder ? props.sortOrder : 'asc');
+let isLoading = ref(false);
+
+const form = useForm({
+    page: currentPage.value,
+    selectedProjects: selectedProjects.value,
+    selectedStatuses: selectedStatuses.value,
+    sortBy: sortBy.value,
+    sortOrder: sortOrder.value
+});
 
 const sortingOptions = [
       { label: 'Title', value: 'title' },
@@ -33,7 +51,7 @@ const hasStatuses = computed(() => {
 });
 
 const createTask = async () => {
-    const response = await axios.get('/tasks');
+    const response = await axios.get('/tasks-project');
     if(response.data.success){
         console.log(response)
         tasksProjects.value = response.data.projects
@@ -42,52 +60,48 @@ const createTask = async () => {
     }
 }
 
+// Fetch tasks function
+const fetchTasks = async () => {
+  
+    try {
+      console.log('form', form)
+      isLoading.value = true
+      form.get('/my-tasks', {
+                data: form,
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Successfully fetched.')
+                    isLoading.value = false
+                },
+                onError: (error) => {
+                    console.error('Error fetching project', error)
+                }
+            })
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+    }
+};
 
-const filteredTasks = computed(() => {
-    let tasks = props.tasks.filter(task => {
-        // Check if the task matches selected projects
-        const matchesProject = 
-            selectedProjects.value.length === 0 || 
-            selectedProjects.value.includes(task.project_id);
-        
-        // Check if the task matches selected statuses
-        const matchesStatus = 
-            selectedStatuses.value.length === 0 || 
-            selectedStatuses.value.includes(task.status_id);
-        
-        return matchesProject && matchesStatus;
-    });
-
-     // Apply sorting based on the selected sorting option and order
-    tasks = tasks.sort((a, b) => {
-        let comparison = 0;
-
-        if (sortBy.value === 'title') {
-            comparison = a.title.localeCompare(b.title);
-        } else if (sortBy.value === 'priority') {
-            comparison = a.priority - b.priority; // Assuming priority is a number
-        } else if (sortBy.value === 'status') {
-            comparison = a.status.name.localeCompare(b.status.name);
-        } else if (sortBy.value === 'created_at') {
-            comparison = new Date(a.created_at) - new Date(b.created_at);
-        }
-
-        // Reverse the comparison result if sortOrder is descending
-        return sortOrder.value === 'asc' ? comparison : -comparison;
-    });
-
-    return tasks;
-
-});
+const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages.value) {
+        currentPage.value = page;
+        form.page = page
+        fetchTasks()
+    }
+};
 
 const toggleSortBy = (value) => {
     sortBy.value = value;
+    form.sortBy = value
     localStorage.setItem('SortBy', value);
+    fetchTasks()
 };
 
 const toggleOrderBy = (order) => {
     sortOrder.value = order;
+    form.sortOrder = order
     localStorage.setItem('OrderBy', order);
+    fetchTasks()
 };
 
 const toggleProject = (projectId) => {
@@ -96,7 +110,9 @@ const toggleProject = (projectId) => {
     } else {
         selectedProjects.value.push(projectId);
     }
+    form.selectedProjects = selectedProjects.value
     localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects.value));
+    fetchTasks()
 };
 
 const toggleStatus = (statusId) => {
@@ -105,8 +121,10 @@ const toggleStatus = (statusId) => {
     } else {
         selectedStatuses.value.push(statusId);
     }
+    form.selectedStatuses = selectedStatuses.value
     localStorage.setItem('selectedStatuses', JSON.stringify(selectedStatuses.value));
     console.log('getStatuses', getStatuses())
+    fetchTasks()
 };
 
 const getStatuses = () => {
@@ -125,13 +143,14 @@ console.log('tasks', props.tasks)
 onMounted(() => {
     const savedProjects = JSON.parse(localStorage.getItem('selectedProjects')) || [];
     const savedStatuses = JSON.parse(localStorage.getItem('selectedStatuses')) || [];
-    selectedProjects.value = savedProjects;
-    selectedStatuses.value = savedStatuses;
-
+    form.selectedProjects = savedProjects;
+    form.selectedStatuses = savedStatuses;
+    
     const savedSortBy = localStorage.getItem('SortBy') || 'title';
     const savedOrderBy = localStorage.getItem('OrderBy') || 'asc';
-    sortBy.value = savedSortBy;
-    sortOrder.value = savedOrderBy;
+
+    form.sortBy = savedSortBy;
+    form.sortOrder = savedOrderBy;
 });
 
 </script>
@@ -141,8 +160,18 @@ onMounted(() => {
     <Head title="Tasks" />
 
     <AuthenticatedLayout pageTitle="My Tasks">
-    <div class="w-full bg-linen p-4">
-      <div v-if="tasks.length > 0" class="flex justify-between">
+    <div class="w-full bg-linen p-4 relative">
+
+      <div v-if="isLoading" class="absolute inset-0 bg-dark-gray bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
+        <!-- Loading spinner -->
+        <svg aria-hidden="true" class="w-24 h-24 text-gray animate-spin dark:text-gray-600 fill-sky-blue" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+        </svg>
+        <span class="sr-only">Loading...</span>
+      </div>
+
+      <div class="flex justify-between">
         <p class="text-navy-blue text-lg">
           Track your progress, prioritize effectively, and stay on top of your responsibilities. 
           Every task brings you one step closer to your goals.
@@ -244,7 +273,7 @@ onMounted(() => {
       <div class="w-full px-4 py-6 sm:px-6 lg:px-8">
 
         <!-- Conditional Placeholder Messages -->
-      <section v-if="projects.length === 0" class="text-center text-gray">
+      <section v-if="projects.length === 0 && !isLoading" class="text-center text-gray">
         <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
         <p class="pb-6">Create a project and add a status to start managing your tasks.</p>
         <a
@@ -255,7 +284,7 @@ onMounted(() => {
         </a>
       </section>
 
-      <section v-else-if="projects.length > 0 && !hasStatuses" class="text-center text-gray-500">
+      <section v-else-if="projects.length > 0 && !hasStatuses && !isLoading" class="text-center text-gray-500">
         <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
         <p class="pb-6">You have projects but no statuses. Add statuses to your project to categorize tasks.</p>
         <a
@@ -266,7 +295,7 @@ onMounted(() => {
         </a>
       </section>
 
-      <section v-else-if="projects.length > 0 && hasStatuses && tasks.length === 0" class="text-center text-gray-500">
+      <section v-else-if="projects.length > 0 && hasStatuses && tasks.length === 0 && !isLoading" class="text-center text-gray-500">
         <p>You have projects and statuses, but no tasks. Add tasks to get started.</p>
         <button
             class="mt-3 px-6 py-2 bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
@@ -277,7 +306,7 @@ onMounted(() => {
       </section>
         <section v-else class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3 gap-4 items-start">
           <TaskCard
-            v-for="(item, index) in filteredTasks"
+            v-for="(item, index) in tasks.data"
             :key="item.id"
             :task="item"
             :tasks="item.project.tasks"
@@ -287,16 +316,16 @@ onMounted(() => {
             :labels="item.project.labels"
           />
         </section>
-        <!-- <div v-else class="text-center py-10">
-          <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
-          <p class="text-gray-500">Create a project and add a status to start managing your tasks.</p>
-          <button
-            class="mt-4 px-6 py-2 bg-sky-blue text-white rounded hover:bg-crystal-blue"
-            @click="navigateToCreateProject"
-          >
-            Create a Project
-          </button>
-        </div> -->
+        <!-- Pagination Controls -->
+        <div v-if="!isLoading" class="pagination flex justify-center mt-3 items-center">
+            <button class="mx-3 bg-sky-blue px-3 py-1 rounded text-color-white" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
+                Previous
+            </button>
+            <span class="text-sm font-bold text-navy-blue">Page {{ currentPage }} of {{ totalPages }}</span>
+            <button class="mx-3 bg-sky-blue px-3 py-1 rounded text-color-white" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">
+                Next
+            </button>
+        </div>
       </div>
 
       <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">

@@ -48,23 +48,12 @@ foreach ($routes as $uri => $view) {
             ->orderBy('created_at', 'desc')
             ->get()->append('progress');
         $tasks = $user->tasks()->with([
-            'histories.user',
-            'histories.oldStatus',
-            'histories.newStatus',
-            'dependencies.status',
-            'labels',
             'project.users',
             'project.tasks',
             'project.statuses',
-            'project.labels',
             'users',
-            'status',
-            'subtasks' => function ($subtaskQuery) {
-                $subtaskQuery->orderBy('created_at', 'asc');
-            },
-            'comments' => function ($query) {
-                $query->with('user', 'attachments'); 
-            }])->get();
+            'status'
+            ])->get();
         $events = Event::with(['creator', 'participants'])
             ->where('creator_id', $user->id)  // Check if the user is the creator
             ->orWhereHas('participants', function($query) use ($user) {
@@ -110,6 +99,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+
 Route::middleware('auth')->group(function () {
 
     // Projects Tasks
@@ -122,7 +112,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/search-members', [ProjectController::class, 'searchMembers'])->name('search.members');
 
     Route::post('/project/update-user-role', [ProjectController::class, 'addUserRole'])->name('projects.addUserRole');
-    Route::get('/tasks', [TaskController::class, 'getTasks'])->name('task.getTasks');
+    Route::get('/tasks-project', [TaskController::class, 'getTasksProject'])->name('task.getTasksProject');
+
+    Route::get('/my-tasks', [TaskController::class, 'getTasks'])->name('my-tasks');
     
     Route::post('/status/{id}', [StatusController::class, 'store'])->name('status.store');
     Route::get('/status-remove/{id}', [StatusController::class, 'destroy'])->name('status.remove');

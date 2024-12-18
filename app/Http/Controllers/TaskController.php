@@ -11,6 +11,7 @@ use App\Models\Status;
 use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Label;
+use Inertia\Inertia;
 
 class TaskController extends Controller
 {
@@ -67,7 +68,70 @@ class TaskController extends Controller
         ]);
     }
 
-    public function getTasks()
+
+    public function getTasks(Request $request)
+    {
+         // Retrieve filters and default pagination size
+        $selectedProjects = $request->input('selectedProjects', []);
+        $selectedStatuses = $request->input('selectedStatuses', []);
+        $sortBy = $request->input('sortBy', 'created_at'); // Default to 'created_at'
+        $sortOrder = $request->input('sortOrder', 'asc');  // Default to 'asc'
+        $perPage = 12;
+        $user = Auth::user();
+
+        $userRole = $user->mainRoles->pluck('name')->first();
+        $projects = Project::where('user_id', auth()->id()) // Check if the user is the creator
+            ->orWhereHas('users', function ($query) {
+                $query->where('user_id', auth()->id()); // Check if the user is a member
+            })
+            //->with('members')
+            ->with(['users', 'statuses.tasks'])
+            ->orderBy('created_at', 'desc')
+            ->get()->append('progress');
+
+        $tasks = $user->tasks()->with([
+            'histories.user',
+            'histories.oldStatus',
+            'histories.newStatus',
+            'dependencies.status',
+            'labels',
+            'project.users',
+            'project.tasks',
+            'project.statuses',
+            'project.labels',
+            'users',
+            'status',
+            'subtasks' => function ($subtaskQuery) {
+                $subtaskQuery->orderBy('created_at', 'asc');
+            },
+            'comments' => function ($query) {
+                $query->with('user', 'attachments'); 
+            }
+        ])
+        ->when(!empty($selectedProjects), function ($query) use ($selectedProjects) {
+            $query->whereIn('project_id', $selectedProjects);
+        })
+        ->when(!empty($selectedStatuses), function ($query) use ($selectedStatuses) {
+            $query->whereIn('status_id', $selectedStatuses);
+        })
+        ->orderBy($sortBy, $sortOrder)
+        ->paginate($perPage);
+
+        //return response()->json($tasks);
+        return Inertia::render('Tasks/MyTasks', [
+            'tasks' => $tasks,
+            'projects' => $projects,
+            'userRole' => $userRole,
+            'selectedProjects' => $selectedProjects,
+            'selectedStatuses' => $selectedStatuses,
+            'sortBy' => $sortBy,
+            'sortOrder' => $sortOrder,
+        ]);
+
+    }
+
+
+    public function getTasksProject()
     {
         $projects = Project::where('user_id', auth()->id()) // Check if the user is the creator
             ->orWhereHas('users', function ($query) {

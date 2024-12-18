@@ -7,7 +7,7 @@ const props = defineProps({
 });
 console.log('tasks', props.tasks)
 const authUserId = usePage().props.auth.user.id
-
+const data = ref({})
 
 // Get tasks assigned to the user this week
 const totalTasksThisWeek = computed(() => {
@@ -99,6 +99,21 @@ const getEndOfWeek = () => {
 };
 console.log('totalTasksThisWeek', totalTasksThisWeek.value)
 
+onMounted(() => {    
+    const savedProjects = JSON.parse(localStorage.getItem('selectedProjects')) || [];
+    const savedStatuses = JSON.parse(localStorage.getItem('selectedStatuses')) || [];
+    data.value.selectedProjects = savedProjects;
+    data.value.selectedStatuses = savedStatuses;
+    
+    const savedSortBy = localStorage.getItem('SortBy') || 'title';
+    const savedOrderBy = localStorage.getItem('OrderBy') || 'asc';
+
+    data.value.sortBy = savedSortBy;
+    data.value.sortOrder = savedOrderBy;
+
+});
+
+
 </script>
 
 <template>
@@ -109,7 +124,12 @@ console.log('totalTasksThisWeek', totalTasksThisWeek.value)
             <p class="text-gray-500 mb-8">Start by creating your first task to manage your productivity!</p>
             <a
                 class="mt-6 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
-                :href="route('my-tasks')"
+                :href="route('my-tasks', {
+                                selectedProjects: data.selectedProjects,
+                                selectedStatuses: data.selectedStatuses,
+                                sortBy: data.sortBy,
+                                sortOrder: data.sortOrder
+                            })"
             >
                 View Tasks
             </a>
@@ -127,13 +147,18 @@ console.log('totalTasksThisWeek', totalTasksThisWeek.value)
             </div>
             <a
                 class="mt-4 px-6 cursor-pointer py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
-                :href="route('my-tasks')"
+                :href="route('my-tasks', {
+                                selectedProjects: data.selectedProjects,
+                                selectedStatuses: data.selectedStatuses,
+                                sortBy: data.sortBy,
+                                sortOrder: data.sortOrder
+                            })"
             >
                 View All Tasks
             </a>
         </template>
         <template v-else>
-            <p class="mt-2">You have {{ tasksDueToday }} tasks due today.</p>
+            <p class="mt-2 text-red-warning">You have {{ tasksDueToday }} tasks due today.</p>
             <div class="mt-4 mb-6">
                 <div class="bg-crystal-blue rounded-full h-2">
                     <div
@@ -145,7 +170,12 @@ console.log('totalTasksThisWeek', totalTasksThisWeek.value)
             </div>
             <a
                 class="mt-4 px-6 cursor-pointer py-2 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
-                :href="route('my-tasks')"
+                :href="route('my-tasks', {
+                                selectedProjects: data.selectedProjects,
+                                selectedStatuses: data.selectedStatuses,
+                                sortBy: data.sortBy,
+                                sortOrder: data.sortOrder
+                            })"
             >
                 View Tasks
             </a>

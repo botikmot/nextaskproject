@@ -12,6 +12,8 @@ import RightSidebar from './RightSidebar.vue';
 let showingNavigationDropdown = ref(false);
 const isLargeScreen = ref(false);
 
+const data = ref({})
+
 const props = defineProps({
     pageTitle: {
         type: String,
@@ -57,6 +59,19 @@ onMounted(() => {
 
     checkScreenSize();
     window.addEventListener('resize', checkScreenSize);
+
+    
+    const savedProjects = JSON.parse(localStorage.getItem('selectedProjects')) || [];
+    const savedStatuses = JSON.parse(localStorage.getItem('selectedStatuses')) || [];
+    data.value.selectedProjects = savedProjects;
+    data.value.selectedStatuses = savedStatuses;
+    
+    const savedSortBy = localStorage.getItem('SortBy') || 'title';
+    const savedOrderBy = localStorage.getItem('OrderBy') || 'asc';
+
+    data.value.sortBy = savedSortBy;
+    data.value.sortOrder = savedOrderBy;
+
 });
 
 onUnmounted(() => {
@@ -96,7 +111,12 @@ onUnmounted(() => {
                         </span>
                     </li>
                     <li class="py-3 pl-6 hover:bg-dark-navy relative group" title="Tasks" :class="{'bg-dark-navy text-sky-blue': route().current('my-tasks')}">
-                        <a :href="route('my-tasks')" class="block">
+                        <a :href="route('my-tasks', {
+                                selectedProjects: data.selectedProjects,
+                                selectedStatuses: data.selectedStatuses,
+                                sortBy: data.sortBy,
+                                sortOrder: data.sortOrder
+                            })" class="block">
                             <i class="fas fa-tasks mr-2"></i><span v-if="!isCollapsed">My Tasks</span>
                         </a>
                         <span v-if="isCollapsed" class="absolute top-full mt-1 left-10 text-navy-blue transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
