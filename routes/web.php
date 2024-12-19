@@ -148,7 +148,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/friend-requests/{id}/accept', [FriendshipController::class, 'accept']);
     Route::post('/friend-requests/{id}/reject', [FriendshipController::class, 'reject']);
     Route::get('/social', [PostController::class, 'index'])->name('social');
-
+    Route::get('/users/search', [PostController::class, 'searchUsers']);
 
 });
 

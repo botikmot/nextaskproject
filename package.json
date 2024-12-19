@@ -27,6 +27,7 @@
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/inertia-vue3": "^0.6.0",
         "@tiptap/core": "^2.10.3",
+        "@tiptap/extension-mention": "^2.10.3",
         "@tiptap/extension-underline": "^2.10.3",
         "@tiptap/starter-kit": "^2.10.3",
         "@tiptap/vue-3": "^2.10.3",

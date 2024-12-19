@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Models\PostMedia;
 use Inertia\Inertia;
+use App\Models\User;
 
 class PostController extends Controller
 {
@@ -62,6 +63,28 @@ class PostController extends Controller
             'success' => true,
             'message' => 'Post created successfully',
         ]);
+    }
+
+
+    public function searchUsers(Request $request)
+    {
+        $query = $request->query('query');
+
+        // Get the authenticated user's friends
+        $user = auth()->user();
+        $friends = $user->friends()->pluck('friend_id'); // Assuming 'friend_id' stores the IDs of friends
+
+        // Search for friends matching the query
+        $users = User::whereIn('id', $friends) // Filter by friends
+            ->where('id', '!=', $user->id) // Exclude the authenticated user
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', $query . '%') // Match query with username
+                ->orWhere('email', 'like', $query . '%'); // Match query with email
+            })
+            ->limit(10) // Optional: Limit the number of results
+            ->get();
+
+        return response()->json($users);
     }
 
 }

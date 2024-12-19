@@ -5,6 +5,7 @@ import { Head } from '@inertiajs/vue3';
 import ProfileSection from './ProfileSection.vue';
 import FeedSection from './FeedSection.vue';
 import SidebarSection from './SidebarSection.vue';
+import Test from './Test.vue';
 
 const props = defineProps({
     posts: Object,
@@ -25,9 +26,10 @@ console.log('friends', props.friends)
             </div>
 
             <!-- Feed Section (Scrollable) -->
-            <div class="feed-section w-full lg:w-2/4 overflow-y-auto h-screen pr-2">
+            <!-- <div class="feed-section w-full lg:w-2/4 overflow-y-auto h-screen pr-2"> -->
                 <FeedSection :posts="posts" />
-            </div>
+                 <!-- <Test :posts="posts"/> -->
+            <!-- </div> -->
 
             <!-- Sidebar Section (Fixed) -->
             <div class="sidebar bg-gray-100 p-6 rounded-lg lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">

@@ -18,10 +18,23 @@ const openLink = (url) => {
 }
 
 const convertLinks = (text) => {
-    // Regular expression to match URLs
+    // Convert newlines to <br> for line breaks
+    text = text.replace(/\n/g, '<br>');
+
+    // Convert **bold** or __bold__ to <strong> tags
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold using **
+    text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');      // Bold using __
+
+    // Convert *italic* or _(italic)_ to <em> tags
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');  // Italic using *
+    text = text.replace(/_(.*?)_/g, '<em>$1</em>');    // Italic using _
+
+    // Convert links to clickable anchor tags
     const pattern = /https?:\/\/\S+/g;
     const replacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
-    return text.replace(pattern, replacement);
+    text = text.replace(pattern, replacement);
+
+    return text;
 }
 
 </script>
