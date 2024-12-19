@@ -21,6 +21,11 @@ class PostController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->whereNull('deleted_at')
                 ->paginate(10);
+        
+        $posts->getCollection()->transform(function ($post) {
+                    $post->link_preview = $post->link_preview; // Add the link preview
+                    return $post;
+                });
 
         return Inertia::render('Social/SocialFeed', [
             'posts' => $posts,

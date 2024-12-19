@@ -317,7 +317,7 @@ onMounted(() => {
           />
         </section>
         <!-- Pagination Controls -->
-        <div v-if="!isLoading && tasks.data.length" class="pagination flex justify-center mt-3 items-center">
+        <div v-if="!isLoading && tasks.data.length" class="pagination flex justify-start mt-3 items-center">
             <button class="mx-3 bg-sky-blue px-3 py-1 rounded text-color-white" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
                 Previous
             </button>

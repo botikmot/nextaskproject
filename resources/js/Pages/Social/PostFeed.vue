@@ -13,6 +13,17 @@ const formatDate = (date) => {
     return moment(date).fromNow()
 }
 
+const openLink = (url) => {
+    window.open(url, '_blank')
+}
+
+const convertLinks = (text) => {
+    // Regular expression to match URLs
+    const pattern = /https?:\/\/\S+/g;
+    const replacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
+    return text.replace(pattern, replacement);
+}
+
 </script>
 <template>
     <div>
@@ -23,7 +34,16 @@ const formatDate = (date) => {
                 <p class="text-gray text-xs">{{ formatDate(post.created_at) }}</p>
             </div>
         </div>
-        <p class="mt-2">{{ post.content }}</p>
+
+        <p class="mt-2" v-html="convertLinks(post.content)"></p>
+
+        <div class="mt-3 relative cursor-pointer" v-if="post.link_preview">
+            <img @click="openLink(post.link_preview.url)" :src="post.link_preview.image" class="w-full object-cover max-h-96"/>
+            <div class="absolute bottom-5 link-preview-desc">
+                <div class="font-semibold text-xl pl-3 text-dark-gray">{{ post.link_preview.title }}</div>
+                <div class="text-sm pl-3 text-dark-gray">{{ post.link_preview.description }}</div>
+            </div>
+        </div>
 
         <div v-if="post.media.length" class="post-media mt-3">
             <MediaPost :post="post"/>
