@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import PostFeed from './PostFeed.vue';
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import axios from 'axios';
+import CreatePost from './TextAreaMention.vue';
 
 const props = defineProps({
     posts: Object,
@@ -16,9 +17,7 @@ const nextPageUrl = ref(props.posts.next_page_url || null)
 const allPosts = ref([...props.posts.data]);
 const feedSection = ref(null);
 const createPostLoading = ref(false)
-const showDropdown = ref(false); 
-const matchingUsers = ref([]); // List of users matching the input after '@'
-const editor = ref(null);
+const createPostRef = ref(null);
 
 const form = useForm({
     content: '',
@@ -50,12 +49,17 @@ const submitPost = () => {
             });
             allPosts.value = props.posts.data;
             nextPageUrl.value = props.posts.next_page_url;
+            createPostRef.value.clearContent();
         },
         onError: (error) => {
             console.error('Error assigning users', error)
             createPostLoading.value = false
         }
     })
+}
+
+const handlePost = (content) => {
+    form.content = content
 }
 
 const triggerFileInput = () => {
@@ -89,60 +93,6 @@ const handleScroll = async () => {
         await loadMorePosts();
     }
 };
-
-// Detect the '@' and type after it
-const onInput = async () => {
-    const inputText = form.content;
-    const lastAtSymbol = inputText.lastIndexOf('@');
-
-    // Check if '@' exists and is followed by a valid character
-    if (lastAtSymbol !== -1 && lastAtSymbol < inputText.length - 1) {
-        const query = inputText.slice(lastAtSymbol + 1).trim(); // Get the text after '@'
-        const firstChar = query.charAt(0); // Get the first character after '@'
-
-        // Ensure the first character is a letter (not a space or invalid character)
-        if (/^[a-zA-Z]$/.test(firstChar)) {
-            console.log('search user', query)
-            await fetchUserSuggestions(query); // Fetch users from backend as soon as a valid character is typed
-        } else {
-            showDropdown.value = false; // Hide dropdown for invalid characters
-        }
-    } else {
-        showDropdown.value = false; // Hide dropdown if '@' is not followed by anything
-    }
-};
-
-// Fetch user suggestions from backend
-const fetchUserSuggestions = async (query) => {
-    try {
-        const response = await axios.get(`/users/search`, {
-            params: { query }
-        });
-        matchingUsers.value = response.data; // Update the list of matching users
-        showDropdown.value = matchingUsers.value.length > 0; // Show dropdown if there are users to display
-    } catch (error) {
-        console.error('Error fetching user suggestions', error);
-    }
-};
-
-// Insert the selected username into the content
-
-// Insert Mention on User Click
-const insertMention = (user) => {
-    const inputText = form.content;
-    const lastAtSymbol = inputText.lastIndexOf('@');
-
-    if (lastAtSymbol !== -1) {
-        // Insert the mention with a hidden structure
-        const newText = inputText.slice(0, lastAtSymbol) + `${user.email}`;
-            //`<span class="mention" data-id="${user.id}" style="color: skyblue;">@${user.email}</span> `; // Add mention with styled email and hidden ID
-        form.content = newText; // Update the textarea content
-    }
-
-    showDropdown.value = false; // Hide dropdown after selection
-
-};
-
 
 // Load more posts
 const loadMorePosts = async () => {
@@ -184,22 +134,15 @@ onBeforeUnmount(() => {
         <div class="post-input bg-color-white p-4 rounded-lg shadow mb-6">
 
             <div class="mention-container relative">
-                <textarea
+                <!-- <textarea
                     v-model="form.content"
                     placeholder="Share something with your network..."
                     class="w-full p-4 border rounded-md h-24"
                     @input="onInput"
-                ></textarea>
-                <!-- <div ref="editorRef" contenteditable="true" class="tiptap-editor border rounded-md p-4"></div> -->
-                <!-- Mention dropdown -->
-                <div v-if="showDropdown && matchingUsers.length > 0" class="mention-dropdown">
-                    <ul>
-                        <li v-for="user in matchingUsers" :key="user.id" @click="insertMention(user)">
-                            @{{ user.name }} - ({{ user.email }})
-                        </li>
-                    </ul>
-                </div>
+                ></textarea> -->
 
+                <CreatePost @content-changed="handlePost" ref="createPostRef"/>
+                
             </div>
 
             <div class="flex justify-between items-center mt-4">

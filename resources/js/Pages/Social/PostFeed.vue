@@ -69,3 +69,13 @@ const convertLinks = (text) => {
         </div>
     </div>
 </template>
+
+<style>
+.mention {
+    font-weight: 800;
+    color: #40a2e3 !important;
+    border-radius: 0.4rem;
+    box-decoration-break: clone;
+    color: var(--purple);
+}
+</style>

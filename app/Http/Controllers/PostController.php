@@ -81,7 +81,7 @@ class PostController extends Controller
                 $q->where('name', 'like', $query . '%') // Match query with username
                 ->orWhere('email', 'like', $query . '%'); // Match query with email
             })
-            ->limit(10) // Optional: Limit the number of results
+            ->limit(5) // Optional: Limit the number of results
             ->get();
 
         return response()->json($users);
