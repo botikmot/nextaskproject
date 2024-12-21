@@ -7,10 +7,14 @@ import MediaPost from './MediaPost.vue';
 import UserImage from '@/Components/UserImage.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import TextAreaMention from './TextAreaMention.vue';
+import axios from 'axios';
 
 const emit = defineEmits(['postDeleted', 'postUpdated']);
 
 const isEdit = ref(false)
+const newComment = ref("");
+const showCommentInput = ref(false);
+const isEditComment = ref(false)
 
 const props = defineProps({
     post: Object,
@@ -27,6 +31,7 @@ const openLink = (url) => {
 const form = useForm({
     id: props.post.id,
     content: props.post.content,
+    comment: '',
 });
 
 const convertLinks = (text) => {
@@ -48,6 +53,47 @@ const convertLinks = (text) => {
 
     return text;
 }
+
+const toggleCommentInput = () => {
+    showCommentInput.value = !showCommentInput.value;
+};
+
+const confirmDeleteComment = (id) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444', // Red for delete
+        cancelButtonColor: '#38A169', // Green for cancel
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.delete(`/post/comment/${id}`, {
+                data: form,
+                preserveScroll: true,
+                onSuccess: () => {
+                    form.reset()
+                    console.log('Successfully deleted.', usePage().props.flash.message)
+                    Swal.fire({
+                        text: usePage().props.flash.message,
+                        position: 'bottom-end',
+                        backdrop: false,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        toast:true,
+                        icon: usePage().props.flash.success ? "success" : "error",
+                    });
+                    if(usePage().props.flash.success){
+                        props.post.comments = props.post.comments.filter(comment => comment.id !== id);
+                    }
+                },
+                onError: (error) => {
+                    console.error('Error deleting comment', usePage().props.flash.message)
+                }
+            })
+        }
+    });
+}
+
 
 const confirmDelete = (id) => {
     form.id = id
@@ -89,6 +135,31 @@ const confirmDelete = (id) => {
 
 const handlePost = (content) => {
     form.content = content
+}
+
+const handleComment = (comment) => {
+    form.comment = comment
+}
+
+const submitComment = async (id) => {
+    console.log('post id-->', id)
+    console.log('comment-->', form.comment)
+    try {
+        // Send the comment to the backend
+        const response = await axios.post(`/post/comment/${form.id}`, form);
+
+        // Push the new comment to the local post's comments array
+        props.post.comments.push(response.data.comment);
+
+        // Optionally clear the comment input and hide the textarea
+        newComment.value = ""; // Clear the input field
+        showCommentInput.value = false; // Optionally hide the comment input field
+        form.reset()
+
+    } catch (error) {
+        console.error("Error submitting comment:", error);
+    }
+
 }
 
 const updatePost = () => {
@@ -176,11 +247,77 @@ const updatePost = () => {
             <MediaPost :post="post"/>
         </div>
 
-        <div class="post-actions mt-4 text-sm flex gap-4">
+       <!--  <div class="post-actions mt-4 text-sm flex gap-4">
             <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">Like</button>
             <button @click="commentOnPost(post.id)" class="text-navy-blue hover:text-sky-blue">Comment</button>
             <button @click="sharePost(post.id)" class="text-navy-blue hover:text-sky-blue">Share</button>
+        </div> -->
+        <hr class="text-dark-gray my-3"/>
+        <div v-if="showCommentInput" class="mt-3">
+            <TextAreaMention @content-changed="handleComment" :placeholder="'Write a comment...'"/>
+            <div class="flex justify-end">
+                <button
+                    class="mt-2 px-3 py-1 hover:bg-crystal-blue text-sm rounded mr-3 hover:text-navy-blue"
+                    @click="showCommentInput = false"
+                >
+                    Cancel
+                </button>
+                <button
+                    class="mt-2 bg-sky-blue text-color-white text-sm px-3 py-1 rounded hover:bg-crystal-blue hover:text-navy-blue"
+                    @click="submitComment(post.id)"
+                >
+                    Submit
+                </button>
+            </div>
         </div>
+
+        <div v-if="post.comments.length" class="comments mt-3">
+            <div v-for="comment in post.comments" :key="comment.id" class="mb-2">
+                <div class="flex justify-between">
+                    <div class="flex items-center">
+                        <UserImage class="w-6 h-6 rounded-full object-cover" :user="comment.user" />
+                        <div class="pl-2 text-sm font-bold text-navy-blue"> {{ comment.user.name }} </div>
+                        <div class="pl-2 text-xs text-gray"> {{ formatDate(comment.created_at) }} </div>
+                    </div>
+                    <div v-if="comment.user.id == $page.props.auth.user.id" class="cursor-pointer">
+                        <Dropdown align="right" width="48">
+                            <template #trigger>
+                                <i class="fa-solid fa-ellipsis"></i>
+                            </template>
+                            <template #content>
+                                <div
+                                    class="hover:bg-crystal-blue px-3 py-2 text-sm"
+                                    @click="confirmDeleteComment(comment.id)"
+                                >
+                                    Delete
+                                </div>
+                                <div
+                                    class="hover:bg-crystal-blue px-3 py-2 text-sm"
+                                    @click="isEditComment = true"
+                                >
+                                    Edit
+                                </div>
+                            </template>
+                        </Dropdown>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="mt-2 px-2 py-1 bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="post-actions mt-4 text-sm flex gap-4">
+            <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">
+                {{ post.user_liked ? "Unlike" : "Like" }}
+            </button>
+            <span>{{ post.likes_count }} {{ post.likes_count === 1 ? "Like" : "Likes" }}</span>
+            <button @click="toggleCommentInput" class="text-navy-blue hover:text-sky-blue">
+                Comment
+            </button>
+        </div>
+
+
     </div>
 </template>
 

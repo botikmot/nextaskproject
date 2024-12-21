@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Post;
+use App\Models\Comment;
 use App\Models\PostMedia;
 use Inertia\Inertia;
 use App\Models\User;
@@ -114,6 +115,50 @@ class PostController extends Controller
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Post successfully updated',
+        ]);
+    }
+
+    public function commentPost(Request $request, $id)
+    {
+        // Validate the incoming data
+        $request->validate([
+            'comment' => 'required', // Adjust validation as needed
+        ]);
+
+        // Retrieve the authenticated user (assuming authentication is in place)
+        $user = auth()->user(); // or use another method to get the current user
+
+        // Create a new comment associated with the post and user
+        $comment = new Comment();
+        $comment->content = $request->comment;
+        $comment->post_id = $id;  // Associate the comment with the post
+        $comment->user_id = $user->id;  // Associate the comment with the authenticated user
+
+        // Save the comment
+        $comment->save();
+
+        // Return the newly created comment
+        return response()->json(['comment' => $comment->load('user')]);
+
+    }
+
+    public function postCommentDelete($id)
+    {
+        $comment = Comment::findOrFail($id);
+
+        // Ensure the user is authorized to delete this comment
+        if ($comment->user_id !== auth()->id()) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Unauthorized',
+            ]);
+        }
+
+        $comment->delete();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Comment successfully removed',
         ]);
     }
 

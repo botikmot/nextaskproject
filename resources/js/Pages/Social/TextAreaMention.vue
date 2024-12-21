@@ -1,5 +1,5 @@
 <template>
-    <editor-content :editor="editor" />
+    <editor-content :editor="editor" class="editor-container"/>
 </template>
   
   <script>
@@ -16,7 +16,7 @@
     components: {
       EditorContent,
     },
-    props: ['postContent'],
+    props: ['postContent', 'placeholder'],
     data() {
       return {
         editor: null,
@@ -40,7 +40,7 @@
             },
           }),
           Placeholder.configure({
-                placeholder: 'Type something amazing...',
+                placeholder: this.placeholder ? this.placeholder : 'Type something amazing...',
             }),
         ],
         content: this.postContent || '',
@@ -104,4 +104,13 @@
     pointer-events: none;
     position: absolute;
     }
+
+.editor-container {
+  border: 1px solid rgb(117 127 141); /* Add border color */
+  border-radius: 8px; /* Optional: add rounded corners */
+  padding: 10px; /* Add some padding inside the editor */
+  max-width: 100%;
+  box-sizing: border-box; /* Ensure padding doesn’t affect width */
+}
+
   </style>

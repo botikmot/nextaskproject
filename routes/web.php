@@ -151,6 +151,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/search', [PostController::class, 'searchUsers']);
     Route::delete('/post/{id}', [PostController::class, 'destroy'])->name('post.delete');
     Route::put('/post/{id}', [PostController::class, 'update'])->name('post.update');
+    Route::post('/post/comment/{id}', [PostController::class, 'commentPost'])->name('post.commentPost');
+    Route::delete('/post/comment/{id}', [PostController::class, 'postCommentDelete'])->name('post.postCommentDelete');
 
 });
 
