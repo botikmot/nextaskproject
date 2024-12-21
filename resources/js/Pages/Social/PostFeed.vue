@@ -14,7 +14,7 @@ const emit = defineEmits(['postDeleted', 'postUpdated']);
 const isEdit = ref(false)
 const newComment = ref("");
 const showCommentInput = ref(false);
-const isEditComment = ref(false)
+const editingCommentId = ref(null);
 
 const props = defineProps({
     post: Object,
@@ -180,7 +180,7 @@ const updateComment = async (id) => {
 
         // Reset editing state
         form.reset()
-        isEditComment.value = false
+        editingCommentId.value = null
 
     } catch (error) {
         console.error("Error updating comment:", error);
@@ -318,7 +318,7 @@ const updatePost = () => {
                                 </div>
                                 <div
                                     class="hover:bg-crystal-blue px-3 py-2 text-sm"
-                                    @click="isEditComment = true"
+                                    @click="editingCommentId = comment.id"
                                 >
                                     Edit
                                 </div>
@@ -327,11 +327,11 @@ const updatePost = () => {
                     </div>
                 </div>
                 <div class="flex">
-                    <div v-if="!isEditComment" class="mt-2 px-2 py-1 bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div>
-                    <div v-else class="py-2">
-                        <TextAreaMention class="my-2" @content-changed="handleComment" :postContent="comment.content"/>
+                    <div v-if="editingCommentId !== comment.id" class="mt-2 px-2 py-1 bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div>
+                    <div v-else class="py-2 w-full">
+                        <TextAreaMention class="my-2 w-full" @content-changed="handleComment" :postContent="comment.content"/>
                         <div class="flex justify-end">
-                            <button type="button" class="mr-2 bg-gray-300 text-sm text-navy-blue py-1 px-4 rounded" @click="isEditComment = false">Cancel</button>
+                            <button type="button" class="mr-2 bg-gray-300 text-sm text-navy-blue py-1 px-4 rounded" @click="editingCommentId = null">Cancel</button>
                             <button type="submit" class="bg-sky-blue text-linen text-sm rounded-full py-1 px-4 hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg" @click="updateComment(comment.id)">Update</button>
                         </div>
                     </div>
