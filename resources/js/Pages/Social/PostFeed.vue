@@ -327,7 +327,14 @@ const updatePost = () => {
                     </div>
                 </div>
                 <div class="flex">
-                    <div v-if="editingCommentId !== comment.id" class="mt-2 px-2 py-1 bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div>
+                    <div v-if="editingCommentId !== comment.id" class="relative comment-area mt-2">
+                        <!-- Bubble style for the comment -->
+                        <div
+                            class="px-3 py-2 text-sm bg-dark-gray rounded-b-xl rounded-r-xl text-navy-blue shadow-md"
+                            v-html="convertLinks(comment.content)"
+                        ></div>
+                    </div>
+                    <!-- <div v-if="editingCommentId !== comment.id" class="mt-2 px-2 py-1 text-sm bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div> -->
                     <div v-else class="py-2 w-full">
                         <TextAreaMention class="my-2 w-full" @content-changed="handleComment" :postContent="comment.content"/>
                         <div class="flex justify-end">
@@ -361,5 +368,17 @@ const updatePost = () => {
     box-decoration-break: clone;
     color: var(--purple);
     cursor: pointer;
+}
+
+.comment-area::before {
+    content: '';
+    position: absolute;
+    top: -10px; /* Position the triangle above the bubble */
+    left: 0px; /* Align the triangle with the profile image */
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 2px 10px 8px 0px; /* Triangle shape for pointing upward */
+    border-color: transparent transparent #E2E8F0 transparent; /* Match the bubble's background color */
 }
 </style>
