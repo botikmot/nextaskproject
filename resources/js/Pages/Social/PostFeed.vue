@@ -277,7 +277,7 @@ const updatePost = () => {
             <button @click="commentOnPost(post.id)" class="text-navy-blue hover:text-sky-blue">Comment</button>
             <button @click="sharePost(post.id)" class="text-navy-blue hover:text-sky-blue">Share</button>
         </div> -->
-        <hr class="text-dark-gray my-3"/>
+        <!-- <hr class="text-dark-gray my-3"/> -->
         <div v-if="showCommentInput" class="mt-3">
             <TextAreaMention @content-changed="handleComment" :placeholder="'Write a comment...'"/>
             <div class="flex justify-end">
@@ -345,7 +345,7 @@ const updatePost = () => {
                 </div>
             </div>
         </div>
-
+        <hr class="text-dark-gray my-3"/>
         <div class="post-actions mt-4 text-sm flex gap-4">
             <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">
                 {{ post.user_liked ? "Unlike" : "Like" }}
@@ -354,6 +354,7 @@ const updatePost = () => {
             <button @click="toggleCommentInput" class="text-navy-blue hover:text-sky-blue">
                 Comment
             </button>
+            <button @click="sharePost(post.id)" class="text-navy-blue hover:text-sky-blue">Share</button>
         </div>
 
 
