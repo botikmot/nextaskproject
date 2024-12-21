@@ -17,12 +17,12 @@ const friends = computed(() => {
 
 <template>
     <div>
-        <h4 class="text-xl font-semibold">Trending Topics</h4>
+        <h4 class="text-lg font-bold border-b border-dark-gray text-navy-blue">Trending Topics</h4>
         <ul class="mt-4">
             <li v-for="topic in trendingTopics" :key="topic" class="text-blue-600 hover:underline mb-2">{{ topic }}</li>
         </ul>
         <div v-if="friends.length > 0" class="mt-6">
-            <h4 class="text-xl font-semibold mb-3">Friends</h4>
+            <h4 class="text-lg font-bold border-b border-dark-gray text-navy-blue mb-3">Friends</h4>
             <div
                 class="py-1 px-3 mb-2 border-b border-dark-gray hover:bg-light-gray"
                 v-for="friend in friends"

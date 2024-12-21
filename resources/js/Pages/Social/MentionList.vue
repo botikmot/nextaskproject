@@ -116,4 +116,11 @@
       }
     }
   }
+  .tippy-box {
+    background-color: #16325B;
+    font-size: 14px;
+    border-radius: 5px;
+    padding: 5px;
+    color: #ffffff;
+  }
   </style>

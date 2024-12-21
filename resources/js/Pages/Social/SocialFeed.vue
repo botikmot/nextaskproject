@@ -30,7 +30,6 @@ console.log('events', props.events)
             <!-- Feed Section (Scrollable) -->
             <!-- <div class="feed-section w-full lg:w-2/4 overflow-y-auto h-screen pr-2"> -->
                 <FeedSection :posts="posts" />
-                 <!-- <Test :posts="posts"/> -->
             <!-- </div> -->
 
             <!-- Sidebar Section (Fixed) -->
