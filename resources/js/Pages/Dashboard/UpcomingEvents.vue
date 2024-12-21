@@ -48,12 +48,12 @@ const formatDate = (date) => {
                     </div>
                 </li>
             </template>
-            <template v-else>
-                <li class="py-4 text-gray-500 text-center">
-                    No upcoming events. Add a new event to get started!
-                </li>
-            </template>
         </ul>
+        <template v-if="upcomingEvents.length === 0">
+            <div class="py-4 mt-2 mb-6 text-gray-500 text-center">
+                No upcoming events. Add a new event to get started!
+            </div>
+        </template>
 
         <a
             class="mt-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"

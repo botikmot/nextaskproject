@@ -120,6 +120,35 @@ class User extends Authenticatable
         return $this->belongsToMany(Event::class, 'event_user');
     }
 
+    public function getAllEvents()
+    {
+        $events = Event::with(['creator', 'participants'])
+            ->where('creator_id', $this->id) // Check if the user is the creator
+            ->orWhereHas('participants', function ($query) {
+                $query->where('user_id', $this->id); // Check if the user is a participant
+            })
+            ->get();
+
+        return $events->map(function ($event) {
+            return [
+                'id' => $event->id,
+                'title' => $event->title,
+                'start' => $event->start,
+                'end' => $event->end,
+                'allDay' => $event->all_day,
+                'location' => $event->location,
+                'participants' => $event->participants,
+                'backgroundColor' => $event->background_color,
+                'extendedProps' => [
+                    'description' => $event->description,
+                    'creator' => $event->creator->name,
+                    'creator_id' => $event->creator->id,
+                ],
+            ];
+        });
+    }
+
+
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id');

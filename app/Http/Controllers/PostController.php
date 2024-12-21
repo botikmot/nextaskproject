@@ -27,9 +27,12 @@ class PostController extends Controller
                     $post->link_preview = $post->link_preview; // Add the link preview
                     return $post;
                 });
+        
+        $formattedEvents = $user->getAllEvents();
 
         return Inertia::render('Social/SocialFeed', [
             'posts' => $posts,
+            'events' => $formattedEvents,
         ]);
 
     }

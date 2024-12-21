@@ -4,6 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
+import UserImage from '@/Components/UserImage.vue';
 
 defineProps({
     mustVerifyEmail: {
@@ -68,15 +69,10 @@ const submitForm = () => {
             @submit.prevent="submitForm"
             class="mt-6 space-y-6"
         >
-            <div>
-                <InputLabel for="profile_photo" value="Profile Photo" />
 
-                <img
-                    v-if="form.profile_image"
-                    :src="imgURL"
-                    alt="Profile Photo"
-                    class="block w-52 h-auto"
-                />
+            <div class="">
+                <InputLabel for="profile_photo" value="Profile Photo" />
+                <UserImage class="w-52 h-52 my-6 rounded-full block object-cover" :user="form" />
 
                 <input
                     id="profile_photo"

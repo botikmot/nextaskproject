@@ -5,14 +5,15 @@ import { Head } from '@inertiajs/vue3';
 import ProfileSection from './ProfileSection.vue';
 import FeedSection from './FeedSection.vue';
 import SidebarSection from './SidebarSection.vue';
-import Test from './Test.vue';
+import UpcomingEvents from '../Dashboard/UpcomingEvents.vue';
 
 const props = defineProps({
     posts: Object,
     suggestedFriends: Array,
+    events: Array,
 });
 
-console.log('friends', props.friends)
+console.log('events', props.events)
 </script>
 
 <template>
@@ -21,8 +22,9 @@ console.log('friends', props.friends)
     <AuthenticatedLayout pageTitle="Social">
         <div class="social-page flex flex-col lg:flex-row gap-6 p-6 w-full bg-linen">
             <!-- Profile Section (Fixed) -->
-            <div class="profile-section shadow bg-crystal-blue p-6 rounded-lg text-center lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">
-                <ProfileSection />
+            <div class="profile-section lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">
+                <ProfileSection class="text-center p-6 bg-crystal-blue shadow rounded-lg" :events="events"/>
+                <UpcomingEvents v-if="events.length > 0" class="mt-6" :events="events"/>
             </div>
 
             <!-- Feed Section (Scrollable) -->
