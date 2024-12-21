@@ -5,6 +5,7 @@ import NewTaskModal from '@/Pages/Projects/NewTaskModal.vue';
 import axios from 'axios';
 import { usePage, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
+import UserImage from '@/Components/UserImage.vue';
 
 const page = usePage();
 let isTaskModalOpen = ref(false);
@@ -134,11 +135,12 @@ console.log('receivedFriendRequests', receivedFriendRequests)
             <div class="flex items-center justify-between">
                 <!-- Profile Section -->
                 <div class="flex items-center space-x-3">
-                    <img
+                    <!-- <img
                         :src="'/' + request.sender.profile_image"
                         alt="Profile"
                         class="w-8 h-8 rounded-full object-cover border-2 border-white"
-                    />
+                    /> -->
+                    <UserImage class="h-8 w-8 rounded-full object-cover" :user="request.sender" />
                     <div>
                         <div class="text-navy-blue font-medium text-sm">{{ request.sender.name }}</div>
                         <div class="text-xs text-gray">Mutual Projects: {{ request.sender.mutual_projects }}</div>
@@ -193,11 +195,7 @@ console.log('receivedFriendRequests', receivedFriendRequests)
             <div class="flex items-center justify-between">
                 <!-- Profile Section -->
                 <div class="flex items-center space-x-3">
-                    <img
-                        :src="'/' + suggested.profile_image"
-                        alt="Profile"
-                        class="w-8 h-8 rounded-full object-cover border-2 border-white"
-                    />
+                    <UserImage class="h-8 w-8 rounded-full object-cover" :user="suggested" />
                     <div>
                         <div class="text-navy-blue font-medium text-sm">{{ suggested.name }}</div>
                         <div class="text-xs text-gray">Mutual Projects: {{ suggested.mutual_projects }}</div>

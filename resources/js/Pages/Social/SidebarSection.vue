@@ -1,6 +1,7 @@
 <script setup>
 import { usePage, useForm } from '@inertiajs/vue3'
 import { ref, computed } from 'vue';
+import UserImage from '@/Components/UserImage.vue';
 
 const page = usePage();
 
@@ -30,11 +31,7 @@ const friends = computed(() => {
                 <div class="flex items-center justify-between">
                     <!-- Profile Section -->
                     <div class="flex items-center space-x-3">
-                        <img
-                            :src="'/' + friend.profile_image"
-                            alt="Profile"
-                            class="w-8 h-8 rounded-full object-cover border-2 border-white"
-                        />
+                        <UserImage class="h-8 w-8 rounded-full object-cover" :user="friend" />
                         <div>
                             <div class="text-navy-blue font-medium text-sm">{{ friend.name }}</div>
                             <div class="text-xs text-gray">Mutual Projects: {{ friend.mutual_projects }}</div>

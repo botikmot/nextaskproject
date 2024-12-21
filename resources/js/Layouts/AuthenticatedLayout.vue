@@ -4,7 +4,7 @@ import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
-import AuthImage from '@/Components/AuthImage.vue'
+import AuthImage from '@/Components/UserImage.vue'
 import ApplicationLogoAlt from '@/Components/ApplicationLogoAlt.vue';
 import { eventBus } from '@/Pages/eventBus';
 import RightSidebar from './RightSidebar.vue';

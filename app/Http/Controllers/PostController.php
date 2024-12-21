@@ -87,4 +87,31 @@ class PostController extends Controller
         return response()->json($users);
     }
 
+    public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->delete();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Post successfully removed',
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'content' => 'required',
+        ]);
+
+        $post = Post::findOrFail($id);
+        $post->content = $request->content;
+        $post->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Post successfully updated',
+        ]);
+    }
+
 }

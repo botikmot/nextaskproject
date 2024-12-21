@@ -116,6 +116,16 @@ const loadMorePosts = async () => {
     }
 };
 
+const removePost = (postId) => {
+    allPosts.value = allPosts.value.filter((post) => post.id !== postId);
+};
+
+const updatePost = (updatedPost) => {
+    allPosts.value = allPosts.value.map((post) =>
+        post.id === updatedPost.id ? { ...post, ...updatedPost } : post
+    );
+};
+
 onMounted(() => {
     if (feedSection.value) {
         feedSection.value.addEventListener("scroll", handleScroll);
@@ -134,15 +144,7 @@ onBeforeUnmount(() => {
         <div class="post-input bg-color-white p-4 rounded-lg shadow mb-6">
 
             <div class="mention-container relative">
-                <!-- <textarea
-                    v-model="form.content"
-                    placeholder="Share something with your network..."
-                    class="w-full p-4 border rounded-md h-24"
-                    @input="onInput"
-                ></textarea> -->
-
                 <CreatePost @content-changed="handlePost" ref="createPostRef"/>
-                
             </div>
 
             <div class="flex justify-between items-center mt-4">
@@ -170,6 +172,8 @@ onBeforeUnmount(() => {
                     :key="post.id"
                     :post="post"
                     class="post bg-color-white p-4 rounded-lg shadow mb-3"
+                    @postDeleted="removePost"
+                    @postUpdated="updatePost"
                 />
             </div>
 

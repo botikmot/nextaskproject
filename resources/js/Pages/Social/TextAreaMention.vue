@@ -16,7 +16,7 @@
     components: {
       EditorContent,
     },
-  
+    props: ['postContent'],
     data() {
       return {
         editor: null,
@@ -43,12 +43,15 @@
                 placeholder: 'Type something amazing...',
             }),
         ],
-        content:'',
+        content: this.postContent || '',
         onUpdate: ({ editor }) => {
           const content = editor.getHTML(); // Get the updated content
           this.$emit('content-changed', content); // Emit the content
         },
       })
+
+      this.editor.commands.focus();
+
     },
 
     methods: {

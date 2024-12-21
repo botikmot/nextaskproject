@@ -149,6 +149,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/friend-requests/{id}/reject', [FriendshipController::class, 'reject']);
     Route::get('/social', [PostController::class, 'index'])->name('social');
     Route::get('/users/search', [PostController::class, 'searchUsers']);
+    Route::delete('/post/{id}', [PostController::class, 'destroy'])->name('post.delete');
+    Route::put('/post/{id}', [PostController::class, 'update'])->name('post.update');
 
 });
 
