@@ -153,6 +153,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/post/{id}', [PostController::class, 'update'])->name('post.update');
     Route::post('/post/comment/{id}', [PostController::class, 'commentPost'])->name('post.commentPost');
     Route::delete('/post/comment/{id}', [PostController::class, 'postCommentDelete'])->name('post.postCommentDelete');
+    Route::put('/post/comment/{id}', [PostController::class, 'postCommentUpdate'])->name('post.postCommentUpdate');
 
 });
 

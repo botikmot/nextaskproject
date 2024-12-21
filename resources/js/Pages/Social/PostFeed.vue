@@ -162,6 +162,31 @@ const submitComment = async (id) => {
 
 }
 
+const updateComment = async (id) => {
+    console.log('comment id->', id)
+    try {
+        // Send update request to the backend
+        const response = await axios.put(`/post/comment/${id}`, form);
+
+        // Update the comment in the post's comments array
+        const updatedComment = response.data.comment;
+        console.log('updated comment', updatedComment)
+        const commentIndex = props.post.comments.findIndex(
+            (comment) => comment.id === id
+        );
+        if (commentIndex !== -1) {
+            props.post.comments[commentIndex] = updatedComment;
+        }
+
+        // Reset editing state
+        form.reset()
+        isEditComment.value = false
+
+    } catch (error) {
+        console.error("Error updating comment:", error);
+    }
+}
+
 const updatePost = () => {
     console.log('post content-->', form.content)
     form.put(`/post/${form.id}`, {
@@ -302,7 +327,14 @@ const updatePost = () => {
                     </div>
                 </div>
                 <div class="flex">
-                    <div class="mt-2 px-2 py-1 bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div>
+                    <div v-if="!isEditComment" class="mt-2 px-2 py-1 bg-dark-gray rounded-lg" v-html="convertLinks(comment.content)"></div>
+                    <div v-else class="py-2">
+                        <TextAreaMention class="my-2" @content-changed="handleComment" :postContent="comment.content"/>
+                        <div class="flex justify-end">
+                            <button type="button" class="mr-2 bg-gray-300 text-sm text-navy-blue py-1 px-4 rounded" @click="isEditComment = false">Cancel</button>
+                            <button type="submit" class="bg-sky-blue text-linen text-sm rounded-full py-1 px-4 hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg" @click="updateComment(comment.id)">Update</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

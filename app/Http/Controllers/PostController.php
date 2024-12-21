@@ -162,4 +162,23 @@ class PostController extends Controller
         ]);
     }
 
+    public function postCommentUpdate(Request $request, $id)
+    {
+        $request->validate([
+            'comment' => 'required',
+        ]);
+
+        $comment = Comment::findOrFail($id);
+
+        if ($comment->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $comment->content = $request->comment;
+        $comment->save();
+
+        return response()->json(['comment' => $comment->load('user')]);
+    }
+
+
 }
