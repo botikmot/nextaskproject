@@ -6,6 +6,7 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use Illuminate\Foundation\Application;
@@ -150,6 +151,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/post/comment/{id}', [PostController::class, 'postCommentUpdate'])->name('post.postCommentUpdate');
     Route::post('/post/{id}/like', [PostController::class, 'likePost'])->name('post.likePost');
     Route::get('/social/highlights', [PostController::class, 'getSocialHighlights']);
+
+
+    // Messages 
+    Route::post('/conversations/private', [MessageController::class, 'createPrivateConversation']);
 
 });
 

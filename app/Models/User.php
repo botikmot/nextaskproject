@@ -255,4 +255,30 @@ class User extends Authenticatable
         return $this->hasMany(Post::class);
     }
 
+    public function conversations()
+    {
+        return $this->belongsToMany(Conversation::class)->withPivot('is_admin');
+    }
+
+    // Get all private conversations for the authenticated user
+    public function privateConversations()
+    {
+        return $this->conversations()->where('type', 'private');
+    }
+
+    // Get all group conversations for the authenticated user
+    public function groupConversations()
+    {
+        return $this->conversations()->where('type', 'group');
+    }
+
+    // Get private conversations with a specific user
+    public function privateConversationsWith($userId)
+    {
+        return $this->conversations()
+            ->where('type', 'private')
+            ->whereHas('users', function ($query) use ($userId) {
+                $query->where('users.id', $userId);
+            });
+    }
 }

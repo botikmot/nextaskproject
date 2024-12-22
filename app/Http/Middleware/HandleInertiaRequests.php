@@ -67,6 +67,29 @@ class HandleInertiaRequests extends Middleware
                     return $friend;
                 })
                 : [],
+            'sharedConversations' => fn () => $request->user()
+                ? [
+                    'private' => $request->user()->privateConversations()
+                        ->with([
+                            'users:id,name,profile_image',
+                            'messages' => fn ($query) => $query->latest()->first(),
+                        ])
+                        ->get()
+                        ->map(function ($conversation) use ($request) {
+                            // Add chat partner's name for private conversations
+                            $chatPartner = $conversation->chatPartner($request->user()->id);
+                            $conversation->chat_name = $chatPartner ? $chatPartner->name : 'Unknown User';
+                            $conversation->chat_image = $chatPartner ? $chatPartner->profile_image : null;
+                            return $conversation;
+                        }),
+                    'group' => $request->user()->groupConversations()
+                        ->with([
+                            'users:id,name,profile_image',
+                            'messages' => fn ($query) => $query->latest()->first(),
+                        ])
+                        ->get(),
+                ]
+                : [],
         ];
     }
 }
