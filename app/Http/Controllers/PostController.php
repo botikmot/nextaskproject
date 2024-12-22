@@ -9,6 +9,7 @@ use App\Models\PostMedia;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Like;
+use Carbon\Carbon;
 
 class PostController extends Controller
 {
@@ -213,9 +214,14 @@ class PostController extends Controller
         // Include the user's own ID
         $userAndFriends = $friendIds->push($user->id);
 
+         // Get the start of the current week (Sunday) and the end (Saturday)
+        $startOfWeek = Carbon::now()->startOfWeek(); // Start of this week (Sunday)
+        $endOfWeek = Carbon::now()->endOfWeek(); // End of this week (Saturday)
+
         // Fetch posts from the user and their friends
         $highlights = Post::with('author', 'likes', 'comments')
             ->whereIn('user_id', $userAndFriends)
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek]) // Filter posts from this week
             ->withCount(['likes', 'comments']) // Include engagement counts
             ->orderByRaw('(likes_count + comments_count) DESC') // Sort by engagement
             ->take(2) // Limit to top 5 posts

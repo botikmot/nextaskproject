@@ -595,6 +595,31 @@ class TaskController extends Controller
 
     }
 
+    public function getTaskCompletionRate(Request $request)
+    {
+        $userId = auth()->id(); // Get the authenticated user ID
+
+        // Get total tasks assigned to the user this week
+        $totalTasksThisWeek = Task::assignedThisWeek($userId)->count();
+
+        // Get completed tasks for the user this week
+        $tasksCompletedThisWeek = Task::completedThisWeek($userId)->count();
+
+        // Calculate task completion rate
+        $taskCompletionRate = $totalTasksThisWeek > 0 
+            ? round(($tasksCompletedThisWeek / $totalTasksThisWeek) * 100) 
+            : 0;
+
+        $tasksDueToday = Task::dueToday()->count();
+        
+        return response()->json([
+            'success' => true,
+            'totalTasksThisWeek' => $totalTasksThisWeek,
+            'tasksCompletedThisWeek' => $tasksCompletedThisWeek,
+            'taskCompletionRate' => $taskCompletionRate,
+            'tasksDueToday' => $tasksDueToday
+        ]);
+    }
 
 
 }

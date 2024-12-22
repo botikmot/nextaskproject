@@ -47,13 +47,6 @@ foreach ($routes as $uri => $view) {
             ->with(['users', 'statuses.tasks'])
             ->orderBy('created_at', 'desc')
             ->get()->append('progress');
-        $tasks = $user->tasks()->with([
-            'project.users',
-            'project.tasks',
-            'project.statuses',
-            'users',
-            'status'
-            ])->get();
         $events = Event::with(['creator', 'participants'])
             ->where('creator_id', $user->id)  // Check if the user is the creator
             ->orWhereHas('participants', function($query) use ($user) {
@@ -84,7 +77,6 @@ foreach ($routes as $uri => $view) {
             'userName' => Auth::check() ? Auth::user()->name : null,
             'projects' => $projects,
             'userRole' => $userRole,
-            'tasks' => $tasks,
             'events' => $formattedEvents,
         ]);
     })->middleware(['auth', 'verified'])->name(basename($uri));
@@ -137,6 +129,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{taskId}/set-dependency', [TaskController::class, 'setDependency'])->name('task.setDependency');
     Route::post('/tasks/{taskId}/remove-dependency', [TaskController::class, 'removeDependency'])->name('task.removeDependency');
     Route::put('/task-description/{id}', [TaskController::class, 'updateTaskDescription'])->name('task.taskDescription');
+    Route::get('/tasks/tasks-completion-rate', [TaskController::class, 'getTaskCompletionRate'])->name('task.getTaskCompletionRate');
+
 
     // Calendar Events
     Route::post('/events', [EventController::class, 'store'])->name('event.store');

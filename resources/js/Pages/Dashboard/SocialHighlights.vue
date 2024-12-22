@@ -21,11 +21,7 @@ const formatDate = (date) => {
 }
 
 const convertLinks = (text) => {
-    console.log("Before cleanup:", text);
-
     text = text.replace(/^<p>(.*?)<\/p>$/s, '$1');
-
-    console.log("After cleanup:", text);
     // Convert newlines to <br> for line breaks
     text = text.replace(/\n/g, '<br>');
 

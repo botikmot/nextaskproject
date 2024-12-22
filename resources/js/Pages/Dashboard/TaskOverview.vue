@@ -8,96 +8,19 @@ const props = defineProps({
 console.log('tasks', props.tasks)
 const authUserId = usePage().props.auth.user.id
 const data = ref({})
+let totalTasksThisWeek = ref(0)
+let tasksDueToday = ref(0)
+let taskCompletionRate = ref(0)
 
-// Get tasks assigned to the user this week
-const totalTasksThisWeek = computed(() => {
-    const startOfWeek = getStartOfWeek(); // Returns the start of the week
-    const endOfWeek = getEndOfWeek();     // Returns the end of the week
-    
-    // Get tasks created this week
-    /* const tasksCreatedThisWeek = props.tasks.filter(task => {
-        const taskCreatedAt = new Date(task.created_at);
-        return (
-            taskCreatedAt >= startOfWeek &&          // Task created this week
-            taskCreatedAt <= endOfWeek &&
-            task.user_id === authUserId           // Task created by the auth user
-        );
-    }).length; */
-
-    // Get tasks assigned to the user this week (exclude tasks where the user is the creator)
-    const tasksAssignedThisWeek = props.tasks.filter(task => {
-        return task.users.some(user => {
-            const pivotCreatedAt = new Date(user.pivot.created_at); // Convert pivot created_at to Date object
-            return (
-                user.id === authUserId &&               // User is assigned
-                pivotCreatedAt >= startOfWeek &&        // Assigned this week
-                pivotCreatedAt <= endOfWeek //&&
-                //task.user_id !== authUserId          // Exclude tasks where the user is the creator
-            );
-        });
-    }).length;
-
-    console.log('tasksAssignedThisWeek', tasksAssignedThisWeek);
-    // Add both counts
-    return tasksAssignedThisWeek;
-});
-
-// Get completed tasks this week
-const tasksCompletedThisWeek = computed(() => {
-    const startOfWeek = getStartOfWeek();
-    const endOfWeek = getEndOfWeek();
-    return props.tasks.filter(task => {
-        const taskDate = new Date(task.created_at);
-        return (
-            taskDate >= startOfWeek &&
-            taskDate <= endOfWeek &&
-            task.project.completed_status_id === task.status.id
-        );
-    }).length;
-});
-
-// Task completion rate
-const taskCompletionRate = computed(() => {
-    const total = totalTasksThisWeek.value;
-    const completed = tasksCompletedThisWeek.value;
-
-    console.log('total', total);
-    console.log('completed', completed);
-
-    return total > 0 ? Math.round((completed / total) * 100) : 0; // Avoid division by zero
-});
-
-// Computed property to get tasks due today, excluding completed tasks
-const tasksDueToday = computed(() => {
-    const today = getToday();
-    return props.tasks.filter(task => {
-        return task.due_date === today && task.project.completed_status_id !== task.status.id;
-    }).length;
-});
-
-const getToday = () => {
-    const today = new Date();
-    return today.toISOString().split('T')[0];
+const getTasksCompletionRate = async () => {
+    const response = await axios.get('/tasks/tasks-completion-rate');
+    console.log('total task this week-->' ,response.data)
+    if(response.data.success){
+        totalTasksThisWeek.value = response.data.totalTasksThisWeek
+        taskCompletionRate.value = response.data.taskCompletionRate
+        tasksDueToday.value = response.data.tasksDueToday
+    }
 }
-console.log('Tasks due today:', tasksDueToday.value);
-const getStartOfWeek = () => {
-    const today = new Date();
-    const day = today.getDay(); // 0 (Sunday) to 6 (Saturday)
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when it's Sunday
-    //return new Date(today.setDate(diff));
-    const startOfWeek = new Date(today.setDate(diff)); // Set to the start of the week
-    startOfWeek.setHours(0, 0, 0, 0); // Set time to 8:00 AM
-
-    return startOfWeek;
-}
-const getEndOfWeek = () => {
-    const startOfWeek = getStartOfWeek();
-    const endOfWeek = new Date(startOfWeek); // Clone the startOfWeek date
-    endOfWeek.setDate(startOfWeek.getDate() + 6); // Add 6 days to get the end of the week
-    endOfWeek.setHours(23, 59, 59, 999); // Optionally, set to the end of the day
-    return endOfWeek;
-};
-console.log('totalTasksThisWeek', totalTasksThisWeek.value)
 
 onMounted(() => {    
     const savedProjects = JSON.parse(localStorage.getItem('selectedProjects')) || [];
@@ -110,7 +33,7 @@ onMounted(() => {
 
     data.value.sortBy = savedSortBy;
     data.value.sortOrder = savedOrderBy;
-
+    getTasksCompletionRate()
 });
 
 
