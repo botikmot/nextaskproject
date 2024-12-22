@@ -217,6 +217,16 @@ const updatePost = () => {
     })
 }
 
+const likePost = async (postId) => {
+    try {
+        const response = await axios.post(`/post/${postId}/like`);
+        props.post.likes_count = response.data.likes_count;
+        props.post.is_liked_by_auth_user = response.data.user_liked;
+    } catch (error) {
+        console.error("Error liking post:", error);
+    }
+};
+
 </script>
 <template>
     <div>
@@ -348,7 +358,7 @@ const updatePost = () => {
         <hr class="text-dark-gray my-3"/>
         <div class="post-actions mt-4 text-sm flex gap-4">
             <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">
-                {{ post.user_liked ? "Unlike" : "Like" }}
+                {{ post.is_liked_by_auth_user ? "Unlike" : "Like" }}
             </button>
             <span>{{ post.likes_count }} {{ post.likes_count === 1 ? "Like" : "Likes" }}</span>
             <button @click="toggleCommentInput" class="text-navy-blue hover:text-sky-blue">

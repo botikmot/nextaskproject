@@ -19,6 +19,8 @@ class Post extends Model
     
     protected $fillable = ['content', 'user_id'];
 
+    protected $appends = ['is_liked_by_auth_user', 'likes_count'];
+
     protected static function boot()
     {
         parent::boot();
@@ -77,5 +79,15 @@ class Post extends Model
         return null;
     }
 
+    public function getIsLikedByAuthUserAttribute()
+    {
+        $authUserId = auth()->id();
+        return $this->likes->contains('user_id', $authUserId);
+    }
+
+    public function getLikesCountAttribute()
+    {
+        return $this->likes()->count();
+    }
 
 }

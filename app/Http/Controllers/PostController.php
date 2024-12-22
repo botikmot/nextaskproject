@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\PostMedia;
 use Inertia\Inertia;
 use App\Models\User;
+use App\Models\Like;
 
 class PostController extends Controller
 {
@@ -19,7 +20,7 @@ class PostController extends Controller
         
         $posts = Post::whereIn('user_id', $friends)
                 ->orWhere('user_id', $user->id)
-                ->with(['user', 'media', 'likes', 'comments.user'])
+                ->with(['user', 'media', 'likes.user', 'comments.user'])
                 ->orderBy('created_at', 'desc')
                 ->whereNull('deleted_at')
                 ->paginate(10);
@@ -178,6 +179,28 @@ class PostController extends Controller
         $comment->save();
 
         return response()->json(['comment' => $comment->load('user')]);
+    }
+
+    public function likePost($id)
+    {
+        $post = Post::find($id);
+        $user = auth()->user();
+        
+        $like = $post->likes()->where('user_id', $user->id)->first();
+        if($like){
+            $like->delete();
+            $userLiked = false;
+        }else{
+            $post->likes()->create(['user_id' => $user->id]);
+            $userLiked = true;
+        }
+
+        return response()->json([
+            'success' => true,
+            'likes_count' => $post->likes()->count(),
+            'user_liked' => $userLiked,
+        ]);
+
     }
 
 

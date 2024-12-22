@@ -244,4 +244,9 @@ class User extends Authenticatable
         return $suggestedFriends;
     }
 
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
 }

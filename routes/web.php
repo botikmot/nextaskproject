@@ -154,6 +154,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/post/comment/{id}', [PostController::class, 'commentPost'])->name('post.commentPost');
     Route::delete('/post/comment/{id}', [PostController::class, 'postCommentDelete'])->name('post.postCommentDelete');
     Route::put('/post/comment/{id}', [PostController::class, 'postCommentUpdate'])->name('post.postCommentUpdate');
+    Route::post('/post/{id}/like', [PostController::class, 'likePost'])->name('post.likePost');
+
 
 });
 
