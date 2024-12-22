@@ -155,7 +155,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/post/comment/{id}', [PostController::class, 'postCommentDelete'])->name('post.postCommentDelete');
     Route::put('/post/comment/{id}', [PostController::class, 'postCommentUpdate'])->name('post.postCommentUpdate');
     Route::post('/post/{id}/like', [PostController::class, 'likePost'])->name('post.likePost');
-
+    Route::get('/social/highlights', [PostController::class, 'getSocialHighlights']);
 
 });
 

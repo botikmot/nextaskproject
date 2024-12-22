@@ -151,7 +151,8 @@ class User extends Authenticatable
 
     public function friends()
     {
-        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id');
+        return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
+                ->select('users.id', 'users.name', 'users.profile_image', 'friendships.friend_id');
     }
 
     public function friendsWithMutualProjects()
@@ -247,6 +248,11 @@ class User extends Authenticatable
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 
 }

@@ -23,7 +23,7 @@ const activeProjects = computed(() => {
 </script>
 
 <template>
-    <div class="bg-color-white p-6 rounded-lg shadow-md">
+    <div class="bg-color-white px-6 pt-6 pb-14 rounded-lg shadow-md relative">
         <h2 class="text-lg font-bold text-navy-blue border-b border-dark-gray pb-2">Projects</h2>
         <div v-if="activeProjects.length === 0" class="text-gray-500 mt-4">
             <p>No projects available yet.</p>
@@ -40,7 +40,7 @@ const activeProjects = computed(() => {
             </li>
         </ul>
         <a
-            class="mt-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
             :href="route('projects')"
             v-if="activeProjects.length > 0"
         >
@@ -48,7 +48,7 @@ const activeProjects = computed(() => {
         </a>
         <a
             v-else
-            class="mt-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
             @click="isModalOpen = true"
         >
             Create Your First Project

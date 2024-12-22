@@ -4,6 +4,7 @@ import { Head } from '@inertiajs/vue3';
 import TaskOverview from './Dashboard/TaskOverview.vue';
 import ProjectsWidget from './Dashboard/ProjectsWidget.vue';
 import UpcomingEvents from './Dashboard/UpcomingEvents.vue';
+import SocialHighlights from './Dashboard/SocialHighlights.vue';
 
 const props = defineProps({
     userName: String,
@@ -29,30 +30,18 @@ const props = defineProps({
 
             <!-- Main Grid Layout -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Task Overview -->
-                <TaskOverview :tasks="tasks"/>
-            <!-- Project Highlights -->
-                <ProjectsWidget :projects="projects"/>
+                <!-- Task Overview -->
+                    <TaskOverview :tasks="tasks"/>
+                <!-- Project Highlights -->
+                    <ProjectsWidget :projects="projects"/>
 
-            <!-- Calendar Preview -->
-                <UpcomingEvents :events="events"/>
+                <!-- Calendar Preview -->
+                    <UpcomingEvents :events="events"/>
 
-            <!-- Social Highlights -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-lg font-bold text-navy-blue">Social Highlights</h2>
-                <ul class="mt-2">
-                <li v-for="post in recentPosts" :key="post.id" class="py-2">
-                    <p class="font-semibold">{{ post.author }}</p>
-                    <p class="text-sm text-gray-500">{{ post.content }}</p>
-                </li>
-                </ul>
-                <button
-                class="mt-4 px-4 py-2 bg-sky-blue text-white rounded-full hover:bg-crystal-blue"
-                @click="navigateToSocialPage"
-                >
-                View All Posts
-                </button>
-            </div>
+                <!-- Social Highlights -->
+                <div class="bg-color-white px-6 pt-6 pb-14 relative rounded-lg shadow-md">
+                  <SocialHighlights />
+                </div>
             </div>
 
             <!-- Bottom Widgets -->

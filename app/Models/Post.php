@@ -46,6 +46,11 @@ class Post extends Model
         return $this->hasMany(Like::class);
     }
 
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
     public function media()
     {
         return $this->hasMany(PostMedia::class);

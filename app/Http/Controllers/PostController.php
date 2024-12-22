@@ -203,5 +203,27 @@ class PostController extends Controller
 
     }
 
+    public function getSocialHighlights()
+    {
+        $user = auth()->user();
+
+        // Fetch the IDs of the user's friends
+        $friendIds = $user->friends()->pluck('id');
+
+        // Include the user's own ID
+        $userAndFriends = $friendIds->push($user->id);
+
+        // Fetch posts from the user and their friends
+        $highlights = Post::with('author', 'likes', 'comments')
+            ->whereIn('user_id', $userAndFriends)
+            ->withCount(['likes', 'comments']) // Include engagement counts
+            ->orderByRaw('(likes_count + comments_count) DESC') // Sort by engagement
+            ->take(2) // Limit to top 5 posts
+            ->get();
+
+        return response()->json($highlights);
+    }
+
+
 
 }

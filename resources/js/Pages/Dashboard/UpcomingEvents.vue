@@ -27,7 +27,7 @@ const formatDate = (date) => {
 </script>
 
 <template>
-    <div class="bg-color-white p-6 rounded-lg shadow-md">
+    <div class="bg-color-white px-6 pt-6 pb-14 relative rounded-lg shadow-md">
         <h2 class="text-lg font-bold border-b border-dark-gray text-navy-blue pb-2">Upcoming Events</h2>
         
         <ul class="mt-2 mb-6 list-none">
@@ -56,7 +56,7 @@ const formatDate = (date) => {
         </template>
 
         <a
-            class="mt-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
             :href="route('calendar')"
         >
            View Calendar

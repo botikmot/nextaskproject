@@ -10,7 +10,7 @@ import { Head } from '@inertiajs/vue3';
 
     <AuthenticatedLayout pageTitle="Messages">
         <!-- Chat Page Layout -->
-        <div class="flex h-screen w-full space-x-4">
+        <div class="flex w-full space-x-4 p-6 bg-linen">
             <!-- Sidebar for Conversations -->
             <aside class="w-1/4 bg-gray-100 p-4 rounded-lg shadow">
                 <h2 class="text-lg font-semibold mb-4">Conversations</h2>
