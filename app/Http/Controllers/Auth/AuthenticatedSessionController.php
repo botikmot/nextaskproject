@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Events\UserStatusChanged;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -59,8 +60,11 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $user = Auth::user();
+        broadcast(new UserStatusChanged($user, 'offline'));
+        $user->update(['last_login' => null]);
         Auth::guard('web')->logout();
-
+       
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();

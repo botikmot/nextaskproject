@@ -52,7 +52,7 @@ class Conversation extends Model
     {
         // For private conversations, get the other user in the conversation
         return $this->users()
-            ->select('users.id', 'users.name', 'users.profile_image') // Explicitly select necessary fields
+            ->select('users.id', 'users.name', 'users.profile_image', 'users.last_login') // Explicitly select necessary fields
             ->where('users.id', '!=', $authUserId)
             ->first();
     }

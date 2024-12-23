@@ -2,7 +2,7 @@
 import { usePage, useForm } from '@inertiajs/vue3'
 import Modal from '@/Components/Modal.vue';
 import FriendsList from './FriendsList.vue';
-import { ref, defineProps, defineEmits, computed } from 'vue'
+import { ref, defineProps, defineEmits, computed, onMounted } from 'vue'
 const page = usePage();
 const conversations = page.props.sharedConversations || [];
 const isNewConversation = ref(false)
@@ -36,7 +36,10 @@ const handleConversationStarted = (conversation) => {
 };
 
 const privateMessages = computed(() => {
-    return conversations.private
+    //return conversations.private
+    console.log('this-->>', Array.isArray(conversations.private));
+    //return Array.isArray(conversations.private) ? conversations.private : [...(conversations.private || [])];
+    return [...(conversations.private || [])]
 });
 
 const groupMessages = computed(() => {
@@ -52,6 +55,22 @@ const truncateText = (text, maxLength = 45) => {
     if (!text || typeof text !== "string") return "";
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
 }
+
+onMounted(() => {
+    console.log(Array.isArray(privateMessages)); // Should log true
+    console.log(privateMessages);
+
+    Echo.private('users-status')
+        .listen('UserStatusChanged', (event) => {
+            const contact = privateMessages.value.find(contact => {
+                return contact.user_id === event.user.id;
+            });
+            if (contact) {
+                contact.status = event.status;
+            }
+
+    });
+});
 
 </script>
 
@@ -87,9 +106,12 @@ const truncateText = (text, maxLength = 45) => {
             </div>
             <li v-for="contact in privateMessages"
                 :key="contact.id"
-                class="flex items-center p-2 bg-color-white rounded-lg shadow cursor-pointer hover:bg-blue-100"
+                class="flex items-center p-2 bg-color-white relative rounded-lg shadow cursor-pointer hover:bg-blue-100"
                 @click="$emit('selectConversation', contact)"
             >
+                <div v-if="contact.status == 'online'" class="absolute w-3 h-3 bg-green rounded-full top-3 left-10 border-2 border-color-white"></div>
+                <div v-else class="absolute w-3 h-3 bg-gray rounded-full top-3 left-10 border-2 border-color-white"></div>
+
                 <img :src="'/' + contact.chat_image" alt="Profile" class="w-10 h-10 object-cover rounded-full mr-3">
                 <div class="flex flex-col">
                     <span class="font-medium">{{ contact.chat_name }}</span>

@@ -4,6 +4,8 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use Carbon\Carbon;
+use App\Events\UserStatusChanged;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -29,6 +31,12 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        // Update last activity timestamp for authenticated users
+        if ($request->user()) {
+            $request->user()->update(['last_login' => now()]);
+            broadcast(new UserStatusChanged($request->user(), 'online'));
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -80,6 +88,11 @@ class HandleInertiaRequests extends Middleware
                             $chatPartner = $conversation->chatPartner($request->user()->id);
                             $conversation->chat_name = $chatPartner ? $chatPartner->name : 'Unknown User';
                             $conversation->chat_image = $chatPartner ? $chatPartner->profile_image : null;
+                            $lastActivity = $chatPartner->last_login ? Carbon::parse($chatPartner->last_login) : null;
+                            $isOnline = $lastActivity && $lastActivity->diffInMinutes(now()) < 5;
+                            $conversation->status = $isOnline ? 'online' : 'offline';
+                            $conversation->user_id = $chatPartner ? $chatPartner->id : null;
+
                             return $conversation;
                         }),
                     'group' => $request->user()->groupConversations()
