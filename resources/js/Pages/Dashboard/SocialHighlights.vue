@@ -50,7 +50,7 @@ onMounted(() => {
 <template>
     <div class="">
         <h2 class="text-lg font-bold border-b border-dark-gray pb-2 text-navy-blue">Social Highlights</h2>
-        <ul class="mt-2 list-none mb-6">
+        <ul v-if="socialHighlights.length > 0" class="mt-2 list-none mb-6">
             <li v-for="post in socialHighlights" :key="post.id" class="py-1 border-b border-dark-gray">
                 <div class="flex items-center">
                     <UserImage class="w-8 h-8 rounded-full object-cover mr-2" :user="post.author" />
@@ -61,6 +61,9 @@ onMounted(() => {
                 </div>
             </li>
         </ul>
+        <div v-else class="text-center text-gray-500 mt-8">
+            <p>No social highlights this week.</p>
+        </div>
         <a
             class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
             :href="route('social')"

@@ -12,6 +12,7 @@ use App\Models\Project;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Label;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class TaskController extends Controller
 {
@@ -611,13 +612,14 @@ class TaskController extends Controller
             : 0;
 
         $tasksDueToday = Task::dueToday()->count();
-        
+        $today = Carbon::now()->startOfDay();
         return response()->json([
             'success' => true,
             'totalTasksThisWeek' => $totalTasksThisWeek,
             'tasksCompletedThisWeek' => $tasksCompletedThisWeek,
             'taskCompletionRate' => $taskCompletionRate,
-            'tasksDueToday' => $tasksDueToday
+            'tasksDueToday' => $tasksDueToday,
+            'todayIs' => $today
         ]);
     }
 

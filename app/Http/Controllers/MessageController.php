@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Conversation;
+use App\Models\Message;
 
 class MessageController extends Controller
 {
@@ -31,7 +32,16 @@ class MessageController extends Controller
         $conversation->users()->attach($user->id, ['is_admin' => false]);
         $conversation->users()->attach($friendId, ['is_admin' => false]);
 
-        return response()->json($conversation, 201);
+        $chatPartner = $conversation->chatPartner($user->id);
+        $conversation->chat_name = $chatPartner ? $chatPartner->name : 'Unknown User';
+        $conversation->chat_image = $chatPartner ? $chatPartner->profile_image : null;
+        $conversation->messages = [];
+
+        //return response()->json($conversation, 201);
+        return response()->json([
+            'success' => true,
+            'conversation' => $conversation,
+        ]);
     }
 
     public function createGroupConversation(Request $request)
@@ -94,7 +104,7 @@ class MessageController extends Controller
 
         $user = auth()->user();
         $conversation = Conversation::findOrFail($conversationId);
-
+        
         // Ensure the user is part of the conversation
         if (!$conversation->hasUser($user->id)) {
             return response()->json(['message' => 'You are not part of this conversation.'], 403);
@@ -106,8 +116,12 @@ class MessageController extends Controller
             'user_id' => $user->id,
             'text' => $request->text,
         ]);
-
-        return response()->json($message, 201);
+       
+        //return response()->json($message, 201);
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Send message successfully',
+        ]);
     }
 
 
@@ -116,7 +130,7 @@ class MessageController extends Controller
         $conversation = Conversation::findOrFail($conversationId);
 
         // Retrieve all messages for the conversation
-        $messages = $conversation->messages()->with('user')->latest()->get();
+        $messages = $conversation->messages()->with('user')->get();
 
         return response()->json($messages);
     }

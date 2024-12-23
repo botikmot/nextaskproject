@@ -72,7 +72,7 @@ class HandleInertiaRequests extends Middleware
                     'private' => $request->user()->privateConversations()
                         ->with([
                             'users:id,name,profile_image',
-                            'messages' => fn ($query) => $query->latest()->first(),
+                            'messages' => fn ($query) => $query->latest()->get(),
                         ])
                         ->get()
                         ->map(function ($conversation) use ($request) {

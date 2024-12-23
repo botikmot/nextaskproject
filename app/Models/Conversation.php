@@ -38,8 +38,8 @@ class Conversation extends Model
     // Check if a user is part of the conversation
     public function hasUser($userId)
     {
-        //return $this->users->contains('id', $userId);
-        return $this->users()->where('id', $userId)->exists();
+        return $this->users->contains('id', $userId);
+        //return $this->users()->where('id', $userId)->exists();
     }
 
     // Get admins of a group

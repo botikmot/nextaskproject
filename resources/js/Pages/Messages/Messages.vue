@@ -5,6 +5,8 @@ import { Head } from '@inertiajs/vue3';
 import ConversationList from './ConversationList.vue';
 import MainChatArea from './MainChatArea.vue';
 
+const selectedConversation = ref(null);
+
 </script>
 
 <template>
@@ -15,12 +17,12 @@ import MainChatArea from './MainChatArea.vue';
     <div class="flex w-full space-x-4 p-6 bg-linen">
         <!-- Sidebar for Conversations -->
         <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow">
-            <ConversationList />
+            <ConversationList @selectConversation="selectedConversation = $event"/>
         </aside>
 
         <!-- Main Chat Area -->
         <section class="flex-1 bg-color-white p-4 rounded-lg shadow flex flex-col">
-            <MainChatArea />
+            <MainChatArea :selectedConversation="selectedConversation"/>
         </section>
     </div>
     </AuthenticatedLayout>

@@ -2,18 +2,30 @@
 import { usePage, useForm } from '@inertiajs/vue3'
 import UserImage from '@/Components/UserImage.vue';
 import axios from 'axios';
+import { defineEmits } from 'vue';
 
+const emit = defineEmits(['conversationStarted']);
 const page = usePage();
 const sharedFriends = page.props.sharedFriends || [];
-console.log('My friends-->>', sharedFriends)
 
 const startConversation = async (id) => {
-    console.log('friend Id', id)
-    const data = {
-        friend_id: id
+    try {
+        console.log('Friend ID', id);
+        const data = {
+            friend_id: id,
+        };
+        const response = await axios.post('/conversations/private', data);
+        console.log('Conversation', response);
+
+        // Emit the new conversation details to the parent
+        if (response.data.success) {
+            const conversation = response.data.conversation;
+            // Emit the conversation to the parent
+            emit('conversationStarted', conversation);
+        }
+    } catch (error) {
+        console.error('Error starting conversation:', error);
     }
-    const response = await axios.post('/conversations/private', data);
-    console.log('conversation' ,response)
 }
 
 </script>
