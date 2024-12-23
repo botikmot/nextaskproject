@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\Message;
+use App\Events\MessageSent;
 
 class MessageController extends Controller
 {
@@ -120,6 +121,9 @@ class MessageController extends Controller
             'user_id' => $user->id,
             'text' => $request->text,
         ]);
+
+        // Fire the MessageSent event to broadcast
+        broadcast(new MessageSent($message));
        
         return redirect()->back()->with([
             'success' => true,

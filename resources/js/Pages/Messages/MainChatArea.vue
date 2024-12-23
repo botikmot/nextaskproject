@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { usePage, useForm } from '@inertiajs/vue3'
 import moment from 'moment';
 import UserImage from '@/Components/UserImage.vue';
@@ -18,6 +18,14 @@ watch(
     (newConversation, oldConversation) => {
         if (newConversation) {
             fetchMessages(newConversation.id);
+
+            Echo.private(`conversation.${newConversation.id}`)
+                .listen('MessageSent', (event) => {
+                    console.log('event-->>', event)
+                    // Update the messages list with the new message
+                    messages.value.push(event.message);
+            });
+
         }
     },
     { immediate: true } // To run the watcher immediately when the component is mounted
