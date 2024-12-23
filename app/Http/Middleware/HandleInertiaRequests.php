@@ -85,9 +85,10 @@ class HandleInertiaRequests extends Middleware
                     'group' => $request->user()->groupConversations()
                         ->with([
                             'users:id,name,profile_image',
-                            'messages' => fn ($query) => $query->latest()->first(),
+                            'messages' => fn ($query) => $query->with('user')->latest()->get(),
                         ])
-                        ->get(),
+                        ->get()
+                        ->unique('id'),
                 ]
                 : [],
         ];

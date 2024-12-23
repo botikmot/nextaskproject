@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { usePage, useForm } from '@inertiajs/vue3'
 import moment from 'moment';
+import UserImage from '@/Components/UserImage.vue';
 
 const props = defineProps(['selectedConversation']);
 const messages = ref([]);
@@ -61,56 +62,64 @@ const formatDate = (date) => {
     <div class="flex-1">
         <!-- If no contact is selected -->
         <div v-if="!selectedConversation" class="flex items-center justify-center flex-col h-full text-center text-gray-500">
-                <p>Select a conversation to start chatting!</p>
-            </div>
+            <p>Select a conversation to start chatting!</p>
+        </div>
             
             <!-- If a contact is selected, show the conversation -->
-            <div v-else class="flex flex-col h-full">
-    <!-- Chat Header -->
-    <div class="flex items-center mb-4 border-b border-dark-gray pb-2">
-      <img :src="'/' + selectedConversation.chat_image" alt="Profile" class="w-10 h-10 rounded-full object-cover mr-3">
-      <h2 class="text-lg font-semibold">{{ selectedConversation.chat_name }}</h2>
-    </div>
+        <div v-else class="flex flex-col h-full">
+            <!-- Chat Header -->
+            <div class="flex items-center mb-4 border-b border-dark-gray pb-2">
+                <img v-if="selectedConversation.type == 'private'" :src="'/' + selectedConversation.chat_image" alt="Profile" class="w-10 h-10 rounded-full object-cover mr-3">
+                <h2 class="text-lg font-semibold">{{ selectedConversation.type == 'private' ? selectedConversation.chat_name : selectedConversation.name }}</h2>
+            </div>
 
-    <!-- Chat Messages -->
-    <div class="flex-1 overflow-y-auto space-y-4">
-      <div
-        v-for="message in messages"
-        :key="message.id"
-        :class="{
-          'flex justify-end': message.user_id === authenticatedUserId, // Auth user's message aligned to the right
-          'flex justify-start': message.user_id !== authenticatedUserId, // Chat mate's message aligned to the left
-        }"
-        class=""
-      >
-        <div :class="`${message.user_id === authenticatedUserId ? 'bg-sky-blue text-color-white' : 'bg-light-gray'} px-3 py-2 rounded-lg shadow`">
-            <p :class="{
-                'text-right': message.user_id === authenticatedUserId,  // Align text to the right for auth user
-                'text-left': message.user_id !== authenticatedUserId,  // Align text to the left for chat mate
-            }"
-            class=""
-            >{{ message.text }}</p>
-            <span class="text-xs text-gray-500">{{ formatDate(message.created_at) }}</span>
+            <!-- Chat Messages -->
+            <div class="flex-1 overflow-y-auto space-y-4">
+            <div
+                v-for="message in messages"
+                :key="message.id"
+                :class="{
+                'flex justify-end': message.user_id === authenticatedUserId, // Auth user's message aligned to the right
+                'flex justify-start': message.user_id !== authenticatedUserId, // Chat mate's message aligned to the left
+                }"
+                class=""
+            >
+                <div :class="`${message.user_id === authenticatedUserId ? 'bg-sky-blue text-color-white' : 'bg-light-gray'} px-3 py-2 rounded-lg shadow`">
+
+                    <div class="flex mb-2 items-center" v-if="selectedConversation.type === 'group' && message.user_id !== authenticatedUserId">
+                        <UserImage class="w-10 h-10 rounded-full object-cover mr-2" :user="message.user"/>
+                        <div>
+                            <div class="text-sm font-bold text-navy-blue">{{ message.user.name }}</div>
+                            <div class="text-xs text-gray-500">{{ formatDate(message.created_at) }}</div>
+                        </div>
+                    </div>
+
+                    <p :class="{
+                        'text-right': message.user_id === authenticatedUserId,  // Align text to the right for auth user
+                        'text-left': message.user_id !== authenticatedUserId,  // Align text to the left for chat mate
+                    }"
+                    class=""
+                    >{{ message.text }}</p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Message Input -->
+            <div class="mt-4 flex items-center border-t border-dark-gray pt-4">
+            <input
+                type="text"
+                v-model="form.text"
+                placeholder="Type a message..."
+                class="flex-1 border p-2 rounded-md mr-2"
+            />
+            <button
+                @click="sendMessage"
+                class="bg-blue-500 text-white py-2 px-4 rounded shadow hover:bg-blue-600"
+            >
+                Send
+            </button>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Message Input -->
-    <div class="mt-4 flex items-center border-t border-dark-gray pt-4">
-      <input
-        type="text"
-        v-model="form.text"
-        placeholder="Type a message..."
-        class="flex-1 border p-2 rounded-md mr-2"
-      />
-      <button
-        @click="sendMessage"
-        class="bg-blue-500 text-white py-2 px-4 rounded shadow hover:bg-blue-600"
-      >
-        Send
-      </button>
-    </div>
-  </div>
 
     </div>
 </template>

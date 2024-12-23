@@ -65,8 +65,12 @@ class MessageController extends Controller
         foreach ($participants as $participantId) {
             $conversation->users()->attach($participantId, ['is_admin' => false]);
         }
-
-        return response()->json($conversation, 201);
+        $conversation->messages = [];
+        //return response()->json($conversation, 201);
+        return response()->json([
+            'success' => true,
+            'conversation' => $conversation->load('users'),
+        ]);
     }
 
 
@@ -117,7 +121,6 @@ class MessageController extends Controller
             'text' => $request->text,
         ]);
        
-        //return response()->json($message, 201);
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Send message successfully',

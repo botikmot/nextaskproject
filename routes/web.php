@@ -155,6 +155,7 @@ Route::middleware('auth')->group(function () {
 
     // Messages 
     Route::post('/conversations/private', [MessageController::class, 'createPrivateConversation']);
+    Route::post('/conversations/group', [MessageController::class, 'createGroupConversation']);
     Route::post('/conversations/{conversationId}/messages', [MessageController::class, 'sendMessage']);
     Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'getMessages']);
 

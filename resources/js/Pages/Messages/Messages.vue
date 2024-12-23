@@ -6,6 +6,9 @@ import ConversationList from './ConversationList.vue';
 import MainChatArea from './MainChatArea.vue';
 
 const selectedConversation = ref(null);
+const props = defineProps({
+  projects: Array,
+});
 
 </script>
 
@@ -17,7 +20,7 @@ const selectedConversation = ref(null);
     <div class="flex w-full space-x-4 p-6 bg-linen">
         <!-- Sidebar for Conversations -->
         <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow">
-            <ConversationList @selectConversation="selectedConversation = $event"/>
+            <ConversationList @selectConversation="selectedConversation = $event" :projects="projects"/>
         </aside>
 
         <!-- Main Chat Area -->

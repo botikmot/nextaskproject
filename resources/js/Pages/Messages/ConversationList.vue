@@ -7,7 +7,13 @@ const page = usePage();
 const conversations = page.props.sharedConversations || [];
 const isNewConversation = ref(false)
 const selectedConversation = ref(null);
-console.log('My conversations-->>', conversations.private)
+
+const props = defineProps({
+  projects: Array,
+});
+
+console.log('conversations', conversations)
+const conversationType = ref(null)
 
 const emit = defineEmits(['selectConversation']);
 
@@ -17,9 +23,15 @@ const handleConversationStarted = (conversation) => {
 
     // Automatically select the new conversation
     selectedConversation.value = conversation;
-    conversations.private.push(conversation)
+    if(conversation.type == 'private'){
+        conversations.private.push(conversation)
+    }else{
+        conversations.group.push(conversation)
+    }
+    
     // Trigger the chat view (emit to parent or update UI as needed)
     console.log('New conversation selected:', conversation);
+    console.log('New groupMessages:', groupMessages);
     emit('selectConversation', conversation);
 };
 
@@ -31,6 +43,16 @@ const groupMessages = computed(() => {
     return conversations.group
 });
 
+const newConversation = (type) => {
+    conversationType.value = type
+    isNewConversation.value = true
+}
+
+const truncateText = (text, maxLength = 45) => {
+    if (!text || typeof text !== "string") return "";
+    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+}
+
 </script>
 
 <template>
@@ -39,28 +61,28 @@ const groupMessages = computed(() => {
     <!-- If no conversations exist -->
     <div v-if="privateMessages.length === 0 && groupMessages.length === 0" class="text-center text-gray-500 p-6">
         <p>No conversations yet. Start a new one!</p>
-        <button @click="isNewConversation = true" class="mt-4 bg-sky-blue text-color-white py-2 px-4 rounded shadow hover:bg-blue-600">
+        <button @click="newConversation('private')" class="mt-4 bg-sky-blue text-color-white py-2 px-4 rounded shadow hover:bg-blue-600">
             Start New Conversation
         </button>
-        <button @click="startNewGroupChat" class="mt-2 bg-navy-blue text-color-white py-2 px-4 rounded shadow hover:bg-green-600">
+        <button @click="newConversation('group')" class="mt-2 bg-navy-blue text-color-white py-2 px-4 rounded shadow hover:bg-green-600">
             Start Group Chat
         </button>
     </div>
     
     <!-- Conversation List -->
-     <div v-else>
+     <div class="w-full" v-else>
 
-        <div v-if="privateMessages.length === 0" class="text-center text-gray-500 p-6">
-            <button @click="isNewConversation = true" class="mt-4 bg-sky-blue text-color-white py-2 px-4 rounded shadow hover:bg-blue-600">
+        <div v-if="privateMessages.length === 0" class="text-center border-b border-sky-blue text-gray-500 p-6">
+            <button @click="newConversation('private')" class="mt-4 bg-sky-blue text-color-white py-2 px-4 rounded shadow hover:bg-blue-600">
                 Start New Conversation
             </button>
         </div>
 
-        <ul v-if="privateMessages.length" class="space-y-2">
+        <ul v-if="privateMessages.length" class="space-y-2 pb-6 border-b border-sky-blue">
             <div class="flex justify-between">
                 <div class="text-sky-blue font-bold">Personal</div>
                 <div>
-                    <button @click="isNewConversation = true" class="text-sm bg-sky-blue py-1 px-3 text-color-white rounded">+New Conversation</button>
+                    <button @click="newConversation('private')" class="text-sm bg-sky-blue py-1 px-3 text-color-white rounded">+New Conversation</button>
                 </div>
             </div>
             <li v-for="contact in privateMessages"
@@ -71,22 +93,22 @@ const groupMessages = computed(() => {
                 <img :src="'/' + contact.chat_image" alt="Profile" class="w-10 h-10 object-cover rounded-full mr-3">
                 <div class="flex flex-col">
                     <span class="font-medium">{{ contact.chat_name }}</span>
-                    <span class="text-sm text-gray-500">{{ contact.messages.length ? contact.messages[0].text : '' }}</span>
+                    <span class="text-sm text-gray-500">{{ contact.messages.length ? truncateText(contact.messages[0].text) : '' }}</span>
                 </div>
             </li>
         </ul>
 
         <div v-if="groupMessages.length === 0" class="text-center text-gray-500 p-6">
-            <button @click="startNewGroupChat" class="mt-2 bg-navy-blue text-color-white py-2 px-4 rounded shadow hover:bg-green-600">
+            <button @click="newConversation('group')" class="mt-2 bg-navy-blue text-color-white py-2 px-4 rounded shadow hover:bg-green-600">
                 Start Group Chat
             </button>
         </div>
 
-        <ul v-if="groupMessages.length" class="space-y-2">
+        <ul v-if="groupMessages.length" class="space-y-2 mt-6">
             <div class="flex justify-between">
                 <div class="text-sky-blue font-bold">Group</div>
                 <div>
-                    <button @click="startNewGroupChat" class="text-sm bg-sky-blue py-1 px-3 text-color-white rounded">+New Group Messages</button>
+                    <button @click="newConversation('group')" class="text-sm bg-sky-blue py-1 px-3 text-color-white rounded">+New Group Conversation</button>
                 </div>
             </div>
             <li v-for="contact in groupMessages"
@@ -94,10 +116,20 @@ const groupMessages = computed(() => {
                 class="flex items-center p-2 bg-color-white rounded-lg shadow cursor-pointer hover:bg-blue-100"
                 @click="$emit('selectConversation', contact)"
             >
-                <img :src="'/' + contact.chat_image" alt="Profile" class="w-10 h-10 object-cover rounded-full mr-3">
-                <div class="flex flex-col">
-                    <span class="font-medium">{{ contact.chat_name }}</span>
-                    <span class="text-sm text-gray-500">{{ contact.messages.length ? contact.messages[0].text : '' }}</span>
+                <div class="">
+                    <div class="flex items-center">
+                        <div class="font-bold text-navy-blue">{{ contact.name }}</div>
+                        <div class="flex items-center pl-3">
+                            <div v-for="(member, index) in contact.users.slice(0, 5)" :key="member.id" class="relative -mr-3">
+                                <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
+                            </div>
+                            
+                            <div v-if="contact.users.length > 5" class="flex items-center text-navy-blue ml-3">
+                                <span class="text-lg font-bold">+{{ contact.users.length - 5 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full text-sm text-gray-500">{{ contact.messages.length ? truncateText(contact.messages[0].text) : '' }}</div>
                 </div>
             </li>
         </ul>
@@ -106,7 +138,7 @@ const groupMessages = computed(() => {
     </div>
 
     <Modal :show="isNewConversation" @close="isNewConversation = false">
-        <FriendsList @close="isNewConversation = false" @conversationStarted="handleConversationStarted"/>
+        <FriendsList @close="isNewConversation = false" :type="conversationType" :projects="projects" @conversationStarted="handleConversationStarted"/>
     </Modal>
 
 </template>
