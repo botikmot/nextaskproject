@@ -123,7 +123,7 @@ class MessageController extends Controller
         ]);
 
         // Fire the MessageSent event to broadcast
-        broadcast(new MessageSent($message));
+        broadcast(new MessageSent($message->load('user')));
        
         return redirect()->back()->with([
             'success' => true,
