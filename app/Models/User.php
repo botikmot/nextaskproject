@@ -281,4 +281,20 @@ class User extends Authenticatable
                 $query->where('users.id', $userId);
             });
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'notifiable_id'); 
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->whereNull('read_at');
+    }
+
+    public function readNotifications()
+    {
+        return $this->notifications()->whereNotNull('read_at');
+    }
+
 }
