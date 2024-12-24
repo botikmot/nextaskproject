@@ -167,7 +167,7 @@ onMounted(() => {
             <li v-for="contact in groupMessages"
                 :key="contact.id"
                 class="flex items-center p-2 bg-color-white rounded-lg shadow cursor-pointer hover:bg-blue-100"
-                @click="$emit('selectConversation', contact)"
+                @click="currentConversation(contact)"
             >
                 <div class="">
                     <div class="flex items-center">
