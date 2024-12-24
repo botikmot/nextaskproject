@@ -24,7 +24,10 @@ const props = defineProps({
     }
 });
 const page = usePage();
-console.log('projects',props.projects)
+console.log('user auth',page.props.auth.user.id)
+
+const userId = page.props.auth.user.id
+
 const isCollapsed = ref(false);
 
 const toggleLeftSidebar = () => {
@@ -71,6 +74,14 @@ onMounted(() => {
 
     data.value.sortBy = savedSortBy;
     data.value.sortOrder = savedOrderBy;
+
+    
+    Echo.private(`App.Models.User.${userId}`)
+        .notification((notification) => {
+            console.log('notifications-->>>', notification)
+        //notifications.value.unshift(notification);
+    });
+
 
 });
 

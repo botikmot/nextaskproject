@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Events\MessageSent;
+use App\Notifications\UserNotification;
 
 class MessageController extends Controller
 {
@@ -122,6 +123,16 @@ class MessageController extends Controller
             'text' => $request->text,
         ]);
 
+        $otherParticipants = $conversation->users()->where('users.id', '!=', $user->id)->get();
+        foreach ($otherParticipants as $participant) {
+            // Using Laravel's built-in notification system
+            $participant->notify(new UserNotification([
+                'type' => 'chat',
+                'message' => "{$user->name} sent you a message: {$message->text}",
+                'user_id' => $user->id,
+            ]));
+        }
+        
         // Fire the MessageSent event to broadcast
         broadcast(new MessageSent($message->load('user')));
        

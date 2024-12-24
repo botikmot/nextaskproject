@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Like;
 use Carbon\Carbon;
+use App\Notifications\UserNotification;
 
 class PostController extends Controller
 {
@@ -51,6 +52,25 @@ class PostController extends Controller
             'user_id' => auth()->id(),
             'content' => $request->content,
         ]);
+
+        preg_match_all('/<span[^>]*data-id="([^"]+)"[^>]*>/i', $request->content, $matches);
+    
+        if (!empty($matches[1])) {
+            // $matches[1] contains the IDs of the mentioned users
+            foreach ($matches[1] as $userId) {
+                $user = User::find($userId);
+
+                if ($user) {
+                    // Create a notification for each mentioned user
+                    $user->notify(new UserNotification([
+                        'type' => 'mention',
+                        'message' => "{$post->user->name} mentioned you in a post.",
+                        'user_id' => auth()->id(),  // ID of the user who created the post
+                        'post_id' => $post->id,
+                    ]));
+                }
+            }
+        }
 
         if ($request->hasFile('media')) {
             foreach ($request->file('media') as $media) {

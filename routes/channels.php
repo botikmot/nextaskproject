@@ -9,3 +9,7 @@ Broadcast::channel('conversation.{id}', function (User $user, $id) {
 Broadcast::channel('users-status', function (User $user) {
     return true;  // Allow all authenticated users to listen to this channel
 });
+
+Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
+});

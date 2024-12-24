@@ -2,7 +2,8 @@
 import { usePage, useForm } from '@inertiajs/vue3'
 import Modal from '@/Components/Modal.vue';
 import FriendsList from './FriendsList.vue';
-import { ref, defineProps, defineEmits, computed, onMounted } from 'vue'
+import { ref, defineProps, defineEmits, computed, onMounted, watch } from 'vue'
+
 const page = usePage();
 const conversations = page.props.sharedConversations || [];
 const isNewConversation = ref(false)
@@ -30,15 +31,10 @@ const handleConversationStarted = (conversation) => {
     }
     
     // Trigger the chat view (emit to parent or update UI as needed)
-    console.log('New conversation selected:', conversation);
-    console.log('New groupMessages:', groupMessages);
     emit('selectConversation', conversation);
 };
 
 const privateMessages = computed(() => {
-    //return conversations.private
-    console.log('this-->>', Array.isArray(conversations.private));
-    //return Array.isArray(conversations.private) ? conversations.private : [...(conversations.private || [])];
     return [...(conversations.private || [])]
 });
 
