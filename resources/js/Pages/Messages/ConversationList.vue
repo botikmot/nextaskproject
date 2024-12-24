@@ -8,9 +8,12 @@ const page = usePage();
 const conversations = page.props.sharedConversations || [];
 const isNewConversation = ref(false)
 const selectedConversation = ref(null);
+let unread = ref(0)
+
 
 const props = defineProps({
   projects: Array,
+  notif: Object,
 });
 
 console.log('conversations', conversations)
@@ -41,6 +44,36 @@ const privateMessages = computed(() => {
 const groupMessages = computed(() => {
     return conversations.group
 });
+
+watch(
+  () => props.notif, // Reactive source to watch
+  (newValue, oldValue) => {
+    console.log('notif changed:', { newValue, oldValue });
+        if (newValue?.data?.type === 'chat') {
+            const conversation = privateMessages.value.find(
+                (element) => element.id === newValue.data.conversation_id
+            );
+
+            if (conversation) {
+                conversation.messages[0].text = newValue.data.text;
+                if(conversation.id !== selectedConversation.value.id){
+                    unread.value++
+                    conversation.unread = unread.value
+                }
+            }
+
+        }
+  },
+  { deep: true }
+);
+
+const currentConversation = (conversation) => {
+    conversation.unread = null
+    selectedConversation.value = conversation
+    emit('selectConversation', conversation)
+}
+
+
 
 const newConversation = (type) => {
     conversationType.value = type
@@ -103,9 +136,11 @@ onMounted(() => {
             <li v-for="contact in privateMessages"
                 :key="contact.id"
                 class="flex items-center p-2 bg-color-white relative rounded-lg shadow cursor-pointer hover:bg-blue-100"
-                @click="$emit('selectConversation', contact)"
+                @click="currentConversation(contact)"
             >
-                <div v-if="contact.status == 'online'" class="absolute w-3 h-3 bg-green rounded-full top-3 left-10 border-2 border-color-white"></div>
+                <div v-if="contact.status == 'online'" :class="`absolute ${ contact.unread ? 'bg-red-warning w-5 h-5' : 'bg-green w-3 h-3'} rounded-full top-3 text-color-white text-xs left-10 border-2 border-color-white`">
+                    <span class="flex justify-center" v-if="contact.unread">{{ contact.unread }}</span>
+                </div>
                 <div v-else class="absolute w-3 h-3 bg-gray rounded-full top-3 left-10 border-2 border-color-white"></div>
 
                 <img :src="'/' + contact.chat_image" alt="Profile" class="w-10 h-10 object-cover rounded-full mr-3">

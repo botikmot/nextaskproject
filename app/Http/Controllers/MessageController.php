@@ -130,6 +130,8 @@ class MessageController extends Controller
                 'type' => 'chat',
                 'message' => "{$user->name} sent you a message: {$message->text}",
                 'user_id' => $user->id,
+                'text' => $request->text,
+                'conversation_id' => $conversationId,
             ]));
         }
         

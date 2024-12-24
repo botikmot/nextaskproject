@@ -13,6 +13,7 @@ let showingNavigationDropdown = ref(false);
 const isLargeScreen = ref(false);
 
 const data = ref({})
+const notif = ref(null)
 
 const props = defineProps({
     pageTitle: {
@@ -79,6 +80,7 @@ onMounted(() => {
     Echo.private(`App.Models.User.${userId}`)
         .notification((notification) => {
             console.log('notifications-->>>', notification)
+            notif.value = notification
         //notifications.value.unshift(notification);
     });
 
@@ -286,7 +288,7 @@ onUnmounted(() => {
             <!-- Page Content -->
             <main class="flex-grow space-y-4 lg:space-y-0 lg:space-x-4 lg:flex">
                 <!-- Slot for main content -->
-                <slot />
+                <slot :notif="notif" />
             </main>
         </div>
 
