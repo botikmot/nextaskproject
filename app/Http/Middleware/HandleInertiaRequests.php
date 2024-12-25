@@ -104,6 +104,9 @@ class HandleInertiaRequests extends Middleware
                         ->unique('id'),
                 ]
                 : [],
+            'notifications' => fn () => $request->user()
+                ? $request->user()->unreadNotifications()->get()
+                : [],
         ];
     }
 }

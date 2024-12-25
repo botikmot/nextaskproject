@@ -7,6 +7,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class UserNotification extends Notification
 {
@@ -18,8 +20,7 @@ class UserNotification extends Notification
      */
     public function __construct($data)
     {
-        //$this->data = $data;
-        $this->data = array_merge($data, ['type' => $data['type'] ?? 'general']);
+        $this->data = $data;
     }
 
     /**

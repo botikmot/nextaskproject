@@ -56,11 +56,20 @@ watch(
 
             if (conversation) {
                 conversation.messages[0].text = newValue.data.text;
-                if(conversation.id !== selectedConversation.value.id){
+                if(!selectedConversation.value || conversation.id !== selectedConversation.value.id){
                     unread.value++
                     conversation.unread = unread.value
                 }
             }
+
+            const gconversation = groupMessages.value.find(
+                (element) => element.id === newValue.data.conversation_id
+            );
+
+            if (gconversation) {
+                gconversation.messages[0].text = newValue.data.text;
+            }
+
 
         }
   },

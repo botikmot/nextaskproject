@@ -7,6 +7,9 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Events\MessageSent;
 use App\Notifications\UserNotification;
+use App\Notifications\ChatMessageNotification;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Str;
 
 class MessageController extends Controller
 {
@@ -125,6 +128,8 @@ class MessageController extends Controller
 
         $otherParticipants = $conversation->users()->where('users.id', '!=', $user->id)->get();
         foreach ($otherParticipants as $participant) {
+
+            //$participant->notify(new ChatMessageNotification($request->text, $user->name));
             // Using Laravel's built-in notification system
             $participant->notify(new UserNotification([
                 'type' => 'chat',

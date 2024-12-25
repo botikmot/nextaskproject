@@ -13,7 +13,14 @@ class Notification extends Model
     protected $primaryKey = 'id';
     protected $keyType = 'string';
 
-    protected $fillable = ['user_id', 'type', 'message', 'is_read'];
+    protected $fillable = [
+        'id',                // Add the id to the fillable property
+        'type',
+        'notifiable_id',
+        'notifiable_type',
+        'data',
+        'read_at',
+    ];
 
     protected static function boot()
     {
@@ -23,6 +30,17 @@ class Notification extends Model
                 $model->id = (string) Str::uuid();
             }
         });
+    }
+
+    public function setDataAttribute($value)
+    {
+        $this->attributes['data'] = json_encode($value); // Serialize array/object to JSON
+    }
+
+    // Automatically deserialize the 'data' field when you access it
+    public function getDataAttribute($value)
+    {
+        return json_decode($value, true); // Decode the JSON back into an array
     }
 
     public function user()
