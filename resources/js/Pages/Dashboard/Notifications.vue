@@ -35,10 +35,13 @@ const convertLinks = (text) => {
 <template>
     <div>
         <h2 class="text-lg font-bold border-b border-dark-gray pb-2 text-navy-blue">Notifications</h2>
-        <ul class="mt-2">
+        <ul v-if="notifications.length > 0" class="mt-2">
             <li v-for="notification in notifications" :key="notification.id" class="py-1 border-b border-dark-gray truncate overflow-hidden whitespace-nowrap">
-                <div class="text-sm truncate overflow-hidden whitespace-nowrap" v-html="convertLinks(notification.data.message)"></div>
+                <div v-if="notification.data" class="text-sm truncate overflow-hidden whitespace-nowrap" v-html="convertLinks(notification.data.message)"></div>
             </li>
         </ul>
+        <div v-else class="text-center text-gray-500 mt-8">
+            <p>No notifications available.</p>
+        </div> 
     </div>
 </template>
