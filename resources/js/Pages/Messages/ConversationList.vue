@@ -3,20 +3,20 @@ import { usePage, useForm } from '@inertiajs/vue3'
 import Modal from '@/Components/Modal.vue';
 import FriendsList from './FriendsList.vue';
 import { ref, defineProps, defineEmits, computed, onMounted, watch } from 'vue'
+import axios from 'axios';
 
 const page = usePage();
 const conversations = page.props.sharedConversations || [];
 const isNewConversation = ref(false)
 const selectedConversation = ref(null);
-let unread = ref(0)
 
 
 const props = defineProps({
   projects: Array,
-  notif: Object,
+  notif: Array,
 });
 
-console.log('conversations', conversations)
+console.log('otif', props.notif)
 const conversationType = ref(null)
 
 const emit = defineEmits(['selectConversation']);
@@ -38,7 +38,46 @@ const handleConversationStarted = (conversation) => {
 };
 
 const privateMessages = computed(() => {
-    return [...(conversations.private || [])]
+  // Ensure props.notif is an array or default to an empty array
+  const notifications = Array.isArray(props.notif) ? props.notif : [];
+  const activeConversationId = selectedConversation.value?.id || null;
+
+
+  if (activeConversationId) {
+    notifications.forEach((notification) => {
+      if (
+        notification?.data?.type === 'chat' &&
+        notification?.data?.conversation_id === activeConversationId &&
+        !notification?.read_at
+      ) {
+        // Simulate marking the notification as read
+        notification.read_at = new Date().toISOString();
+        const data = {
+            type: 'chat',
+            conversation_id: activeConversationId,
+        }
+        axios.post('/notifications/chat/read', data);
+      }
+    });
+  }
+
+
+  return (conversations.private || []).map((message) => {
+    // Count unread messages for each private conversation
+    const unreadCount = notifications.filter(
+      (notification) =>
+        notification?.data?.type === 'chat' &&
+        notification?.data?.conversation_id === message.id &&
+        notification?.data?.conversation_id !== activeConversationId && // Exclude if it matches selectedConversation
+        !notification?.read_at // Assuming 'read_at' being null means unread
+    ).length;
+
+    // Return the message with the unread count added
+    return {
+      ...message, // Spread the original message properties
+      unreadCount: parseInt(unreadCount, 10), // Add the unread count
+    };
+  });
 });
 
 const groupMessages = computed(() => {
@@ -49,25 +88,23 @@ watch(
   () => props.notif, // Reactive source to watch
   (newValue, oldValue) => {
     console.log('notif changed:', { newValue, oldValue });
-        if (newValue?.data?.type === 'chat') {
+        const len = newValue.length - 1
+        if (newValue[len]?.data?.type === 'chat') {
             const conversation = privateMessages.value.find(
-                (element) => element.id === newValue.data.conversation_id
+                (element) => element.id === newValue[len].data.conversation_id
             );
 
             if (conversation) {
-                conversation.messages[0].text = newValue.data.text;
-                if(!selectedConversation.value || conversation.id !== selectedConversation.value.id){
-                    unread.value++
-                    conversation.unread = unread.value
-                }
+                console.log('new conver', conversation)
+                conversation.messages[0].text = newValue[len].data.text;
             }
 
             const gconversation = groupMessages.value.find(
-                (element) => element.id === newValue.data.conversation_id
+                (element) => element.id === newValue[len].data.conversation_id
             );
 
             if (gconversation) {
-                gconversation.messages[0].text = newValue.data.text;
+                gconversation.messages[0].text = newValue[len].data.text;
             }
 
 
@@ -76,13 +113,31 @@ watch(
   { deep: true }
 );
 
-const currentConversation = (conversation) => {
-    conversation.unread = null
+const currentConversation = async (conversation) => {
+    conversation.unreadCount = 0
     selectedConversation.value = conversation
     emit('selectConversation', conversation)
+    console.log('conversation as read:', conversation);
+    try { 
+        const data = {
+            type: 'chat',
+            conversation_id: conversation.id,
+        }
+        const response = await axios.post('/notifications/chat/read', data);
+        if (response.data.success) {
+        console.log('Chat notifications marked as read', response.data);
+            // Optionally, update the UI by filtering out the read notifications
+            props.notif = props.notif.map((notif) =>
+                notif.data.type === 'chat' ? { ...notif, read_at: new Date().toISOString() } : notif
+            );
+        }
+    } catch (error) {
+        console.error('Error marking chat notifications as read:', error);
+    }
+
 }
 
-
+console.log('private mesges', privateMessages.value)
 
 const newConversation = (type) => {
     conversationType.value = type
@@ -147,10 +202,12 @@ onMounted(() => {
                 class="flex items-center p-2 bg-color-white relative rounded-lg shadow cursor-pointer hover:bg-blue-100"
                 @click="currentConversation(contact)"
             >
-                <div v-if="contact.status == 'online'" :class="`absolute ${ contact.unread ? 'bg-red-warning w-5 h-5' : 'bg-green w-3 h-3'} rounded-full top-3 text-color-white text-xs left-10 border-2 border-color-white`">
-                    <span class="flex justify-center" v-if="contact.unread">{{ contact.unread }}</span>
+                <div v-if="contact.status == 'online'" :class="`absolute ${ contact.unreadCount > 0 ? 'bg-red-warning w-5 h-5' : 'bg-green w-3 h-3'} rounded-full top-3 text-color-white text-xs left-10 border-2 border-color-white`">
+                    <span class="flex justify-center" v-if="contact.unreadCount > 0">{{ contact.unreadCount }}</span>
                 </div>
-                <div v-else class="absolute w-3 h-3 bg-gray rounded-full top-3 left-10 border-2 border-color-white"></div>
+                <div v-else :class="`absolute ${ contact.unreadCount > 0 ? 'bg-red-warning w-5 h-5' : 'bg-gray w-3 h-3'} rounded-full top-3 left-10 border-2 border-color-white text-color-white text-xs`">
+                    <span class="flex justify-center" v-if="contact.unreadCount > 0">{{ contact.unreadCount }}</span>
+                </div>
 
                 <img :src="'/' + contact.chat_image" alt="Profile" class="w-10 h-10 object-cover rounded-full mr-3">
                 <div class="flex flex-col">

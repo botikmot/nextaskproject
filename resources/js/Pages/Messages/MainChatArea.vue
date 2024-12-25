@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue'
 import { usePage, useForm } from '@inertiajs/vue3'
 import moment from 'moment';
 import UserImage from '@/Components/UserImage.vue';
+import axios from 'axios';
 
 const props = defineProps(['selectedConversation']);
 const messages = ref([]);

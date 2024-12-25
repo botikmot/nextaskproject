@@ -9,6 +9,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -158,6 +159,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/conversations/group', [MessageController::class, 'createGroupConversation']);
     Route::post('/conversations/{conversationId}/messages', [MessageController::class, 'sendMessage']);
     Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'getMessages']);
+
+    //Notifications
+    Route::post('/notifications/chat/read', [NotificationController::class, 'markChatAsRead']);
+
 
 });
 

@@ -13,7 +13,7 @@ let showingNavigationDropdown = ref(false);
 const isLargeScreen = ref(false);
 
 const data = ref({})
-const notif = ref(null)
+
 
 const props = defineProps({
     pageTitle: {
@@ -30,6 +30,7 @@ console.log('user auth notifications',page.props.notifications)
 const userId = page.props.auth.user.id
 
 const isCollapsed = ref(false);
+const notif = ref(page.props.notifications || [])
 
 const toggleLeftSidebar = () => {
     eventBus.toggleCollapsed();
@@ -80,7 +81,7 @@ onMounted(() => {
     Echo.private(`App.Models.User.${userId}`)
         .notification((notification) => {
             console.log('notifications-->>>', notification)
-            notif.value = notification
+            notif.value.push(notification)
         //notifications.value.unshift(notification);
     });
 
