@@ -133,7 +133,7 @@ class MessageController extends Controller
             // Using Laravel's built-in notification system
             $participant->notify(new UserNotification([
                 'type' => 'chat',
-                'message' => "{$user->name} sent you a message: {$message->text}",
+                'message' => "<span class='font-bold text-sky-blue'>{$user->name}</span> sent you a message: {$message->text}",
                 'user_id' => $user->id,
                 'text' => $request->text,
                 'conversation_id' => $conversationId,
@@ -158,6 +158,19 @@ class MessageController extends Controller
         $messages = $conversation->messages()->with('user')->get();
 
         return response()->json($messages);
+    }
+
+    public function getRecentChats()
+    {
+        // Get the most recent message for each conversation, sorted by creation date
+        $recentChats = Message::with('conversation.users', 'user') // Eager load conversation and sender
+            ->where('user_id', auth()->id()) // Optional: only get messages sent by the authenticated user
+            ->latest() // Sort by latest messages
+            ->take(1) // Limit to 5 recent chats (adjust as needed)
+            ->get();
+
+        // Return the result as a JSON response
+        return response()->json($recentChats);
     }
 
 }

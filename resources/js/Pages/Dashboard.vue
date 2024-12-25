@@ -5,6 +5,8 @@ import TaskOverview from './Dashboard/TaskOverview.vue';
 import ProjectsWidget from './Dashboard/ProjectsWidget.vue';
 import UpcomingEvents from './Dashboard/UpcomingEvents.vue';
 import SocialHighlights from './Dashboard/SocialHighlights.vue';
+import RecentChats from './Dashboard/RecentChats.vue';
+import Notifications from './Dashboard/Notifications.vue';
 
 const props = defineProps({
     userName: String,
@@ -19,7 +21,7 @@ const props = defineProps({
 <template>
     <Head title="Dashboard" />
 
-    <AuthenticatedLayout pageTitle="Dashboard">
+    <AuthenticatedLayout pageTitle="Dashboard" :notif="notif" v-slot="{ notif }">
         <div class="dashboard flex-col w-full bg-linen p-6">
             <!-- Welcome Banner -->
             <div class="bg-sky-blue text-color-white p-6 rounded-lg shadow-md mb-6">
@@ -46,33 +48,16 @@ const props = defineProps({
 
             <!-- Bottom Widgets -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-            <!-- Notifications -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-lg font-bold text-navy-blue">Notifications</h2>
-                <ul class="mt-2">
-                <li v-for="notification in notifications" :key="notification.id" class="py-2">
-                    <p class="text-sm text-gray-500">{{ notification.message }}</p>
-                </li>
-                </ul>
-            </div>
+              <!-- Notifications -->
+              <div class="bg-color-white p-6 rounded-lg shadow-md">
+                  <Notifications :notif="notif"/>
+              </div>
 
-            <!-- Recent Chats -->
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h2 class="text-lg font-bold text-navy-blue">Recent Chats</h2>
-                <ul class="mt-2">
-                <li v-for="chat in recentChats" :key="chat.id" class="py-2">
-                    <p class="font-semibold">{{ chat.sender }}</p>
-                    <p class="text-sm text-gray-500">{{ chat.message }}</p>
-                </li>
-                </ul>
-                <button
-                class="mt-4 px-4 py-2 bg-sky-blue text-white rounded-full hover:bg-crystal-blue"
-                @click="navigateToChat"
-                >
-                Open Chat
-                </button>
-            </div>
-            </div>
+              <!-- Recent Chats -->
+              <div class="bg-color-white p-6 relative rounded-lg shadow-md">
+                  <RecentChats />
+              </div>
+          </div>
         </div>
     </AuthenticatedLayout>
 </template>

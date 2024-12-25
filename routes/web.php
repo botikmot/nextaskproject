@@ -159,11 +159,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/conversations/group', [MessageController::class, 'createGroupConversation']);
     Route::post('/conversations/{conversationId}/messages', [MessageController::class, 'sendMessage']);
     Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'getMessages']);
+    Route::get('/conversations/recent-chats', [MessageController::class, 'getRecentChats']);
 
     //Notifications
     Route::post('/notifications/chat/read', [NotificationController::class, 'markChatAsRead']);
-
-
 });
 
 

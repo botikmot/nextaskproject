@@ -105,7 +105,7 @@ class HandleInertiaRequests extends Middleware
                 ]
                 : [],
             'notifications' => fn () => $request->user()
-                ? $request->user()->unreadNotifications()->get()
+                ? $request->user()->unreadNotifications()->with('user')->get()
                 : [],
         ];
     }

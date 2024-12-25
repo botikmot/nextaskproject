@@ -64,7 +64,7 @@ class PostController extends Controller
                     // Create a notification for each mentioned user
                     $user->notify(new UserNotification([
                         'type' => 'mention',
-                        'message' => "{$post->user->name} mentioned you in a post.",
+                        'message' => "<span class='font-bold text-sky-blue'>{$post->user->name}</span> mentioned you in a post.",
                         'user_id' => auth()->id(),  // ID of the user who created the post
                         'post_id' => $post->id,
                     ]));
