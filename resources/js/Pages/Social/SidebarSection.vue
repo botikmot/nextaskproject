@@ -25,7 +25,6 @@ watch(
                 (element) => element.id === newValue.user.id
             );
         if (user) {
-            console.log('user find', user)
             user.status = newValue.status;
         }
     }

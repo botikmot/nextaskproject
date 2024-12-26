@@ -17,7 +17,6 @@ const props = defineProps({
   userChangedStatus: Object,
 });
 
-console.log('otif', props.notif)
 const conversationType = ref(null)
 
 const emit = defineEmits(['selectConversation']);
@@ -93,7 +92,6 @@ watch(
                 (element) => element.user_id === newValue.user.id
             );
         if (user) {
-            console.log('user find', user)
             user.status = newValue.status;
         }
     }
@@ -135,7 +133,6 @@ const currentConversation = async (conversation) => {
     conversation.unreadCount = 0
     selectedConversation.value = conversation
     emit('selectConversation', conversation)
-    console.log('conversation as read:', conversation);
     try { 
         const data = {
             type: 'chat',
@@ -154,8 +151,6 @@ const currentConversation = async (conversation) => {
     }
 
 }
-
-console.log('private mesges', privateMessages.value)
 
 const newConversation = (type) => {
     conversationType.value = type

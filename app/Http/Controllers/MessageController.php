@@ -155,7 +155,7 @@ class MessageController extends Controller
         $conversation = Conversation::findOrFail($conversationId);
 
         // Retrieve all messages for the conversation
-        $messages = $conversation->messages()->with('user')->get();
+        $messages = $conversation->messages()->with('user')->latest()->paginate(20);
 
         return response()->json($messages);
     }

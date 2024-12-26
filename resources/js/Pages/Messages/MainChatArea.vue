@@ -10,6 +10,10 @@ const messages = ref([]);
 const page = usePage();
 const authenticatedUserId = page.props.auth.user.id
 const chatContainer = ref(null);
+const hasMoreMessages = ref(true);
+const currentPage = ref(1);
+const isFetching = ref(false);
+const conversationId = ref(null);
 
 const form = useForm({
     text: '',
@@ -24,11 +28,14 @@ watch(
         }
 
         if (newConversation) {
-            fetchMessages(newConversation.id);
 
+            conversationId.value = newConversation.id
+            messages.value = []
+            hasMoreMessages.value = true
+            fetchMessages(1, newConversation.id);
+            
             Echo.private(`conversation.${newConversation.id}`)
                 .listen('MessageSent', (event) => {
-                    console.log('event-->>', event)
                     // Update the messages list with the new message
                     messages.value.push(event.message);
                     nextTick(() => {
@@ -63,23 +70,55 @@ const sendMessage = () => {
 }
 
 // Function to fetch messages
-const fetchMessages = async (conversationId) => {
+const fetchMessages = async (page, conversationId) => {
+    if (isFetching.value || !hasMoreMessages.value) return;
+    
+    isFetching.value = true;
+    
     try {
-        const response = await fetch(`/conversations/${conversationId}/messages`);
+        const response = await fetch(`/conversations/${conversationId}/messages?page=${page}`);
         const data = await response.json();
-        console.log('messages', data)
-        messages.value = data; // Assuming the API returns a list of messages
+        //console.log('messages', data)
+
+        if (data.data.length > 0) {
+            // Prepend older messages
+            messages.value = [...data.data.reverse(), ...messages.value];
+        }
+
+        if (!data.next_page_url) {
+            hasMoreMessages.value = false; // No more pages
+        }
+        //messages.value = data.data.reverse(); // Assuming the API returns a list of messages
+        currentPage.value = page;
+        
     } catch (error) {
         console.error('Error fetching messages:', error);
+    } finally {
+        isFetching.value = false;
     }
 }
+
+const handleScroll = () => {
+    const messageArea = document.querySelector('.message-area');
+
+    // Detect if the user scrolled to the top
+    if (messageArea.scrollTop === 0 && hasMoreMessages.value) {
+    const previousHeight = messageArea.scrollHeight;
+
+        // Fetch the next page of messages
+        fetchMessages(currentPage.value + 1, conversationId.value).then(() => {
+            // Adjust scroll position to prevent "jumping"
+            messageArea.scrollTop = messageArea.scrollHeight - previousHeight;
+        });
+    }
+};
+
 
 const formatDate = (date) => {
     return moment(date).fromNow(true)
 }
 
 const scrollToBottom = () => {
-    console.log('console.log(chatContainer.value);', chatContainer.value);
     if (chatContainer.value) {
         //chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
         setTimeout(() => {
@@ -110,7 +149,9 @@ onMounted(() => {
             </div>
 
             <!-- Chat Messages -->
-            <div ref="chatContainer" class="flex-1 overflow-y-auto" style="height: calc(100vh - 300px);">
+            <div ref="chatContainer" @scroll="handleScroll" class="message-area flex-1 overflow-y-auto" style="height: calc(100vh - 300px);">
+
+                <div v-if="isFetching" class="loading-indicator">Loading Message...</div>
                 <div
                     v-for="message in messages"
                     :key="message.id"
@@ -167,5 +208,11 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.loading-indicator {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 14px;
+  color: gray;
+}
 /* Custom styles for chat bubbles and layout */
 </style>
