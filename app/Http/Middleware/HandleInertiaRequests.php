@@ -64,6 +64,9 @@ class HandleInertiaRequests extends Middleware
                 : [],
             'sharedFriends' => fn () => $request->user()
                 ? $request->user()->friends->map(function ($friend) use ($request) {
+                    $lastActivity = $friend->last_login ? Carbon::parse($friend->last_login) : null;
+                    $isOnline = $lastActivity && $lastActivity->diffInMinutes(now()) < 5;
+                    $friend->status = $isOnline ? 'online' : 'offline';
                     // Calculate mutual projects
                     $mutualProjectsCount = $friend->projectMemberships->pluck('id')
                         ->intersect($request->user()->projectMemberships->pluck('id'))

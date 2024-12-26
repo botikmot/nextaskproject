@@ -32,6 +32,8 @@ const userId = page.props.auth.user.id
 const isCollapsed = ref(false);
 const notif = ref(page.props.notifications || [])
 
+const userChangedStatus = ref({})
+
 const toggleLeftSidebar = () => {
     eventBus.toggleCollapsed();
     isCollapsed.value = !isCollapsed.value;
@@ -83,6 +85,11 @@ onMounted(() => {
             console.log('notifications-->>>', notification)
             notif.value.push(notification)
         //notifications.value.unshift(notification);
+    });
+
+    Echo.private('users-status')
+        .listen('UserStatusChanged', (event) => {
+            userChangedStatus.value = event
     });
 
 
@@ -289,7 +296,7 @@ onUnmounted(() => {
             <!-- Page Content -->
             <main class="flex-grow space-y-4 lg:space-y-0 lg:space-x-4 lg:flex">
                 <!-- Slot for main content -->
-                <slot :notif="notif" />
+                <slot :notif="notif" :userChangedStatus="userChangedStatus" />
             </main>
         </div>
 

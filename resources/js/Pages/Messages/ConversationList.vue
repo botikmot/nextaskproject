@@ -14,6 +14,7 @@ const selectedConversation = ref(null);
 const props = defineProps({
   projects: Array,
   notif: Array,
+  userChangedStatus: Object,
 });
 
 console.log('otif', props.notif)
@@ -85,6 +86,23 @@ const groupMessages = computed(() => {
 });
 
 watch(
+  () => props.userChangedStatus,
+  (newValue, oldValue) => {
+    if (newValue.user.id) {
+        const user = privateMessages.value.find(
+                (element) => element.user_id === newValue.user.id
+            );
+        if (user) {
+            console.log('user find', user)
+            user.status = newValue.status;
+        }
+    }
+  },
+  { deep: true }
+);
+
+
+watch(
   () => props.notif, // Reactive source to watch
   (newValue, oldValue) => {
     console.log('notif changed:', { newValue, oldValue });
@@ -152,17 +170,6 @@ const truncateText = (text, maxLength = 45) => {
 onMounted(() => {
     console.log(Array.isArray(privateMessages)); // Should log true
     console.log(privateMessages);
-
-    Echo.private('users-status')
-        .listen('UserStatusChanged', (event) => {
-            const contact = privateMessages.value.find(contact => {
-                return contact.user_id === event.user.id;
-            });
-            if (contact) {
-                contact.status = event.status;
-            }
-
-    });
 });
 
 </script>

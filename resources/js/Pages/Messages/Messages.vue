@@ -15,12 +15,22 @@ const props = defineProps({
 <template>
     <Head title="Messages" />
 
-    <AuthenticatedLayout pageTitle="Messages" :notif="notif" v-slot="{ notif }">
+    <AuthenticatedLayout
+        pageTitle="Messages"
+        :notif="notif"
+        :userChangedStatus="userChangedStatus"
+        v-slot="{ notif, userChangedStatus }"
+    >
         <!-- Chat Page Layout -->
     <div class="flex w-full space-x-4 p-6 bg-linen">
         <!-- Sidebar for Conversations -->
         <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow">
-            <ConversationList @selectConversation="selectedConversation = $event" :projects="projects" :notif="notif"/>
+            <ConversationList
+                @selectConversation="selectedConversation = $event"
+                :projects="projects"
+                :notif="notif"
+                :userChangedStatus="userChangedStatus"
+            />
         </aside>
 
         <!-- Main Chat Area -->

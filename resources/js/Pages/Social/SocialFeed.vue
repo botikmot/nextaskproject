@@ -19,7 +19,7 @@ console.log('events', props.events)
 <template>
     <Head title="Social" />
 
-    <AuthenticatedLayout pageTitle="Social">
+    <AuthenticatedLayout pageTitle="Social" :userChangedStatus="userChangedStatus" v-slot="{ userChangedStatus }">
         <div class="social-page flex flex-col lg:flex-row gap-6 p-6 w-full bg-linen">
             <!-- Profile Section (Fixed) -->
             <div class="profile-section lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">
@@ -34,7 +34,7 @@ console.log('events', props.events)
 
             <!-- Sidebar Section (Fixed) -->
             <div class="sidebar bg-gray-100 p-6 rounded-lg lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">
-                <SidebarSection />
+                <SidebarSection :userChangedStatus="userChangedStatus"/>
             </div>
         </div>
     </AuthenticatedLayout>
@@ -54,7 +54,7 @@ console.log('events', props.events)
 }
 
 .feed-section::-webkit-scrollbar-thumb {
-    background-color: #d1d5db; /* Customize scrollbar color */
+    background-color: #40a2e3; /* Customize scrollbar color */
     border-radius: 4px;
 }
 

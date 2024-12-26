@@ -1,8 +1,11 @@
 <script setup>
 import { usePage, useForm } from '@inertiajs/vue3'
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import UserImage from '@/Components/UserImage.vue';
 
+const props = defineProps({
+    userChangedStatus: Object,
+});
 const page = usePage();
 
 const trendingTopics = ['#VueJS', '#ProjectManagement', '#Productivity', '#NexTask']
@@ -13,6 +16,23 @@ console.log('sharedFriends', sharedFriends)
 const friends = computed(() => {
     return page.props.flash.friends || sharedFriends;
 });
+
+watch(
+  () => props.userChangedStatus,
+  (newValue, oldValue) => {
+    if (newValue.user.id) {
+        const user = friends.value.find(
+                (element) => element.id === newValue.user.id
+            );
+        if (user) {
+            console.log('user find', user)
+            user.status = newValue.status;
+        }
+    }
+  },
+  { deep: true }
+);
+
 </script>
 
 <template>
@@ -30,9 +50,10 @@ const friends = computed(() => {
             >
                 <div class="flex items-center justify-between">
                     <!-- Profile Section -->
-                    <div class="flex items-center space-x-3">
+                    <div class="flex items-center relative">
+                        <div v-if="friend.status == 'online'" class="absolute bg-green w-3 h-3 rounded-full top-0 text-color-white text-xs left-6 border-2 border-color-white"></div>
                         <UserImage class="h-8 w-8 rounded-full object-cover" :user="friend" />
-                        <div>
+                        <div class="pl-2">
                             <div class="text-navy-blue font-medium text-sm">{{ friend.name }}</div>
                             <div class="text-xs text-gray">Mutual Projects: {{ friend.mutual_projects }}</div>
                         </div>

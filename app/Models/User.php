@@ -152,7 +152,7 @@ class User extends Authenticatable
     public function friends()
     {
         return $this->belongsToMany(User::class, 'friendships', 'user_id', 'friend_id')
-                ->select('users.id', 'users.name', 'users.profile_image', 'friendships.friend_id');
+                ->select('users.id', 'users.name', 'users.profile_image', 'friendships.friend_id', 'users.last_login');
     }
 
     public function friendsWithMutualProjects()
