@@ -130,11 +130,6 @@ class MessageController extends Controller
         if ($message) {
             $userId = auth()->id();
 
-            /* Message::whereHas('readers', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })->each(function ($message) use ($userId) {
-                $message->readers()->detach($userId);
-            }); */
             Message::whereHas('readers', function ($query) use ($userId, $conversationId) {
                 $query->where('user_id', $userId)
                       ->where('conversation_id', $conversationId); // Ensure the conversation_id matches
@@ -206,11 +201,6 @@ class MessageController extends Controller
         ]);
 
         // First, detach the user from all messages in the pivot table
-        /* Message::whereHas('readers', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->each(function ($message) use ($userId) {
-            $message->readers()->detach($userId);
-        }); */
         Message::whereHas('readers', function ($query) use ($userId, $conversationId) {
             $query->where('user_id', $userId)
                   ->where('conversation_id', $conversationId); // Ensure the conversation_id matches

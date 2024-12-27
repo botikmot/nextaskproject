@@ -37,51 +37,57 @@ const handleConversationStarted = (conversation) => {
     emit('selectConversation', conversation);
 };
 
-const privateMessages = computed(() => {
-  // Ensure props.notif is an array or default to an empty array
-  const notifications = Array.isArray(props.notif) ? props.notif : [];
-  const activeConversationId = selectedConversation.value?.id || null;
+const markNotificationsAsRead = (notifications, activeConversationId) => {
+  if (!activeConversationId) return;
 
+  notifications.forEach((notification) => {
+    if (
+      notification?.data?.type === 'chat' &&
+      notification?.data?.conversation_id === activeConversationId &&
+      !notification?.read_at
+    ) {
+      notification.read_at = new Date().toISOString(); // Mark as read
+      axios.post('/notifications/chat/read', {
+        type: 'chat',
+        conversation_id: activeConversationId,
+      });
+    }
+  });
+};
 
-  if (activeConversationId) {
-    notifications.forEach((notification) => {
-      if (
-        notification?.data?.type === 'chat' &&
-        notification?.data?.conversation_id === activeConversationId &&
-        !notification?.read_at
-      ) {
-        // Simulate marking the notification as read
-        notification.read_at = new Date().toISOString();
-        const data = {
-            type: 'chat',
-            conversation_id: activeConversationId,
-        }
-        axios.post('/notifications/chat/read', data);
-      }
-    });
-  }
-
-
-  return (conversations.private || []).map((message) => {
-    // Count unread messages for each private conversation
+const computeUnreadCounts = (messages, notifications, activeConversationId) => {
+  return (messages || []).map((message) => {
     const unreadCount = notifications.filter(
       (notification) =>
         notification?.data?.type === 'chat' &&
         notification?.data?.conversation_id === message.id &&
-        notification?.data?.conversation_id !== activeConversationId && // Exclude if it matches selectedConversation
-        !notification?.read_at // Assuming 'read_at' being null means unread
+        notification?.data?.conversation_id !== activeConversationId &&
+        !notification?.read_at
     ).length;
 
-    // Return the message with the unread count added
     return {
-      ...message, // Spread the original message properties
-      unreadCount: parseInt(unreadCount, 10), // Add the unread count
+      ...message,
+      unreadCount: parseInt(unreadCount, 10),
     };
   });
+};
+
+const privateMessages = computed(() => {
+  const notifications = Array.isArray(props.notif) ? props.notif : [];
+  const activeConversationId = selectedConversation.value?.id || null;
+
+  markNotificationsAsRead(notifications, activeConversationId);
+
+  return computeUnreadCounts(conversations.private, notifications, activeConversationId);
 });
 
 const groupMessages = computed(() => {
-    return conversations.group
+  const notifications = Array.isArray(props.notif) ? props.notif : [];
+  const activeConversationId = selectedConversation.value?.id || null;
+
+  markNotificationsAsRead(notifications, activeConversationId);
+
+  return computeUnreadCounts(conversations.group, notifications, activeConversationId);
 });
 
 watch(
@@ -231,11 +237,11 @@ onMounted(() => {
             </div>
             <li v-for="contact in groupMessages"
                 :key="contact.id"
-                class="flex items-center p-2 bg-color-white rounded-lg shadow cursor-pointer hover:bg-blue-100"
+                class="flex items-center p-2 bg-color-white rounded-lg relative shadow cursor-pointer hover:bg-blue-100"
                 @click="currentConversation(contact)"
             >
-                <div class="">
-                    <div class="flex items-center">
+                <div class="relative">
+                    <div class="flex items-center relative w-full">
                         <div class="font-bold text-navy-blue">{{ contact.name }}</div>
                         <div class="flex items-center pl-3">
                             <div v-for="(member, index) in contact.users.slice(0, 5)" :key="member.id" class="relative -mr-3">
@@ -248,6 +254,9 @@ onMounted(() => {
                         </div>
                     </div>
                     <div class="w-full text-sm text-gray-500">{{ contact.messages.length ? truncateText(contact.messages[0].text) : '' }}</div>
+                </div>
+                <div v-if="contact.unreadCount > 0" class="absolute top-3 right-3 bg-red-warning flex items-center justify-center w-8 h-8 rounded-full border-2 border-color-white text-color-white text-xs">
+                    <span class="flex">{{ contact.unreadCount }}</span>
                 </div>
             </li>
         </ul>
