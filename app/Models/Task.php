@@ -116,12 +116,12 @@ class Task extends Model
         $userId = auth()->id(); // Get the authenticated user's ID
 
         return $query->whereDate('due_date', $today) // Filter by today's date
-                     ->whereHas('project', function ($query) {
-                         $query->where('completed_status_id', '!=', 'tasks.status_id');
-                     })
-                     ->whereHas('users', function ($query) use ($userId) {
-                         $query->where('users.id', $userId); // Filter by authenticated user
-                     });
+                 ->whereHas('project', function ($query) {
+                     $query->whereColumn('completed_status_id', '!=', 'tasks.status_id'); // Use whereColumn for column-to-column comparison
+                 })
+                 ->whereHas('users', function ($query) use ($userId) {
+                     $query->where('users.id', $userId); // Filter by authenticated user
+                 });
     }
 
 }
