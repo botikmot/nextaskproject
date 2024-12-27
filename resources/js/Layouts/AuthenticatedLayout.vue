@@ -82,7 +82,6 @@ onMounted(() => {
     
     Echo.private(`App.Models.User.${userId}`)
         .notification((notification) => {
-            console.log('notifications-->>>', notification)
             notif.value.push(notification)
         //notifications.value.unshift(notification);
     });

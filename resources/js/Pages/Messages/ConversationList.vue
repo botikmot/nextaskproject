@@ -103,7 +103,6 @@ watch(
 watch(
   () => props.notif, // Reactive source to watch
   (newValue, oldValue) => {
-    console.log('notif changed:', { newValue, oldValue });
         const len = newValue.length - 1
         if (newValue[len]?.data?.type === 'chat') {
             const conversation = privateMessages.value.find(
@@ -111,7 +110,6 @@ watch(
             );
 
             if (conversation) {
-                console.log('new conver', conversation)
                 conversation.messages[0].text = newValue[len].data.text;
             }
 
@@ -140,7 +138,6 @@ const currentConversation = async (conversation) => {
         }
         const response = await axios.post('/notifications/chat/read', data);
         if (response.data.success) {
-        console.log('Chat notifications marked as read', response.data);
             // Optionally, update the UI by filtering out the read notifications
             props.notif = props.notif.map((notif) =>
                 notif.data.type === 'chat' ? { ...notif, read_at: new Date().toISOString() } : notif

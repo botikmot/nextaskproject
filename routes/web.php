@@ -160,9 +160,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/conversations/{conversationId}/messages', [MessageController::class, 'sendMessage']);
     Route::get('/conversations/{conversationId}/messages', [MessageController::class, 'getMessages']);
     Route::get('/conversations/recent-chats', [MessageController::class, 'getRecentChats']);
+    Route::post('/messages/mark-as-read', [MessageController::class, 'markAsRead']);
 
     //Notifications
-    Route::post('/notifications/chat/read', [NotificationController::class, 'markChatAsRead']);
+    Route::post('/notifications/chat/read', [NotificationController::class, 'markNotificationChatAsRead']);
 });
 
 

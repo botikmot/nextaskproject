@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Events\MessageSent;
+use App\Events\MessageRead;
 use App\Notifications\UserNotification;
 use App\Notifications\ChatMessageNotification;
 use Illuminate\Notifications\DatabaseNotification;
@@ -126,6 +127,25 @@ class MessageController extends Controller
             'text' => $request->text,
         ]);
 
+        if ($message) {
+            $userId = auth()->id();
+
+            /* Message::whereHas('readers', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->each(function ($message) use ($userId) {
+                $message->readers()->detach($userId);
+            }); */
+            Message::whereHas('readers', function ($query) use ($userId, $conversationId) {
+                $query->where('user_id', $userId)
+                      ->where('conversation_id', $conversationId); // Ensure the conversation_id matches
+            })->each(function ($message) use ($userId) {
+                $message->readers()->detach($userId);
+            });
+
+            // Attach the user to the current message
+            $message->readers()->attach($userId, ['conversation_id' => $conversationId]);
+        }
+
         $otherParticipants = $conversation->users()->where('users.id', '!=', $user->id)->get();
         foreach ($otherParticipants as $participant) {
 
@@ -136,12 +156,13 @@ class MessageController extends Controller
                 'message' => "<span class='font-bold text-sky-blue'>{$user->name}</span> sent you a message: {$message->text}",
                 'user_id' => $user->id,
                 'text' => $request->text,
+                'message_id' => $message->id,
                 'conversation_id' => $conversationId,
             ]));
         }
         
         // Fire the MessageSent event to broadcast
-        broadcast(new MessageSent($message->load('user')));
+        broadcast(new MessageSent($message->load('user', 'readers')));
        
         return redirect()->back()->with([
             'success' => true,
@@ -155,7 +176,7 @@ class MessageController extends Controller
         $conversation = Conversation::findOrFail($conversationId);
 
         // Retrieve all messages for the conversation
-        $messages = $conversation->messages()->with('user')->latest()->paginate(20);
+        $messages = $conversation->messages()->with('user', 'readers')->latest()->paginate(20);
 
         return response()->json($messages);
     }
@@ -171,6 +192,43 @@ class MessageController extends Controller
 
         // Return the result as a JSON response
         return response()->json($recentChats);
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $userId = auth()->id();
+        $messageIds = $request->input('message_ids'); // Expect an array of message IDs
+        $conversationId = $request->input('conversation_id');
+        // Validate that the input is an array of integers
+        $request->validate([
+            'message_ids' => 'required|array',
+            'message_ids.*' => 'integer|exists:messages,id',
+        ]);
+
+        // First, detach the user from all messages in the pivot table
+        /* Message::whereHas('readers', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->each(function ($message) use ($userId) {
+            $message->readers()->detach($userId);
+        }); */
+        Message::whereHas('readers', function ($query) use ($userId, $conversationId) {
+            $query->where('user_id', $userId)
+                  ->where('conversation_id', $conversationId); // Ensure the conversation_id matches
+        })->each(function ($message) use ($userId) {
+            $message->readers()->detach($userId);
+        });
+
+         // Attach the user to the messages as readers if not already attached
+        foreach ($messageIds as $messageId) {
+            $message = Message::find($messageId);
+
+            if ($message && !$message->readers()->where('user_id', $userId)->exists()) {
+                $message->readers()->attach($userId, ['conversation_id' => $conversationId]);
+                broadcast(new MessageRead($message->load('user', 'readers')));
+            }
+        }
+
+        return response()->json(['message' => 'Message marked as read.']);
     }
 
 }

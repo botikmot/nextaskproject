@@ -14,6 +14,7 @@ const hasMoreMessages = ref(true);
 const currentPage = ref(1);
 const isFetching = ref(false);
 const conversationId = ref(null);
+const messagesIds = ref([])
 
 const form = useForm({
     text: '',
@@ -37,11 +38,45 @@ watch(
             Echo.private(`conversation.${newConversation.id}`)
                 .listen('MessageSent', (event) => {
                     // Update the messages list with the new message
+                    const message_ids = []
+                    message_ids.push(event.message.id)
+                    messagesIds.value = message_ids
+                    messages.value = messages.value.map((message) => {
+                        if (message.readers) {
+                            message.readers = message.readers.filter(
+                                (reader) => reader.id !== event.message.user_id
+                            );
+                        }
+                        return message;
+                    });
+                    
                     messages.value.push(event.message);
                     nextTick(() => {
                         scrollToBottom();
                     });
             });
+
+            Echo.private(`conversation.${newConversation.id}`)
+                .listen('MessageRead', (event) => {
+                    // Update the messages list with the new message
+
+                    // Extract the IDs of the readers from the event
+                    const eventReaderIds = event.message.readers.map(reader => reader.id);
+
+                    // Update the messages list
+                    messages.value = messages.value.map((message) => {
+                        // Remove readers from the message whose IDs are in `eventReaderIds`
+                        message.readers = message.readers.filter(reader => !eventReaderIds.includes(reader.id));
+
+                        // If this is the specific message being updated, replace its readers with `event.message.readers`
+                        if (message.id === event.message.id) {
+                            message.readers = [...event.message.readers];
+                        }
+
+                        return message; // Return the updated message
+                    });
+            });
+
 
             nextTick(() => {
                 scrollToBottom();
@@ -78,7 +113,14 @@ const fetchMessages = async (page, conversationId) => {
     try {
         const response = await fetch(`/conversations/${conversationId}/messages?page=${page}`);
         const data = await response.json();
-        //console.log('messages', data)
+       
+        if(page === 1){
+            const message_ids = [];
+            const messageId = data.data[0].id
+            message_ids.push(messageId)
+            messagesIds.value = message_ids
+            markMessagesAsRead(message_ids)
+        }
 
         if (data.data.length > 0) {
             // Prepend older messages
@@ -88,13 +130,26 @@ const fetchMessages = async (page, conversationId) => {
         if (!data.next_page_url) {
             hasMoreMessages.value = false; // No more pages
         }
-        //messages.value = data.data.reverse(); // Assuming the API returns a list of messages
+        
         currentPage.value = page;
         
     } catch (error) {
         console.error('Error fetching messages:', error);
     } finally {
         isFetching.value = false;
+    }
+}
+
+const markMessagesAsRead = async (messageIds) => {
+    try {
+        const data = {
+            message_ids: messageIds,
+            conversation_id: conversationId.value,
+        }
+        const response = await axios.post('/messages/mark-as-read', data);
+        
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
     }
 }
 
@@ -159,9 +214,9 @@ onMounted(() => {
                     'flex justify-end': message.user_id === authenticatedUserId, // Auth user's message aligned to the right
                     'flex justify-start': message.user_id !== authenticatedUserId, // Chat mate's message aligned to the left
                     }"
-                    class=" my-2"
+                    class="relative my-2"
                 >
-                    <div :class="`${message.user_id === authenticatedUserId ? 'bg-sky-blue text-color-white' : 'bg-light-gray'} px-3 py-2 rounded-lg shadow`">
+                    <div :class="`${message.user_id === authenticatedUserId ? 'bg-sky-blue text-color-white' : 'bg-light-gray'} px-3 py-2 rounded-lg relative shadow`">
 
                         <div class="flex mb-2 items-center" v-if="selectedConversation.type === 'group' && message.user_id !== authenticatedUserId">
                             <UserImage class="w-10 h-10 rounded-full object-cover mr-2" :user="message.user"/>
@@ -183,6 +238,30 @@ onMounted(() => {
                         >
                             {{ formatDate(message.created_at) }}
                         </div>
+
+                        <!-- Read Receipts -->
+                        <div v-if="message.readers && message.readers.length" :class="`read-receipts absolute ${message.user_id === authenticatedUserId ? '-left-6' : '-right-6'} bottom-0 `">
+                            <div v-if="message.readers.length > 1" :class="`flex items-center ${message.user_id === authenticatedUserId ? 'pr-3' : 'pl-3'}`">
+                                <div v-for="(reader, index) in message.readers.slice(0, 5)" :key="reader.id" class="relative -mr-2">
+                                    <img :src="'/' + reader.profile_image" alt="Profile" class="w-5 h-5 rounded-full object-cover border-2 border-color-white" />
+                                </div>
+                                
+                                <div v-if="message.readers.length > 5" class="flex items-center text-navy-blue ml-6">
+                                    <span class="text-lg font-bold">+{{ message.readers.length - 5 }}</span>
+                                </div>
+                            </div>
+                            
+                            <img
+                                v-else
+                                v-for="reader in message.readers"
+                                :key="reader.id"
+                                :src="'/' + reader.profile_image"
+                                :alt="reader.name"
+                                class="w-5 h-5 rounded-full border border-color-white object-cover shadow"
+                                :title="reader.name"
+                            />
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -194,6 +273,7 @@ onMounted(() => {
                 v-model="form.text"
                 placeholder="Type a message..."
                 class="flex-1 border p-2 rounded-md mr-2"
+                @focus="markMessagesAsRead(messagesIds)"
             />
             <button
                 @click="sendMessage"

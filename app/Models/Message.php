@@ -22,4 +22,12 @@ class Message extends Model
     {
         return $this->belongsTo(Conversation::class);
     }
+
+    public function readers()
+    {
+        return $this->belongsToMany(User::class, 'message_reads')
+                    ->withPivot('conversation_id')
+                    ->withTimestamps();
+    }
+
 }

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
-    public function markChatAsRead(Request $request)
+    public function markNotificationChatAsRead(Request $request)
     {
         //dd($request->input('conversation_id'));
         $updated = auth()->user()->notifications()

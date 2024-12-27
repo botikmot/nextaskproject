@@ -83,7 +83,7 @@ class HandleInertiaRequests extends Middleware
                     'private' => $request->user()->privateConversations()
                         ->with([
                             'users:id,name,profile_image',
-                            'messages' => fn ($query) => $query->latest()->get(),
+                            'messages' => fn ($query) => $query->latest()->limit(1),
                         ])
                         ->get()
                         ->map(function ($conversation) use ($request) {
@@ -101,7 +101,7 @@ class HandleInertiaRequests extends Middleware
                     'group' => $request->user()->groupConversations()
                         ->with([
                             'users:id,name,profile_image',
-                            'messages' => fn ($query) => $query->with('user')->latest()->get(),
+                            'messages' => fn ($query) => $query->with('user')->latest()->limit(1),
                         ])
                         ->get()
                         ->unique('id'),
