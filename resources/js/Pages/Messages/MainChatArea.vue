@@ -214,7 +214,7 @@ onMounted(() => {
                     'flex justify-end': message.user_id === authenticatedUserId, // Auth user's message aligned to the right
                     'flex justify-start': message.user_id !== authenticatedUserId, // Chat mate's message aligned to the left
                     }"
-                    class="relative my-2"
+                    class="relative my-2 mr-3"
                 >
                     <div :class="`${message.user_id === authenticatedUserId ? 'bg-sky-blue text-color-white' : 'bg-light-gray'} px-3 py-2 rounded-lg relative shadow`">
 
@@ -294,5 +294,19 @@ onMounted(() => {
   font-size: 14px;
   color: gray;
 }
+/* Hide scrollbars (optional, for better design) */
+.message-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.message-area::-webkit-scrollbar-thumb {
+    background-color: #40a2e3; /* Customize scrollbar color */
+    border-radius: 4px;
+}
+
+.message-area::-webkit-scrollbar-thumb:hover {
+    background-color: #a1a1aa;
+}
+
 /* Custom styles for chat bubbles and layout */
 </style>
