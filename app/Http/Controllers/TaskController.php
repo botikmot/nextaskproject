@@ -115,7 +115,19 @@ class TaskController extends Controller
         ->when(!empty($selectedStatuses), function ($query) use ($selectedStatuses) {
             $query->whereIn('status_id', $selectedStatuses);
         })
-        ->orderBy($sortBy, $sortOrder)
+        ->when($sortBy === 'due_date', function ($query) use ($sortOrder) {
+            $query->orderByRaw("
+                CASE
+                    WHEN due_date >= CURDATE() THEN 0 -- Upcoming due dates
+                    WHEN due_date < CURDATE() THEN 1 -- Past due dates
+                    ELSE 2 -- NULL due dates
+                END,
+                ABS(TIMESTAMPDIFF(SECOND, NOW(), due_date)) $sortOrder
+            ");
+        }, function ($query) use ($sortBy, $sortOrder) {
+            $query->orderBy($sortBy, $sortOrder);
+        })
+        //->orderBy($sortBy, $sortOrder)
         ->paginate($perPage);
 
         //return response()->json($tasks);
@@ -612,14 +624,16 @@ class TaskController extends Controller
             : 0;
 
         $tasksDueToday = Task::dueToday()->count();
-        $today = Carbon::now()->startOfDay();
+        $dueToday = Task::dueToday()->get();
+        $today = Carbon::now()->setTimezone('Asia/Manila');//->startOfDay();
         return response()->json([
             'success' => true,
             'totalTasksThisWeek' => $totalTasksThisWeek,
             'tasksCompletedThisWeek' => $tasksCompletedThisWeek,
             'taskCompletionRate' => $taskCompletionRate,
             'tasksDueToday' => $tasksDueToday,
-            'todayIs' => $today
+            'todayIs' => $today->format('Y-m-d H:i:s'),
+            'dueToday' => $dueToday,
         ]);
     }
 

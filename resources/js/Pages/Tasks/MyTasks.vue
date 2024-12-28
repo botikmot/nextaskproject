@@ -40,6 +40,7 @@ const form = useForm({
 });
 
 const sortingOptions = [
+      { label: 'Due date', value: 'due_date' },
       { label: 'Title', value: 'title' },
       { label: 'Priority', value: 'priority' },
       { label: 'Status', value: 'status' },
