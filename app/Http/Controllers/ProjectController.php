@@ -89,6 +89,7 @@ class ProjectController extends Controller
                     'dependentTasks',
                     'users',
                     'labels',
+                    'challenges',
                     'subtasks' => function ($subtaskQuery) {
                         $subtaskQuery->orderBy('created_at', 'asc');
                     },
@@ -96,7 +97,7 @@ class ProjectController extends Controller
                         $query->with('user', 'attachments'); 
                     }
                 ]);
-            }, 'tasks', 'users' => function ($query) use ($id) {
+            }, 'users' => function ($query) use ($id) {
                 $query->with(['roles' => function ($roleQuery) use ($id) {
                     $roleQuery->wherePivot('project_id', $id);
                 }]);
@@ -123,6 +124,7 @@ class ProjectController extends Controller
                         'dependentTasks',
                         'users',
                         'labels',
+                        'challenges',
                         'subtasks' => function ($subtaskQuery) {
                             $subtaskQuery->orderBy('created_at', 'asc');
                         },
@@ -135,7 +137,7 @@ class ProjectController extends Controller
                                     $userQuery->where('user_id', $user_id); // Tasks assigned to the authenticated user
                                 });
                       });
-            }, 'tasks', 'users' => function ($query) use ($id) {
+            }, 'users' => function ($query) use ($id) {
                 $query->with(['roles' => function ($roleQuery) use ($id) {
                     $roleQuery->wherePivot('project_id', $id);
                 }]);

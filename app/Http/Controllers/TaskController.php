@@ -45,6 +45,7 @@ class TaskController extends Controller
             'priority' => $request->priority,
             'status' => $request->status,
             'index' => $request->index,
+            'points' => $request->points,
         ]);
 
         if ($request->assigned_members && count($request->assigned_members) > 0) {
@@ -61,7 +62,11 @@ class TaskController extends Controller
         if ($request->labels && count($request->labels) > 0) {
             // Attach users to the task
             $task->labels()->attach($request->labels);
-       }
+        }
+
+        if (!empty($request->challenge_ids)) {
+            $task->challenges()->sync($request->challenge_ids);
+        }
 
         return redirect()->back()->with([
             'success' => true,
@@ -102,6 +107,7 @@ class TaskController extends Controller
             'project.labels',
             'users',
             'status',
+            'challenges',
             'subtasks' => function ($subtaskQuery) {
                 $subtaskQuery->orderBy('created_at', 'asc');
             },
@@ -185,7 +191,36 @@ class TaskController extends Controller
         $taskData->due_date = $request->due_date;
         $taskData->priority = $request->priority;
         $taskData->status_id = $request->status;
+        $taskData->points = $request->points;
         $taskData->save();
+
+        if (!empty($request->challenge_ids)) {
+            $taskData->challenges()->sync($request->challenge_ids);
+        }
+
+
+        if($project->completed_status_id == $request->status){
+            $user = auth()->user();
+            if (!empty($request->challenge_ids)) {
+                foreach ($request->challenge_ids as $challengeId) {
+                    // Get the current progress for the user on the specific challenge
+                    $currentProgress = $user->challenges()
+                    ->where('challenge_id', $challengeId)
+                    ->first()
+                    ->pivot
+                    ->progress ?? 0;
+
+                    // Add the new points to the current progress
+                    $updatedProgress = $currentProgress + $request->points;
+
+                    // Update the pivot table with the new progress
+                    $user->challenges()->updateExistingPivot($challengeId, ['progress' => $updatedProgress]);
+
+                }
+            }
+        }
+
+
 
         if ($request->labels && count($request->labels) > 0) {
             $taskData->labels()->detach();
@@ -214,7 +249,7 @@ class TaskController extends Controller
         }
                 
         $tasksData = $request->input('tasks');
-        
+
         $result = $this->canStartTask($request->input('task_id'));
         if(!$result['canStart']){
             return response()->json([
@@ -222,12 +257,34 @@ class TaskController extends Controller
                 'message' => "Dependency task <span style='color: red;'>'{$result['dependencyName']}'</span> is not yet completed.",
             ]);
         }
-
+        
+        $user = auth()->user();
         foreach($tasksData as $data){
             $taskData = Task::find($data['id']);
             $taskData->index = $data['index'];
             $taskData->status_id = $data['status_id'];
             $taskData->save();
+            
+            if($project->completed_status_id == $data['status_id'] && $data['id'] == $request->input('task_id')){
+                
+                if (!empty($data['challenges'])) {
+                    foreach ($data['challenges'] as $challengeId) {
+                        // Get the current progress for the user on the specific challenge
+                        $currentProgress = $user->challenges()
+                        ->where('challenge_id', $challengeId)
+                        ->first()
+                        ->pivot
+                        ->progress ?? 0;
+                        // Add the new points to the current progress
+                        $updatedProgress = $currentProgress + $data['points'];
+                        
+                        // Update the pivot table with the new progress
+                        $user->challenges()->updateExistingPivot($challengeId, ['progress' => $updatedProgress]);
+    
+                    }
+                }
+            }
+
         }
        
         return response()->json([

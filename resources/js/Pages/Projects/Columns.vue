@@ -37,6 +37,8 @@ const onEnd = async (event) => {
         id: task.id,
         index: idx,
         status_id: props.column.id,
+        challenges: task.challenges.map(challenge => challenge.id),
+        points: task.points,
     }));
     
     const data = {
@@ -61,6 +63,8 @@ const handleAddToColumn = async (event) => {
         id: task.id,
         index: idx,
         status_id: props.column.id,
+        challenges: task.challenges.map(challenge => challenge.id),
+        points: task.points,
     }));
 
     const data = {

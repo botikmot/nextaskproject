@@ -22,6 +22,8 @@ const props = defineProps({
     project: Object,
 });
 
+const challenges = usePage().props.challenges
+
 const activeTab = ref('subtask')
 
 const form = useForm({
@@ -29,6 +31,8 @@ const form = useForm({
     due_date: props.task.due_date,
     priority: props.task.priority,
     labels:  props.task.labels.map(label => label.id), //props.task.labels,
+    points: props.task.points,
+    challenge_ids: props.task.challenges.map(challenge => challenge.id),
     assigned_members: [],
     removed_users: [],
     comment: '',
@@ -320,6 +324,42 @@ watch(
                                     <option class="text-navy-blue" v-for="label in labels" :key="label.id" :value="label.id">{{ label.name }}</option>
                                 </select>
                             </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-gray py-1 pr-3">Points:</td>
+                        <td class="pl-4 py-1">
+                            <div v-if="!isEdit">
+                                {{ task.points }}
+                            </div>
+                            <div v-else>
+                                <input
+                                    type="number"
+                                    id="points"
+                                    min="0"
+                                    v-model="form.points"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-sky-blue sm:text-sm"
+                                />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-gray py-1 pr-3">Related Challenge:</td>
+                        <td class="pl-4 py-1">
+                            <div v-if="!isEdit">
+                                <span v-if="task.challenges" v-for="(challenge, index) in task.challenges" :key="index" class="text-xs px-2 bg-dark-gray py-1 ml-1 rounded-full">
+                                        {{ challenge.name }}
+                                </span>
+                            </div>
+                            <select
+                                v-else
+                                id="challengeIds"
+                                v-model="form.challenge_ids"
+                                multiple
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                            >
+                                <option v-for="challenge in challenges" :key="challenge.id" :value="challenge.id">{{ challenge.name }}</option>
+                            </select>
                         </td>
                     </tr>
                 </table>

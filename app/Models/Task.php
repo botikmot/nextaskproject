@@ -17,7 +17,7 @@ class Task extends Model
 
     protected $appends = ['progress'];
 
-    protected $fillable = ['title', 'description', 'user_id', 'project_id', 'status_id', 'priority', 'index', 'due_date', 'status', 'labels'];
+    protected $fillable = ['title', 'description', 'user_id', 'project_id', 'status_id', 'priority', 'index', 'due_date', 'status', 'labels', 'points', 'challenge_id'];
 
     protected static function boot()
     {
@@ -124,4 +124,8 @@ class Task extends Model
                  });
     }
 
+    public function challenges()
+    {
+        return $this->belongsToMany(Challenge::class, 'task_challenge');
+    }
 }

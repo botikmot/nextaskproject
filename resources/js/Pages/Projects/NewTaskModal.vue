@@ -19,6 +19,8 @@ const statuses = ref([])
 const project_id = ref(null)
 const labels = ref(props.project ? props.project.labels : [])
 
+const challenges = usePage().props.challenges
+
 const form = useForm({
     title: '',
     description: '',
@@ -30,6 +32,8 @@ const form = useForm({
     assigned_members: [],
     index: props.index,
     project: null,
+    points: 0,
+    challenge_ids: [],
 });
 
 const hideSidebar = computed(() => route().current('project.show'));
@@ -177,6 +181,27 @@ onMounted(() => {
                     class="mt-1 block w-full border-gray-300 rounded-md focus:ring focus:ring-sky-blue"
                 >
                     <option class="text-navy-blue" v-for="label in labels" :key="label.id" :value="label.id">{{ label.name }}</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="points" class="block text-sm font-medium text-gray-700">Points for Completion</label>
+                <input
+                    type="number"
+                    id="points"
+                    min="0"
+                    v-model="form.points"
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                />
+            </div>
+            <div class="mb-4">
+                <label for="points" class="block text-sm font-medium text-gray-700">Related Challenge</label>
+                <select
+                    id="challengeIds"
+                    v-model="form.challenge_ids"
+                    multiple
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                >
+                    <option v-for="challenge in challenges" :key="challenge.id" :value="challenge.id">{{ challenge.name }}</option>
                 </select>
             </div>
 
