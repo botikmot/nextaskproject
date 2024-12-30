@@ -11,14 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('message_reads', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('message_id')->constrained()->onDelete('cascade');
+        Schema::table('challenges', function (Blueprint $table) {
             $table->uuid('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->uuid('conversation_id');
-            $table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
-            $table->timestamps();
         });
     }
 
@@ -27,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('message_reads');
+        Schema::table('challenges', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        });
     }
 };

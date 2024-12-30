@@ -298,4 +298,10 @@ class User extends Authenticatable
         return $this->notifications()->whereNotNull('read_at');
     }
 
+    public function challenges()
+    {
+        return $this->belongsToMany(Challenge::class)->withPivot('progress', 'completed')->withTimestamps();
+    }
+
+
 }

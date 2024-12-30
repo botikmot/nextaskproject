@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Carbon\Carbon;
 use App\Events\UserStatusChanged;
+use App\Models\Challenge;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -112,6 +113,36 @@ class HandleInertiaRequests extends Middleware
                 : [],
             'notifications' => fn () => $request->user()
                 ? $request->user()->unreadNotifications()->with('user')->get()
+                : [],
+            'challenges' => fn () => $request->user()
+                ? Challenge::with('rewards', 'users')
+                ->where(function ($query) use ($request) {
+                    $authUser = $request->user();
+        
+                    // Challenges created by friends
+                    $friendIds = $authUser->friends()->pluck('id');
+                
+                    // Challenges created by project members
+                    $projectMemberIds = $authUser->projectMemberships()
+                        ->with('users')
+                        ->get()
+                        ->pluck('users')
+                        ->flatten()
+                        ->pluck('id');
+        
+                    // Combine all relevant user IDs
+                    $allowedUserIds = $friendIds->merge($projectMemberIds)->unique();
+        
+                    // Filter challenges where `user_id` matches any of the allowed IDs
+                    $query->whereIn('user_id', $allowedUserIds);
+                })
+                ->get()
+                ->map(function ($challenge) use ($request) {
+                    // Determine if the user has joined this challenge
+                    $joinedChallengeIds = $request->user()->challenges()->pluck('challenges.id')->toArray();
+                    $challenge->isJoined = in_array($challenge->id, $joinedChallengeIds);
+                    return $challenge;
+                })
                 : [],
         ];
     }

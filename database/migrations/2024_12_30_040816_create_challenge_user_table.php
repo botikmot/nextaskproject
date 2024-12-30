@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('message_reads', function (Blueprint $table) {
+        Schema::create('challenge_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('message_id')->constrained()->onDelete('cascade');
+            $table->uuid('challenge_id');
             $table->uuid('user_id');
+            $table->foreign('challenge_id')->references('id')->on('challenges')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->uuid('conversation_id');
-            $table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
+            $table->integer('progress')->default(0);
+            $table->boolean('completed')->default(false);
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('message_reads');
+        Schema::dropIfExists('challenge_user');
     }
 };

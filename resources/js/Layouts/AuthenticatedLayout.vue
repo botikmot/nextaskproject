@@ -175,6 +175,14 @@ onUnmounted(() => {
                             Calendar
                         </span>
                     </li>
+                    <li class="py-3 pl-6 hover:bg-dark-navy relative group" title="Challenge" :class="{'bg-dark-navy text-sky-blue': route().current('challenge')}">
+                        <a :href="route('challenge')" class="block">
+                            <i class="fa-solid fa-trophy mr-2"></i><span v-if="!isCollapsed">Challenges</span>
+                        </a>
+                        <span v-if="isCollapsed" class="absolute top-full mt-1 left-10 text-navy-blue transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap">
+                            Challenges
+                        </span>
+                    </li>
                 </ul>
                 <div v-if="isCollapsed" class="flex justify-center">
                     <button @click="toggleLeftSidebar" class="text-linen mt-3 mr-1 focus:outline-none hidden lg:block">

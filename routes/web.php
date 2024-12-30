@@ -10,6 +10,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ChallengeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Project;
 use App\Models\Event;
 use App\Models\Post;
+//use App\Models\Challenge;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -35,6 +37,7 @@ $routes = [
     '/social' => 'Social/SocialFeed',
     '/messages' => 'Messages/Messages',
     '/calendar' => 'Calendar/Calendar',
+    '/challenge' => 'Challenge/Dashboard',
 ];
 
 foreach ($routes as $uri => $view) {
@@ -73,7 +76,7 @@ foreach ($routes as $uri => $view) {
                 ],
             ];
         });
-   
+
         return Inertia::render($view, [
             'isNewUser' => session('isNewUser', false),
             'userName' => Auth::check() ? Auth::user()->name : null,
@@ -165,6 +168,13 @@ Route::middleware('auth')->group(function () {
 
     //Notifications
     Route::post('/notifications/chat/read', [NotificationController::class, 'markNotificationChatAsRead']);
+
+    // Challenges
+    Route::post('/challenges', [ChallengeController::class, 'create'])->name('challenge.create');
+    Route::get('/challenges', [ChallengeController::class, 'index']);
+    Route::post('/challenges/{challenge}/join', [ChallengeController::class, 'join']);
+
+
 });
 
 
