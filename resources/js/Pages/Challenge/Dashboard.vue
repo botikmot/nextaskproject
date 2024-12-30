@@ -60,7 +60,7 @@ const setActiveMenu = (menu) => {
             <!-- Main Content -->
             <main class="flex-1 bg-color-white p-4 rounded-lg shadow flex flex-col">
                 <header class="main-header">
-                <h1>Challenges Dashboard</h1>
+                <h1 class="font-bold text-navy-blue text-xl pl-3">Challenges Lists</h1>
                 <input
                     type="text"
                     class="search-bar"

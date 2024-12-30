@@ -8,14 +8,14 @@
         @input="updateProgressInput"
         min="0" 
         :max="max"
-        class="w-full mt-2"
+        class="w-full"
       />
-      <button 
+      <!-- <button 
         @click="submitProgress" 
         class="mt-4 bg-sky-blue text-color-white py-1 px-3 rounded hover:bg-navy-blue"
       >
         Update Progress
-      </button>
+      </button> -->
     </div>
   </template>
   
