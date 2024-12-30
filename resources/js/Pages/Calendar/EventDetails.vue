@@ -108,7 +108,7 @@ const removeParticipant = (participant) => {
             <textarea :disabled="isEdit==false" id="eventDescription" v-model="form.description" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"></textarea>
         </div>
         <div class="mb-4 flex w-full items-center">
-            <div class="w-1/3 px-1">
+            <div :class="`${ isEdit ? 'w-1/3' : 'w-1/2' } px-1`">
                 <label for="eventStart" class="block text-sm font-medium text-navy-blue">Start Date & Time</label>
                 <input
                     type="datetime-local"
@@ -119,7 +119,7 @@ const removeParticipant = (participant) => {
                     :disabled="isEdit==false"
                 />
             </div>
-            <div class="w-1/3 px-1">
+            <div :class="`${ isEdit ? 'w-1/3' : 'w-1/2' } px-1`">
                 <label for="eventEnd" class="block text-sm font-medium text-navy-blue">End Date & Time</label>
                 <input
                     type="datetime-local"
@@ -129,7 +129,7 @@ const removeParticipant = (participant) => {
                     :disabled="isEdit==false"
                 />
             </div>
-            <div class="w-1/3 px-1">
+            <div v-if="isEdit" class="w-1/3 px-1">
                 <label for="columnColor" class="block text-sm font-medium text-navy-blue">Color</label>
                 <div class="flex w-full items-center">
                     <input 
