@@ -45,6 +45,9 @@ class HandleInertiaRequests extends Middleware
             'suggestedFriends' => fn () => $request->user()
                 ? $request->user()->suggestedFriends()
                 : [],
+            'getAllEvents' => fn () => $request->user()
+                ? $request->user()->getAllEvents()
+                : [],
             'receivedFriendRequests' => fn () => $request->user()
                 ? $request->user()->receivedFriendRequests->map(function ($friendRequest) use ($request) {
                     // Get the sender (the user who sent the friend request)

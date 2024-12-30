@@ -137,6 +137,7 @@ Route::middleware('auth')->group(function () {
     // Calendar Events
     Route::post('/events', [EventController::class, 'store'])->name('event.store');
     Route::post('/events/{id}', [EventController::class, 'update'])->name('event.update');
+    Route::get('/events', [EventController::class, 'index'])->name('event.index');
 
     // Social
     Route::post('/post', [PostController::class, 'store'])->name('post.store');

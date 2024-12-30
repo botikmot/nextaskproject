@@ -6,6 +6,7 @@ import axios from 'axios';
 import { usePage, useForm } from '@inertiajs/vue3'
 import Swal from 'sweetalert2';
 import UserImage from '@/Components/UserImage.vue';
+import moment from 'moment';
 
 const page = usePage();
 let isTaskModalOpen = ref(false);
@@ -24,6 +25,23 @@ const form = useForm({
 
 const suggestedFriends = page.props.suggestedFriends || [];
 const receivedFriendRequests = page.props.receivedFriendRequests || [];
+const getAllEvents = page.props.getAllEvents || [];
+
+const todaysEvents = computed(() => {
+    const now = new Date();
+
+    // Get the start and end of today's date
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    // Filter events to include only those starting within today's range
+    return getAllEvents.filter(event => {
+        const eventStart = new Date(event.start);
+        return eventStart >= startOfToday && eventStart < endOfToday;
+    });
+});
+
+console.log('todaysEvents', todaysEvents.value)
 
 const createTask = async () => {
     const response = await axios.get('/tasks-project');
@@ -117,7 +135,10 @@ const rejectFriendRequest = (id, index) => {
     })
 }
 
-console.log('receivedFriendRequests', receivedFriendRequests)
+const formatDate = (date) => {
+    return moment(date).format('lll');
+}
+
 </script>
 
 <template>
@@ -233,7 +254,17 @@ console.log('receivedFriendRequests', receivedFriendRequests)
             </div>
         </div>
     </div>
-
+    <div v-if="todaysEvents.length > 0" class="mt-6">
+        <h3 class="font-bold text-red-warning mb-2">Today's Events</h3>
+        <ul class="mb-6 list-none">
+            <li v-for="event in todaysEvents" :key="event.id" class="py-1 flex border-b border-dark-gray">
+                <div>
+                    <p class="font-semibold text-sky-blue">{{ event.title }}</p>
+                    <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
+                </div>
+            </li>
+        </ul>
+    </div>
 
     <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
         <NewTaskModal @close="isTaskModalOpen = false" :projects="projects" :labels="labels"/>

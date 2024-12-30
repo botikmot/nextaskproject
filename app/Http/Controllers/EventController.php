@@ -8,6 +8,17 @@ use App\Models\Event;
 
 class EventController extends Controller
 {
+    public function index()
+    {
+        $user = Auth::user();
+        $events = $user->getAllEvents();
+        
+        return response()->json([
+                'success' => true,
+                'events' => $events,
+            ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([

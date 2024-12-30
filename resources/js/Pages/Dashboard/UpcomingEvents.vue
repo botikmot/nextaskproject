@@ -1,17 +1,17 @@
 <script setup>
-import { ref, computed, reactive} from 'vue';
+import { ref, computed, reactive, onMounted} from 'vue';
 import moment from 'moment';
+import { usePage, useForm } from '@inertiajs/vue3'
 
-const props = defineProps({
-    events: Array,
-});
+const page = usePage();
 
+const getAllEvents = page.props.getAllEvents || [];
 
 const upcomingEvents = computed(() => {
     const now = new Date();
 
     // Filter events to include only those starting in the future
-    const filteredEvents = props.events.filter(event => new Date(event.start) > now);
+    const filteredEvents = getAllEvents?.filter(event => new Date(event.start) > now);
 
     // Sort events by their start date in ascending order (nearest first)
     const sortedEvents = filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
@@ -41,8 +41,8 @@ const formatDate = (date) => {
                         <div v-for="(member, index) in event.participants.slice(0, 5)" :key="member.id" class="relative -mr-3">
                             <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
                         </div>
-                        
-                        <div v-if="event.participants.length > 5" class="flex items-center text-navy-blue ml-6">
+                         
+                        <div v-if="event.participants.length > 5" class="flex items-center text-navy-blue ml-3">
                             <span class="text-lg font-bold">+{{ event.participants.length - 5 }}</span>
                         </div>
                     </div>
