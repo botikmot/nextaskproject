@@ -255,11 +255,11 @@ const formatDate = (date) => {
         </div>
     </div>
     <div v-if="todaysEvents.length > 0" class="mt-6">
-        <h3 class="font-bold text-red-warning mb-2">Today's Events</h3>
+        <h3 class="font-bold text-navy-blue mb-2">{{ todaysEvents.length > 1 ? "Today's Events" : "Today's Event" }}</h3>
         <ul class="mb-6 list-none">
             <li v-for="event in todaysEvents" :key="event.id" class="py-1 flex border-b border-dark-gray">
                 <div>
-                    <p class="font-semibold text-sky-blue">{{ event.title }}</p>
+                    <p class="font-semibold text-red-warning">{{ event.title }}</p>
                     <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
                 </div>
             </li>

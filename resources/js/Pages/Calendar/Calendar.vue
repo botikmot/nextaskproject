@@ -30,6 +30,19 @@ const upcomingEvents = computed(() => {
     return filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
 });
 
+const todaysEvents = computed(() => {
+    const now = new Date();
+    // Get the start and end of today's date
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    // Filter events to include only those starting within today's range
+    return props.events.filter(event => {
+        const eventStart = new Date(event.start);
+        return eventStart >= startOfToday && eventStart < endOfToday;
+    });
+});
+
 const handleEventClick = (info) => {
     console.log('info event', info.event)
 };
@@ -114,6 +127,25 @@ const viewEventDetails = (details) => {
                         </li>
                     </template>
                 </ul>
+
+                <template v-if="todaysEvents.length > 0">
+                    <h2 class="text-lg pl-3 text-navy-blue font-semibold mb-2 mt-6">{{ todaysEvents.length > 1 ? "Today's Events" : "Today's Event" }}</h2>
+                    <ul class="space-y-2">
+                        <li
+                            v-for="event in todaysEvents"
+                            :key="event.id"
+                            class="flex items-center justify-between bg-color-white cursor-pointer p-3 rounded-lg shadow"
+                            @click="viewEventDetails(event)"
+                        >
+                            <div>
+                                <h3 class="font-semibold text-red-warning">{{ event.title }}</h3>
+                                <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
+                            </div>
+                            <span class="text-gray px-3 text-center py-1 border rounded-full hidden 2xl:flex">View details</span>
+                        </li>
+                    </ul>
+                </template>
+
             </aside>
 
             <!-- Calendar View -->
