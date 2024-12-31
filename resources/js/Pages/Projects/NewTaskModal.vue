@@ -19,7 +19,7 @@ const statuses = ref([])
 const project_id = ref(null)
 const labels = ref(props.project ? props.project.labels : [])
 
-const challenges = usePage().props.challenges
+const challenges = usePage().props.participantChallenges
 
 const form = useForm({
     title: '',

@@ -141,8 +141,33 @@ class HandleInertiaRequests extends Middleware
                     // Determine if the user has joined this challenge
                     $joinedChallengeIds = $request->user()->challenges()->pluck('challenges.id')->toArray();
                     $challenge->isJoined = in_array($challenge->id, $joinedChallengeIds);
+                    $participantPoints = $challenge->getParticipantPoints();
+
+                    // Attach participant points and percentage to each user in the users array
+                    $challenge->users = $challenge->users->map(function ($user) use ($participantPoints, $challenge) {
+                        $totalPoints = $participantPoints[$user->id]['total_points'] ?? 0; // Get total points for the user
+                        $challengePoints = $challenge->points; // Total points of the challenge
+
+                        // Calculate percentage
+                        $percentage = $challengePoints > 0 ? ($totalPoints / $challengePoints) * 100 : 0;
+
+                        // Add participant points and percentage to the user object
+                        $user->participant_points = $totalPoints;
+                        $user->completion_percentage = round($percentage, 2); // Round to 2 decimal places
+
+                        return $user;
+                    });
+
                     return $challenge;
                 })
+                : [],
+            'participantChallenges' => fn () => $request->user()
+                ? Challenge::with('rewards', 'users') // Include relationships
+                    ->whereHas('users', function ($query) use ($request) {
+                        // Filter challenges where the authenticated user is a participant
+                        $query->where('user_id', $request->user()->id);
+                    })
+                    ->get()
                 : [],
         ];
     }

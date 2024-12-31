@@ -19,11 +19,14 @@ const props = defineProps({
                         <UserImage class="w-8 h-8 rounded-full object-cover mr-2" :user="participant" />
                         <div class="w-full">
                             <div class="flex justify-between">
-                                <h3 class="text-navy-blue text-sm font-semibold">{{ participant.name }}</h3>
-                                <div class="text-navy-blue text-sm font-semibold">{{participant.pivot.progress}}% Progress</div>
+                                <div class="flex items-center">
+                                  <h3 class="text-navy-blue text-sm font-semibold">{{ participant.name }}</h3>
+                                  <span class="pl-2 text-xs font-bold text-sky-blue">({{participant.participant_points}} points)</span>
+                                </div>
+                                <div class="text-navy-blue text-sm font-semibold">{{participant.completion_percentage}}% Progress</div>
                             </div>
                             <div class="w-full h-2 bg-crystal-blue rounded-full mt-1">
-                                <div :style="{ width: participant.pivot.progress + '%' }" class="h-full bg-navy-blue rounded-full"></div>
+                                <div :style="{ width: participant.completion_percentage + '%' }" class="h-full bg-navy-blue rounded-full"></div>
                             </div>
                         </div>
                     </div>

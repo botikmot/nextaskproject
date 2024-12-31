@@ -45,4 +45,28 @@ class Challenge extends Model
         return $this->belongsToMany(Task::class, 'task_challenge');
     }
 
+    public function getParticipantPoints()
+    {
+        $participantPoints = [];
+
+        foreach ($this->users as $user) {
+            // Calculate total points for this participant
+            $totalPoints = $this->tasks()
+                ->whereHas('project', function ($query) {
+                    $query->whereColumn('tasks.status_id', 'projects.completed_status_id');
+                })
+                ->whereHas('users', function ($query) use ($user) {
+                    $query->where('users.id', $user->id);
+                })
+                ->sum('points');
+
+            // Store the total points for this participant
+            $participantPoints[$user->id] = [
+                'user' => $user,
+                'total_points' => $totalPoints,
+            ];
+        }
+
+        return $participantPoints;
+    }
 }

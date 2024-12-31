@@ -22,7 +22,7 @@ const props = defineProps({
     project: Object,
 });
 
-const challenges = usePage().props.challenges
+const challenges = usePage().props.participantChallenges
 
 const activeTab = ref('subtask')
 
