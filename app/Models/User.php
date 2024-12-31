@@ -181,7 +181,7 @@ class User extends Authenticatable
         return $this->hasMany(FriendRequest::class, 'receiver_id')->with('sender')->pending();
     }
 
-    public function suggestedFriends($max = 5)
+    public function suggestedFriends($max = 3)
     {
         $friendIds = $this->friends()->pluck('friend_id')->toArray();
         $friendIds[] = $this->id; // Include the current user's ID to exclude themselves

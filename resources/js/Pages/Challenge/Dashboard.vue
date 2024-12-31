@@ -49,12 +49,7 @@ const setActiveMenu = (menu) => {
                     Create New Challenge
                 </button>
                 
-                <ul class="menu">
-                    <li :class="{ active: activeMenu === 'all' }" @click="setActiveMenu('all')">All Challenges</li>
-                    <!-- <li :class="{ active: activeMenu === 'create' }" @click="navigateToCreate">Create Challenge</li> -->
-                    <li :class="{ active: activeMenu === 'ongoing' }" @click="setActiveMenu('ongoing')">Ongoing</li>
-                    <li :class="{ active: activeMenu === 'completed' }" @click="setActiveMenu('completed')">Completed</li>
-                </ul>
+                
             </aside>
         
             <!-- Main Content -->

@@ -176,7 +176,7 @@ const removeColumn = () => {
                 
             </div>
         </div>
-        <div class="w-full overflow-y-auto" :style="{ height: columnHeight }">
+        <div class="columns-area w-full overflow-y-auto" :style="{ height: columnHeight }">
             <!-- Task List -->
             <VueDraggable
                 :style="{ height: columnHeight }"
@@ -210,3 +210,20 @@ const removeColumn = () => {
 
     </div>
 </template>
+
+<style scoped>
+/* Hide scrollbars (optional, for better design) */
+.columns-area::-webkit-scrollbar {
+    width: 8px;
+}
+
+.columns-area::-webkit-scrollbar-thumb {
+    background-color: #40a2e3; /* Customize scrollbar color */
+    border-radius: 4px;
+}
+
+.columns-area::-webkit-scrollbar-thumb:hover {
+    background-color: #a1a1aa;
+}
+
+</style>

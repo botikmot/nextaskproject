@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('rewards', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->uuid('challenge_id');
             $table->foreign('challenge_id')->references('id')->on('challenges')->onDelete('cascade');
             $table->integer('points_required'); // Points required to redeem this reward

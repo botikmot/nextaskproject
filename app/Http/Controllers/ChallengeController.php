@@ -57,4 +57,26 @@ class ChallengeController extends Controller
         ]);
     }
 
+    public function addReward(Request $request, $challengeId)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'points_required' => 'required|integer|min:0',
+        ]);
+
+        $challenge = Challenge::findOrFail($challengeId);
+
+        $reward = $challenge->rewards()->create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'points_required' => $request->points_required,
+        ]);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Reward added successfully!',
+        ]);
+
+    }
+
 }

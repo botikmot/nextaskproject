@@ -173,7 +173,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/challenges', [ChallengeController::class, 'create'])->name('challenge.create');
     Route::get('/challenges', [ChallengeController::class, 'index']);
     Route::post('/challenges/{challenge}/join', [ChallengeController::class, 'join']);
-
+    Route::post('/challenges/{challengeId}/rewards', [ChallengeController::class, 'addReward']);
 
 });
 

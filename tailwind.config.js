@@ -31,6 +31,8 @@ export default {
             'gray': 'rgb(117 127 141)',
             'red-warning': '#cb2f2f',
             'green': '#25af15',
+            'gold': '#FFD700',
+            'silver': '#C0C0C0',
         }
     },
 
