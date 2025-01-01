@@ -8,33 +8,54 @@ const successMessage = ref('')
 
 const emit = defineEmits();
 
+const props = defineProps({
+    challenge: Object,
+});
+
 const form = useForm({
-    name: '',
-    description: '',
-    start_date: '',
-    end_date: '',
-    is_team_based: false,
-    points: 0,
+    name: props.challenge?.name || '',
+    description: props.challenge?.description || '',
+    start_date: props.challenge?.start_date || '',
+    end_date: props.challenge?.end_date || '',
+    is_team_based: !!props.challenge?.is_team_based,
+    points: props.challenge?.points || 0,
 });
 
 const createChallenge = () => {
     console.log(form)
-    form.post('/challenges', {
-        data: form,
-        preserveScroll: true,
-        onSuccess: () => {
-            form.reset()
-            Swal.fire({
-                icon: usePage().props.flash.success ? "success" : "error",
-                text: usePage().props.flash.message
-            });
-            emit('close')
-        },
-        onError: (error) => {
-            console.error('Error creating challenge', usePage().props.flash.message)
-        }
-    })
-
+    if(!props.challenge){
+        form.post('/challenges', {
+            data: form,
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset()
+                Swal.fire({
+                    icon: usePage().props.flash.success ? "success" : "error",
+                    text: usePage().props.flash.message
+                });
+                emit('close')
+            },
+            onError: (error) => {
+                console.error('Error creating challenge', usePage().props.flash.message)
+            }
+        })
+    }else{
+        form.put(`/challenges/${props.challenge.id}`, {
+            data: form,
+            preserveScroll: true,
+            onSuccess: () => {
+                form.reset()
+                Swal.fire({
+                    icon: usePage().props.flash.success ? "success" : "error",
+                    text: usePage().props.flash.message
+                });
+                emit('close')
+            },
+            onError: (error) => {
+                console.error('Error creating challenge', usePage().props.flash.message)
+            }
+        })
+    }
 }
 
 </script>
@@ -113,7 +134,7 @@ const createChallenge = () => {
                 type="submit"
                 class="w-full bg-sky-blue text-color-white py-2 px-4 rounded-md shadow hover:bg-navy-blue focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-                Create Challenge
+                {{ challenge?.id ? 'Update Challenge' : 'Create Challenge'}}
             </button>
         </form>
 

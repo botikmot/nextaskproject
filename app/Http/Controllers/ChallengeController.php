@@ -39,6 +39,52 @@ class ChallengeController extends Controller
         ]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'is_team_based' => 'boolean',
+            'points' => 'required|integer|min:0',
+        ]);
+
+        $challenge = Challenge::findOrFail($id);
+        $challenge->name = $request->name;
+        $challenge->description = $request->description;
+        $challenge->start_date = $request->start_date;
+        $challenge->end_date = $request->end_date;
+        $challenge->is_team_based = $request->is_team_based;
+        $challenge->points = $request->points;
+        $challenge->save();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Challenge successfully updated',
+        ]);
+
+    }
+
+    public function destroy($id)
+    {
+        $challenge = Challenge::findOrFail($id);
+
+        // Check if the challenge has associated users
+        if ($challenge->users->isNotEmpty()) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'Cannot delete challenge because it is associated with users.',
+            ]);
+        }
+
+        $challenge->delete();
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'Challenge successfully deleted',
+        ]);
+    }
+
     public function join(Challenge $challenge)
     {
         $user = auth()->user();
@@ -78,5 +124,52 @@ class ChallengeController extends Controller
         ]);
 
     }
+
+    public function viewProgress(Challenge $challenge)
+    {
+        $user = auth()->user();
+
+        // Get tasks for the user in the given challenge
+        $userTasks = $challenge->tasks()
+            ->whereHas('users', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            })
+            ->with('status', 'project')
+            ->get();
+
+        return response()->json($userTasks);
+
+    }
+
+    public function leaveChallenge(Request $request, $challengeId)
+    {
+        $user = $request->user();
+
+        // Find the challenge by ID
+        $challenge = Challenge::findOrFail($challengeId);
+
+        // Check if the user is part of the challenge
+        if (!$challenge->users()->where('users.id', $user->id)->exists()) {
+            return redirect()->back()->with([
+                'success' => false,
+                'message' => 'You are not a participant in this challenge.',
+            ]);
+            /* return response()->json([
+                'message' => 'You are not a participant in this challenge.',
+            ], 400); */
+        }
+
+        // Remove the user from the challenge
+        $challenge->users()->detach($user->id);
+
+        return redirect()->back()->with([
+            'success' => true,
+            'message' => 'You have successfully left the challenge.',
+        ]);
+        /* return response()->json([
+            'message' => 'You have successfully left the challenge.',
+        ], 200); */
+    }
+
 
 }

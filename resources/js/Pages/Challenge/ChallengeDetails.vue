@@ -148,24 +148,3 @@ const formatDate = (date) => {
 
     </div>
   </template>
-  
-  <!-- <script>
-  import ProgressTracker from "./ProgressTracker.vue";
-  import { Inertia } from "@inertiajs/inertia";
-  
-  export default {
-    props: ["challenge"],
-    components: { ProgressTracker },
-    methods: {
-      updateProgress(newProgress) {
-        Inertia.post(`/challenges/${this.challenge.id}/progress`, { progress: newProgress });
-      },
-      redeemReward(rewardId) {
-        Inertia.post(`/rewards/${rewardId}/redeem`, {}, {
-          onSuccess: () => alert("Reward redeemed successfully!"),
-        });
-      },
-    },
-  };
-  </script> -->
-  
