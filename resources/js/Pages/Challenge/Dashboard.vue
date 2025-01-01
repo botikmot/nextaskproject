@@ -1,20 +1,25 @@
 <script setup>
 import { ref, defineEmits, computed, onMounted } from 'vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
 import NewChallenge from './NewChallenge.vue';
 import Challenges from './Challenges.vue';
+import Leaderboards from './Leaderboards.vue';
 
 const isNewChallenge = ref(false)
-const activeMenu = ref('all')
+//const activeMenu = ref('all')
 const searchQuery = ref('')
+
+const userchallenges = usePage().props.participantChallenges
+
 
 const props = defineProps({
     challenges: Array,
 });
 
-const setActiveMenu = (menu) => {
+console.log('userchallenges-->>', userchallenges)
+/* const setActiveMenu = (menu) => {
     activeMenu.value = menu;
     if (menu === "all") {
         //this.filteredChallenges = this.challenges;
@@ -30,8 +35,10 @@ const setActiveMenu = (menu) => {
         (challenge) => challenge.end_date < today
         );
     }
-}
-
+} */
+const columnHeight = computed(() => {
+    return 'calc(100vh - 215px)';
+});
 
 </script>
 
@@ -39,29 +46,28 @@ const setActiveMenu = (menu) => {
     <Head title="Challenges" />
 
     <AuthenticatedLayout pageTitle="Challenges">
-        <div class="flex w-full space-x-4 p-6 bg-linen">
+        <div class="flex w-full p-6 bg-linen">
             <!-- Sidebar -->
-            <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow">
+            <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow hidden mr-4 lg:block">
                 <button
                     @click="isNewChallenge = true"
                     class="block w-full mb-4 py-2 text-linen hover:font-bold bg-sky-blue rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                 >
                     Create New Challenge
                 </button>
-                
-                
+                <div class="leaderboards overflow-y-auto" :style="{ height: columnHeight }">
+                    <Leaderboards :challenges="userchallenges"/>
+                </div>
             </aside>
         
             <!-- Main Content -->
-            <main class="flex-1 bg-color-white p-4 rounded-lg shadow flex flex-col">
+            <main class="flex-1 w-full lg:w-3/4 bg-color-white p-4 rounded-lg shadow  flex flex-col">
                 <header class="main-header">
                 <h1 class="font-bold text-navy-blue text-xl pl-3">Challenges Lists</h1>
                 <input
                     type="text"
                     class="search-bar"
                     placeholder="Search Challenges..."
-                    v-model="searchQuery"
-                    @input="filterChallenges"
                 />
                 </header>
         
@@ -79,6 +85,20 @@ const setActiveMenu = (menu) => {
   </template>
   
   <style scoped>
+
+  .leaderboards::-webkit-scrollbar {
+      width: 8px;
+  }
+
+  .leaderboards::-webkit-scrollbar-thumb {
+      background-color: #40a2e3; /* Customize scrollbar color */
+      border-radius: 4px;
+  }
+
+  .leaderboards::-webkit-scrollbar-thumb:hover {
+      background-color: #a1a1aa;
+  }
+
   .dashboard-container {
     display: flex;
     min-height: 100vh;
@@ -117,7 +137,6 @@ const setActiveMenu = (menu) => {
   
   .search-bar {
     padding: 10px;
-    width: 300px;
     border: 1px solid #ccc;
     border-radius: 5px;
   }

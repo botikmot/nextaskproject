@@ -168,6 +168,24 @@ class HandleInertiaRequests extends Middleware
                         $query->where('user_id', $request->user()->id);
                     })
                     ->get()
+                    ->map(function ($challenge) use ($request) {
+                        $participantPoints = $challenge->getParticipantPoints();
+    
+                        // Attach participant points and percentage to each user in the users array
+                        $challenge->users = $challenge->users->map(function ($user) use ($participantPoints, $challenge) {
+                            $totalPoints = $participantPoints[$user->id]['total_points'] ?? 0; // Get total points for the user
+                            $challengePoints = $challenge->points; // Total points of the challenge
+                            // Calculate percentage
+                            $percentage = $challengePoints > 0 ? ($totalPoints / $challengePoints) * 100 : 0;
+    
+                            // Add participant points and percentage to the user object
+                            $user->participant_points = $totalPoints;
+                            $user->completion_percentage = round($percentage, 2); // Round to 2 decimal places
+                            return $user;
+                        });
+    
+                        return $challenge;
+                })
                 : [],
         ];
     }

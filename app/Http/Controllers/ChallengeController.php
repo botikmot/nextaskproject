@@ -154,9 +154,6 @@ class ChallengeController extends Controller
                 'success' => false,
                 'message' => 'You are not a participant in this challenge.',
             ]);
-            /* return response()->json([
-                'message' => 'You are not a participant in this challenge.',
-            ], 400); */
         }
 
         // Remove the user from the challenge
@@ -166,9 +163,6 @@ class ChallengeController extends Controller
             'success' => true,
             'message' => 'You have successfully left the challenge.',
         ]);
-        /* return response()->json([
-            'message' => 'You have successfully left the challenge.',
-        ], 200); */
     }
 
 
