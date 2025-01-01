@@ -46,22 +46,22 @@ const columnHeight = computed(() => {
     <Head title="Challenges" />
 
     <AuthenticatedLayout pageTitle="Challenges">
-        <div class="flex w-full p-6 bg-linen">
+        <div class="lg:flex block w-full p-6 bg-linen">
             <!-- Sidebar -->
-            <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow hidden mr-4 lg:block">
+            <div class="lg:w-1/2 2xl:w-1/4 xl:w-1/2 bg-crystal-blue p-4 rounded-lg shadow mr-4 w-full">
                 <button
                     @click="isNewChallenge = true"
                     class="block w-full mb-4 py-2 text-linen hover:font-bold bg-sky-blue rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                 >
                     Create New Challenge
                 </button>
-                <div class="leaderboards overflow-y-auto" :style="{ height: columnHeight }">
+                <div class="">
                     <Leaderboards :challenges="userchallenges"/>
                 </div>
-            </aside>
+            </div>
         
             <!-- Main Content -->
-            <main class="flex-1 w-full lg:w-3/4 bg-color-white p-4 rounded-lg shadow  flex flex-col">
+            <main class="flex-1 w-full lg:w-1/2 2xl:w-3/4 xl:w-1/2 sm:p-4 py-4 rounded-lg flex flex-col">
                 <header class="main-header">
                 <h1 class="font-bold text-navy-blue text-xl pl-3">Challenges Lists</h1>
                 <input

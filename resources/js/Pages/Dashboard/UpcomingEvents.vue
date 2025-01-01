@@ -46,7 +46,7 @@ const formatDate = (date) => {
         <div v-if="todaysEvents.length > 0">
             <h2 class="text-lg font-bold border-b border-dark-gray text-navy-blue pb-2">{{ todaysEvents.length > 1 ? "Today's Events" : "Today's Event" }}</h2>
             <ul class="mt-2 mb-6 list-none">
-                <li v-for="event in todaysEvents" :key="event.id" class="py-1 flex border-b border-dark-gray">
+                <li v-for="event in todaysEvents" :key="event.id" class="py-1 block xl:flex border-b border-dark-gray">
                     <div>
                         <p class="font-semibold text-red-warning">{{ event.title }}</p>
                         <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
@@ -68,12 +68,12 @@ const formatDate = (date) => {
             <h2 class="text-lg font-bold border-b border-dark-gray text-navy-blue pb-2">Upcoming Events</h2>
             <ul class="mt-2 mb-6 list-none">
                 <template v-if="upcomingEvents.length > 0">
-                    <li v-for="event in upcomingEvents" :key="event.id" class="py-1 flex border-b border-dark-gray">
+                    <li v-for="event in upcomingEvents" :key="event.id" class="py-1 block 2xl:flex border-b border-dark-gray">
                         <div>
                             <p class="font-semibold text-sky-blue">{{ event.title }}</p>
                             <p class="text-sm text-navy-blue">{{ formatDate(event.start) }}</p>
                         </div>
-                        <div class="flex items-center pl-3">
+                        <div class="flex items-center pl-0 2xl:pl-3">
                             <div v-for="(member, index) in event.participants.slice(0, 5)" :key="member.id" class="relative -mr-3">
                                 <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
                             </div>

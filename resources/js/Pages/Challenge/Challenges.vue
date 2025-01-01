@@ -147,19 +147,14 @@ console.log('challenges', props.challenges)
 
 <template>
     <div class="challenges">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-1 2xl:grid-cols-2 xl:grid-cols-1 gap-6">
             <div
                 v-for="(challenge, index) in challenges"
                 :key="challenge.id"
-                :class="{
-                    'p-4 border rounded shadow hover:shadow-xl transition hover:cursor-pointer': true,
-                    'bg-linen border-dark-gray': challenge.isJoined, // Highlight joined challenges
-                    'bg-color-white border-dark-gray': !challenge.isJoined
-                }"
-                class="relative pb-8"
+                class="relative pb-8 bg-color-white p-4 border border-dark-gray rounded shadow hover:shadow-xl transition hover:cursor-pointer"
                 @click="viewDetails(challenge)"
             >
-                <div class="flex justify-between">
+                <div class="flex justify-between border-b border-dark-gray pb-2">
                     <h2 class="text-lg font-semibold text-navy-blue">{{ challenge.name }}</h2>
                     <div class="text-sm"  @click.stop>
                         <Dropdown align="right" width="48">
@@ -191,11 +186,20 @@ console.log('challenges', props.challenges)
                         </Dropdown>
                     </div>
                 </div>
-                <!-- <p class="text-sm text-gray-500">{{ challenge.description }}</p> -->
-                <p class="text-sm mt-1">Points: {{ challenge.points }}</p>
-                <p class="text-sm">Start: {{ formatDate(challenge.start_date) }}</p>
-                <p class="text-sm">End: {{ formatDate(challenge.end_date) }}</p>
-
+                <div class="sm:flex block justify-between mt-2">
+                    <div>
+                        <span class="font-bold text-sky-blue">Start:</span>
+                        <span class="pl-1 text-navy-blue">{{ formatDate(challenge.start_date) }}</span>
+                    </div>
+                    <div>
+                        <span class="font-bold text-sky-blue">End:</span>
+                        <span class="pl-1 text-navy-blue">{{ formatDate(challenge.end_date) }}</span>
+                    </div>
+                </div>
+                <div>
+                    <span class="font-bold text-sky-blue">Points:</span>
+                    <span class="pl-1 text-navy-blue">{{ challenge.points }}</span>
+                </div>
                 <!-- Conditionally show buttons or badges -->
                 <div v-if="challenge.isJoined" class="mt-4">
                     <button
