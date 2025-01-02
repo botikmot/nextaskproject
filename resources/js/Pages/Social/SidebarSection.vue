@@ -1,17 +1,19 @@
 <script setup>
 import { usePage, useForm } from '@inertiajs/vue3'
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import UserImage from '@/Components/UserImage.vue';
+import axios from 'axios';
 
 const props = defineProps({
     userChangedStatus: Object,
 });
 const page = usePage();
 
-const trendingTopics = ['#VueJS', '#ProjectManagement', '#Productivity', '#NexTask']
+const trendingTopics = ref([])
 const sharedFriends = page.props.sharedFriends || [];
 
 console.log('sharedFriends', sharedFriends)
+const loading = ref(false)
 
 const friends = computed(() => {
     return page.props.flash.friends || sharedFriends;
@@ -32,14 +34,38 @@ watch(
   { deep: true }
 );
 
+const fetchTopics = async () => {
+    try {
+        loading.value = true
+        // Fetch progress data for the specific challenge
+        const response = await axios.get('/trending');
+        trendingTopics.value = response.data;
+        //details.value = data
+        console.log('trending topics', response.data)
+        //isViewProgressDetails.value = true
+        loading.value = false
+      } catch (error) {
+        loading.value = false
+        console.error('Error fetching progress:', error);
+      }
+}
+
+onMounted(() => {
+    fetchTopics()
+});
+
 </script>
 
 <template>
     <div>
-        <h4 class="text-lg font-bold border-b border-dark-gray text-navy-blue">Trending Topics</h4>
-        <ul class="mt-4">
-            <li v-for="topic in trendingTopics" :key="topic" class="text-blue-600 hover:underline mb-2">{{ topic }}</li>
-        </ul>
+        <div v-if="trendingTopics.length > 0">
+            <h4 class="text-lg font-bold border-b border-dark-gray text-navy-blue">Trending Topics</h4>
+            <ul class="mt-4">
+                <li v-for="topic in trendingTopics" :key="topic" class="text-blue-600 mb-1">
+                    <a :href="`/hashtag/${topic.name}`" class="text-blue-600 hover:underline">#{{ topic.name }}</a>
+                </li>
+            </ul>
+        </div>
         <div v-if="friends.length > 0" class="mt-6">
             <h4 class="text-lg font-bold border-b border-dark-gray text-navy-blue mb-3">Friends</h4>
             <div

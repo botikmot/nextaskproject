@@ -21,19 +21,12 @@ const formatDate = (date) => {
 }
 
 const convertLinks = (text) => {
-    text = text.replace(/^<p>(.*?)<\/p>$/s, '$1');
-    // Convert newlines to <br> for line breaks
-    text = text.replace(/\n/g, '<br>');
-
-    // Convert **bold** or __bold__ to <strong> tags
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold using **
-    text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');      // Bold using __
-
-    // Convert *italic* or _(italic)_ to <em> tags
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');  // Italic using *
-    text = text.replace(/_(.*?)_/g, '<em>$1</em>');    // Italic using _
-
     // Convert links to clickable anchor tags
+
+    text = text.replace(/<\/?p>/g, ''); // Remove all <p> and </p> tags
+
+    text = text.replace(/[\r\n]+/g, ' '); // Replace newlines or multiple spaces with a single space
+
     const pattern = /https?:\/\/\S+/g;
     const replacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
     text = text.replace(pattern, replacement);

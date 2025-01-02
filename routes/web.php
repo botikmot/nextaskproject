@@ -11,6 +11,7 @@ use App\Http\Controllers\FriendshipController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\TopicController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -156,6 +157,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/post/comment/{id}', [PostController::class, 'postCommentUpdate'])->name('post.postCommentUpdate');
     Route::post('/post/{id}/like', [PostController::class, 'likePost'])->name('post.likePost');
     Route::get('/social/highlights', [PostController::class, 'getSocialHighlights']);
+
+    // Trending Topics
+    Route::get('/trending', [TopicController::class, 'index'])->name('trending.index');
 
 
     // Messages 

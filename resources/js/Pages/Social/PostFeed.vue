@@ -34,22 +34,16 @@ const form = useForm({
     comment: '',
 });
 
-const convertLinks = (text) => {
-    // Convert newlines to <br> for line breaks
-    text = text.replace(/\n/g, '<br>');
-
-    // Convert **bold** or __bold__ to <strong> tags
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');  // Bold using **
-    text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');      // Bold using __
-
-    // Convert *italic* or _(italic)_ to <em> tags
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');  // Italic using *
-    text = text.replace(/_(.*?)_/g, '<em>$1</em>');    // Italic using _
-
+const convertLinks = (text) => {   
     // Convert links to clickable anchor tags
-    const pattern = /https?:\/\/\S+/g;
-    const replacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
-    text = text.replace(pattern, replacement);
+    const linkPattern = /https?:\/\/\S+/g;
+    const linkReplacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
+    text = text.replace(linkPattern, linkReplacement);
+
+    // Convert hashtags to clickable anchor tags
+    const hashtagPattern = /#(\w+)/g;
+    const hashtagReplacement = '<a class="text-navy-blue text-sm italic hover:underline" href="/hashtags/$1">#$1</a>';
+    text = text.replace(hashtagPattern, hashtagReplacement);
 
     return text;
 }

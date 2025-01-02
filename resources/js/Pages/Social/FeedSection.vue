@@ -26,6 +26,12 @@ const form = useForm({
 
 const submitPost = () => {
     
+    let content = form.content
+    content = content.replace(/^<p>/, '') // Remove the first <p> tag at the beginning of the content
+    content = content.replace(/<\/p>$/, '') // Remove the last </p> tag at the end of the content
+
+    form.content = content
+
     const formData = new FormData()
     formData.append('content', form.content)
     selectedFiles.value.forEach(file => {

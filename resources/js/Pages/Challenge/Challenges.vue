@@ -200,6 +200,10 @@ console.log('challenges', props.challenges)
                     <span class="font-bold text-sky-blue">Points:</span>
                     <span class="pl-1 text-navy-blue">{{ challenge.points }}</span>
                 </div>
+                <div>
+                    <span class="font-bold text-sky-blue">Rewards:</span>
+                    <span v-for="reward in challenge.rewards" class="pl-1 text-navy-blue font-bold">{{ reward.name }},</span>
+                </div>
                 <!-- Conditionally show buttons or badges -->
                 <div v-if="challenge.isJoined" class="mt-4">
                     <button

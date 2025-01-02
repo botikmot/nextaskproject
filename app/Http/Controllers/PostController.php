@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Models\Post;
 use App\Models\Comment;
 use App\Models\PostMedia;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Like;
+use App\Models\Topic;
 use Carbon\Carbon;
 use App\Notifications\UserNotification;
 
@@ -85,10 +87,27 @@ class PostController extends Controller
             }
         }
 
+        $this->extractAndStoreHashtags($request->content);
+
         return redirect()->back()->with([
             'success' => true,
             'message' => 'Post created successfully',
         ]);
+    }
+
+    function extractAndStoreHashtags(string $content)
+    {
+        // Extract hashtags
+        preg_match_all('/#(\w+)/', $content, $matches);
+        $hashtags = $matches[1];
+
+        // Update or create trending topics
+        foreach ($hashtags as $hashtag) {
+            Topic::updateOrCreate(
+                ['name' => $hashtag],
+                ['mentions' => DB::raw('mentions + 1')]
+            );
+        }
     }
 
 
