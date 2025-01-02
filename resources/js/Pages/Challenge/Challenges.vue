@@ -151,7 +151,7 @@ console.log('challenges', props.challenges)
             <div
                 v-for="(challenge, index) in challenges"
                 :key="challenge.id"
-                class="relative pb-8 bg-color-white p-4 border border-dark-gray rounded shadow hover:shadow-xl transition hover:cursor-pointer"
+                class="relative bg-color-white p-4 border border-dark-gray rounded shadow hover:shadow-xl transition hover:cursor-pointer"
                 @click="viewDetails(challenge)"
             >
                 <div class="flex justify-between border-b border-dark-gray pb-2">
@@ -198,28 +198,41 @@ console.log('challenges', props.challenges)
                 </div>
                 <div>
                     <span class="font-bold text-sky-blue">Points:</span>
-                    <span class="pl-1 text-navy-blue">{{ challenge.points }}</span>
+                    <span class="pl-1 font-bold text-red-warning">{{ challenge.points }}</span>
                 </div>
                 <div>
                     <span class="font-bold text-sky-blue">Rewards:</span>
                     <span v-for="reward in challenge.rewards" class="pl-1 text-navy-blue font-bold">{{ reward.name }},</span>
                 </div>
                 <!-- Conditionally show buttons or badges -->
-                <div v-if="challenge.isJoined" class="mt-4">
+                <div class="flex mt-1 justify-between items-center">
+                    <div>
+                        <div class="flex items-center">
+                            <div v-for="(participant, index) in challenge.users.slice(0, 5)" :key="participant.id" class="relative -mr-3">
+                                <img :src="'/' + participant.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
+                            </div>
+                            
+                            <div v-if="challenge.users.length > 5" class="flex items-center text-navy-blue ml-3">
+                                <span class="text-lg font-bold">+{{ challenge.users.length - 5 }}</span>
+                            </div>
+                        </div>
+                    </div>
                     <button
+                        v-if="challenge.isJoined"
                         @click.stop="viewProgress(challenge.id, challenge, index)"
-                        class="mt-2 bg-crystal-blue text-sm absolute bottom-3 right-3 text-navy-blue py-1 px-3 rounded-full hover:bg-navy-blue hover:text-color-white"
+                        class="bg-crystal-blue text-sm text-navy-blue py-1 px-3 rounded-full hover:bg-navy-blue hover:text-color-white"
                         >
                         {{ progressLoading == index ? 'Loading...' : 'View Progress' }}
                     </button>
+                
+                    <button
+                        v-else
+                        @click.stop="joinChallenge(challenge.id, challenge.name)"
+                        class="text-sm bg-sky-blue text-color-white py-1 px-3 rounded-full hover:bg-navy-blue"
+                    >
+                        Join Challenge
+                    </button>
                 </div>
-                <button
-                    v-else
-                    @click.stop="joinChallenge(challenge.id, challenge.name)"
-                    class="mt-4 absolute bottom-3 right-3 text-sm bg-sky-blue text-color-white py-1 px-3 rounded-full hover:bg-navy-blue"
-                >
-                    Join Challenge
-                </button>
             </div>
         </div>
     </div>

@@ -150,6 +150,7 @@ class MessageController extends Controller
                 'type' => 'chat',
                 'message' => "<span class='font-bold text-sky-blue'>{$user->name}</span> sent you a message: {$message->text}",
                 'user_id' => $user->id,
+                'user_profile' => $user->profile_image,
                 'text' => $request->text,
                 'message_id' => $message->id,
                 'conversation_id' => $conversationId,

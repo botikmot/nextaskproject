@@ -33,6 +33,7 @@ export default {
             'green': '#25af15',
             'gold': '#FFD700',
             'silver': '#C0C0C0',
+            'green-leaf': '#2e930f',
         }
     },
 

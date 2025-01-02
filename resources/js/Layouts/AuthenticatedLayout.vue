@@ -8,6 +8,7 @@ import AuthImage from '@/Components/UserImage.vue'
 import ApplicationLogoAlt from '@/Components/ApplicationLogoAlt.vue';
 import { eventBus } from '@/Pages/eventBus';
 import RightSidebar from './RightSidebar.vue';
+import Notifications from './Notifications.vue';
 
 let showingNavigationDropdown = ref(false);
 const isLargeScreen = ref(false);
@@ -243,8 +244,21 @@ onUnmounted(() => {
                         <input type="text" placeholder="Search..." class="w-full pl-10 p-2 rounded-full bg-[#bbe2ec] text-navy-blue"/>
                     </div>
                     <div class="flex">
+
                         <div class="flex justify-center items-center">
-                            <i class="fas fa-bell text-linen text-xl"></i>
+                            <Dropdown align="right" width="80">
+                                <template #trigger>
+                                    <div class="relative flex">
+                                        <i class="fas fa-bell text-linen text-xl cursor-pointer"></i>
+                                        <div v-if="notif.length > 0" class="absolute flex items-center justify-center bg-red-warning w-6 h-5 rounded-full -top-2 -right-4 border-1 border-color-white text-color-white text-xs">
+                                            <span>{{ notif.length > 9 ? '9+': notif.length }}</span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template #content>
+                                    <Notifications :notifications="notif"/>
+                                </template>
+                            </Dropdown>
                         </div>
                         
                         

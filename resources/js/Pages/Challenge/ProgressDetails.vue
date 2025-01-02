@@ -45,7 +45,7 @@ const totalPoints = computed(() => {
                     <tr 
                         v-for="task in progress" 
                         :key="task.id" 
-                        :class="`border-b border-dark-gray ${ task.project.completed_status_id == task.status.id ? 'text-sky-blue' : 'text-navy-blue' }`"
+                        :class="`border-b border-dark-gray ${ task.project.completed_status_id == task.status.id ? 'text-green-leaf' : 'text-navy-blue' }`"
                     >
                         <td class="capitalize border-r border-dark-gray px-4 py-1">{{ task.title }}</td>
                         <td class="text-center border-r border-dark-gray px-4 py-1">{{ task.points }}</td>

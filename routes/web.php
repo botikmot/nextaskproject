@@ -172,6 +172,7 @@ Route::middleware('auth')->group(function () {
 
     //Notifications
     Route::post('/notifications/chat/read', [NotificationController::class, 'markNotificationChatAsRead']);
+    Route::post('/notifications/read/{id}', [NotificationController::class, 'markNotificationAsRead']);
 
     // Challenges
     Route::post('/challenges', [ChallengeController::class, 'create'])->name('challenge.create');

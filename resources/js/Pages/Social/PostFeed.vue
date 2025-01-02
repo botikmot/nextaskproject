@@ -42,7 +42,7 @@ const convertLinks = (text) => {
 
     // Convert hashtags to clickable anchor tags
     const hashtagPattern = /#(\w+)/g;
-    const hashtagReplacement = '<a class="text-navy-blue text-sm italic hover:underline" href="/hashtags/$1">#$1</a>';
+    const hashtagReplacement = '<a class="text-navy-blue text-sm font-bold hover:underline" href="/hashtags/$1">#$1</a>';
     text = text.replace(hashtagPattern, hashtagReplacement);
 
     return text;

@@ -68,6 +68,7 @@ class PostController extends Controller
                         'type' => 'mention',
                         'message' => "<span class='font-bold text-sky-blue'>{$post->user->name}</span> mentioned you in a post.",
                         'user_id' => auth()->id(),  // ID of the user who created the post
+                        'user_profile' => $post->user->profile_image,
                         'post_id' => $post->id,
                     ]));
                 }

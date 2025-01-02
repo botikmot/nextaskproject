@@ -83,20 +83,6 @@ onMounted(() => {
                             <div class="text-xs text-gray">Mutual Projects: {{ friend.mutual_projects }}</div>
                         </div>
                     </div>
-                    <!-- Add Friend Icon with Tooltip -->
-                    <!-- <div class="relative group">
-                        <button
-                            @click="addFriend(friend.id)"
-                            class="w-8 h-8 rounded-full cursor-pointer hover:bg-crystal-blue text-color-white flex items-center justify-center transition duration-200 ease-in-out"
-                        >
-                            <i class="fas fa-user-plus text-sky-blue text-sm"></i>
-                        </button>
-                        <div
-                            class="absolute top-full mt-1 right-0 transform -translate-x-1 hidden group-hover:flex items-center px-4 py-3 text-sm font-semibold text-white bg-light-gray rounded-md shadow-lg z-10 whitespace-nowrap"
-                        >
-                            Add Friend
-                        </div>
-                    </div> -->
                 </div>
             </div>
 

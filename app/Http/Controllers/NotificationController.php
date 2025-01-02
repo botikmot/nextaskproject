@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Notification;
 
 class NotificationController extends Controller
 {
@@ -20,5 +21,15 @@ class NotificationController extends Controller
         }
 
         return response()->json(['success' => false, 'message' => 'No unread chat notifications found.']);
+    }
+
+    public function markNotificationAsRead($id)
+    {
+        $notification = Notification::findOrFail($id);
+        $notification->read_at = now();
+        $notification->save();
+
+        return response()->json(['success' => true, 'message' => "notifications marked as read."]);
+
     }
 }
