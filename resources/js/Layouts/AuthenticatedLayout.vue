@@ -106,15 +106,15 @@ onUnmounted(() => {
     <div class="min-h-screen flex flex-col lg:flex-row bg-gray-100 dark:bg-gray-900">
         <!-- Left Sidebar -->
         <aside :class="sidebarClass" class="bg-navy-blue text-white hidden lg:block">
-            <div class="mb-3 pl-4 py-4 flex justify-between items-center">
+            <div class="pl-4 py-4 flex justify-between items-center">
                 <Link :href="route('dashboard')">
                     <ApplicationLogoAlt
                         v-if="!isCollapsed"
-                        class="block h-8 w-auto fill-current text-gray-800 dark:text-gray-200"
+                        class="block h-11 w-auto fill-current text-gray-800 dark:text-gray-200"
                     />
                     <ApplicationLogo
                         v-else
-                        class="block h-7 w-40 fill-current mt-1 text-gray-800 dark:text-gray-200"
+                        class="block h-10 w-40 fill-current mt-1 text-gray-800 dark:text-gray-200"
                     />
                 </Link>
                 <button v-if="!isCollapsed" @click="toggleLeftSidebar" class="text-linen mt-3 mr-3 focus:outline-none hidden lg:block">

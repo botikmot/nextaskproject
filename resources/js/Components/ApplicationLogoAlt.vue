@@ -1,3 +1,3 @@
 <template>
-    <img src="/img/nt7.png" />
+    <img src="/img/nt_n3_alt.png" />
 </template>

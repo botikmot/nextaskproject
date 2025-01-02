@@ -50,7 +50,7 @@ const readNotification = async (id) => {
                 @click="readNotification(notif.id)"
             >   
                 <img v-if="notif.data.user_profile" :src="'/' + notif.data.user_profile" alt="Profile" class="w-5 h-5 rounded-full object-cover border-1 border-color-white" />
-                <div class="text-sm pl-1 font-normal" v-if="notif.data" v-html="convertLinks(notif.data.message)"></div>
+                <div class="text-sm pl-1 font-normal truncate" v-if="notif.data" v-html="convertLinks(notif.data.message)"></div>
             </div>
         </div>
     </div>

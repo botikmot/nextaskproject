@@ -40,7 +40,7 @@ const toggleMenu = () => {
                 <div class="container mx-auto px-4 flex justify-between items-center">
                     <!-- Logo -->
                     <a class="flex" href="#">
-                        <img class="h-[50px]" alt="Connect, Collaborate, Conquer" src="/img/nt7.png" />
+                        <img class="h-[50px]" alt="Connect, Collaborate, Conquer" src="/img/nt_n3_alt.png" />
                     </a>
 
                     <!-- Hamburger Icon (visible on mobile) -->
