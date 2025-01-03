@@ -56,6 +56,7 @@ class AuthenticatedSessionController extends Controller
         $user->save();
 
         $this->levelService->checkAndUpdateLevel($user);
+        $this->levelService->checkTaskBadges($user);
         
         // Pass the `isNewUser` variable to the dashboard so it can display the appropriate welcome message
         return redirect()->intended(route('dashboard', absolute: false))->with([

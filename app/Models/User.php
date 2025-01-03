@@ -317,4 +317,27 @@ class User extends Authenticatable
             ->sum('points');
     }
 
+    public function badges()
+    {
+        return $this->belongsToMany(Badge::class, 'user_badge');
+    }
+
+    public function totalTaskCompleted()
+    {
+        return $this->tasks()
+            ->whereHas('project', function ($query) {
+                $query->whereColumn('tasks.status_id', 'projects.completed_status_id');
+            })->count();
+    }
+
+    public function tasksAheadOfDeadline()
+    {
+        return $this->tasks()
+            ->whereHas('project', function ($query) {
+                $query->whereColumn('tasks.status_id', 'projects.completed_status_id');
+            })
+            ->whereColumn('tasks.updated_at', '<', 'tasks.due_date') // Compare updated_at to deadline
+            ->count();
+    }
+
 }

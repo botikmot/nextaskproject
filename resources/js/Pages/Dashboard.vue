@@ -38,7 +38,10 @@ console.log('--user level--', level)
                   <div>
                     <img class="w-16" :src="level.icon_svg" />
                   </div>
-                  <div class="text-navy-blue font-bold text-4xl pl-3 flex justify-center">{{ level.name }}</div>
+                  <div class="pl-3">
+                    <div class="text-right text-sm">Level</div>
+                    <div class="text-navy-blue font-bold text-4xl">{{ level.name }}</div>
+                  </div>
                 </div>
             </div>
 

@@ -27,6 +27,8 @@ const props = defineProps({
 });
 const page = usePage();
 console.log('user auth notifications',page.props.notifications)
+console.log('user badges',page.props.badges)
+console.log('user tasksAheadOfDeadline',page.props.tasksAheadOfDeadline)
 
 const userId = page.props.auth.user.id
 
