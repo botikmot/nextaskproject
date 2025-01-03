@@ -13,9 +13,16 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Label;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use App\Services\LevelService;
 
 class TaskController extends Controller
 {
+    protected $levelService;
+
+    public function __construct(LevelService $levelService)
+    {
+        $this->levelService = $levelService;
+    }
     // create new task
     public function store(Request $request, $id)
     {
@@ -218,6 +225,8 @@ class TaskController extends Controller
 
                 }
             }
+
+            $this->levelService->checkAndUpdateLevel($user);
         }
 
 
@@ -283,6 +292,9 @@ class TaskController extends Controller
     
                     }
                 }
+
+                $this->levelService->checkAndUpdateLevel($user);
+
             }
 
         }

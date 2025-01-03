@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import TaskOverview from './Dashboard/TaskOverview.vue';
 import ProjectsWidget from './Dashboard/ProjectsWidget.vue';
 import UpcomingEvents from './Dashboard/UpcomingEvents.vue';
@@ -15,7 +15,11 @@ const props = defineProps({
     projects: Array,
     events: Array,
 });
+const page = usePage();
 
+const level = page.props.userLevel
+
+console.log('--user level--', level)
 </script>
 
 <template>
@@ -24,10 +28,18 @@ const props = defineProps({
     <AuthenticatedLayout pageTitle="Dashboard" :notif="notif" v-slot="{ notif }">
         <div class="dashboard flex-col w-full bg-linen p-6">
             <!-- Welcome Banner -->
-            <div class="bg-sky-blue text-color-white p-6 rounded-lg shadow-md mb-6">
-            <h1 class="text-2xl font-bold">Welcome back, {{ $page.props.auth.user.name }}!</h1>
-            <p class="mt-2">Here's a summary of your day:</p>
-            <p class="text-sm text-linen">{{ currentDate }}</p>
+            <div class="bg-sky-blue flex justify-between text-color-white p-6 rounded-lg shadow-md mb-6">
+                <div>
+                  <h1 class="text-2xl font-bold">Welcome back, {{ $page.props.auth.user.name }}!</h1>
+                  <p class="mt-2">Here's a summary of your day:</p>
+                  <p class="text-sm text-linen">{{ currentDate }}</p>
+                </div>
+                <div class="flex items-center">
+                  <div>
+                    <img class="w-16" :src="level.icon_svg" />
+                  </div>
+                  <div class="text-navy-blue font-bold text-4xl pl-3 flex justify-center">{{ level.name }}</div>
+                </div>
             </div>
 
             <!-- Main Grid Layout -->

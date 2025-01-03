@@ -11,9 +11,17 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Events\UserStatusChanged;
+use App\Services\LevelService;
 
 class AuthenticatedSessionController extends Controller
 {
+    protected $levelService;
+
+    public function __construct(LevelService $levelService)
+    {
+        $this->levelService = $levelService;
+    }
+
     /**
      * Display the login view.
      */
@@ -46,6 +54,8 @@ class AuthenticatedSessionController extends Controller
             $user->is_new = false; // Clear the is_new flag after first login
         }
         $user->save();
+
+        $this->levelService->checkAndUpdateLevel($user);
         
         // Pass the `isNewUser` variable to the dashboard so it can display the appropriate welcome message
         return redirect()->intended(route('dashboard', absolute: false))->with([

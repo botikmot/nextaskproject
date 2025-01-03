@@ -187,6 +187,12 @@ class HandleInertiaRequests extends Middleware
                         return $challenge;
                 })
                 : [],
+            'totalPoints' => fn () => $request->user()
+                ? $request->user()->totalPoints()
+                : [],
+            'userLevel' => fn () => $request->user()
+                ? $request->user()->level()->first()
+                : [],
         ];
     }
 }

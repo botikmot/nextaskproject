@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use Inertia\Inertia;
 use App\Models\Task;
 use App\Observers\TaskObserver;
+use App\Services\LevelService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,7 +17,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register the LevelService as a singleton
+        $this->app->singleton(LevelService::class, function ($app) {
+            return new LevelService();
+        });
     }
 
     /**

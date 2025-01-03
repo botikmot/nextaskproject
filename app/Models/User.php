@@ -303,5 +303,18 @@ class User extends Authenticatable
         return $this->belongsToMany(Challenge::class)->withPivot('progress', 'completed')->withTimestamps();
     }
 
+    public function level()
+    {
+        return $this->belongsTo(Level::class);
+    }
+
+    public function totalPoints()
+    {
+        return $this->tasks()
+            ->whereHas('project', function ($query) {
+                $query->whereColumn('tasks.status_id', 'projects.completed_status_id');
+            })
+            ->sum('points');
+    }
 
 }
