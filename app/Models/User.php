@@ -217,6 +217,7 @@ class User extends Authenticatable
 
                 // Add mutual projects count to each user
                 $suggestedUser->mutual_projects = $mutualProjectsCount;
+                $suggestedUser->badges = $suggestedUser->badges;
                 return $suggestedUser;
             });
 
@@ -236,6 +237,7 @@ class User extends Authenticatable
 
                     // Add mutual projects count to each user
                     $suggestedUser->mutual_projects = $mutualProjectsCount;
+                    $suggestedUser->badges = $suggestedUser->badges;
                     return $suggestedUser;
                 });
 

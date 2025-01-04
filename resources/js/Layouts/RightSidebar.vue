@@ -27,6 +27,8 @@ const suggestedFriends = page.props.suggestedFriends || [];
 const receivedFriendRequests = page.props.receivedFriendRequests || [];
 const getAllEvents = page.props.getAllEvents || [];
 
+console.log('suggestedFriends', suggestedFriends)
+
 const todaysEvents = computed(() => {
     const now = new Date();
 
@@ -218,8 +220,11 @@ const formatDate = (date) => {
                 <div class="flex items-center space-x-3">
                     <UserImage class="h-8 w-8 rounded-full object-cover" :user="suggested" />
                     <div>
-                        <div class="text-navy-blue font-medium text-sm">{{ suggested.name }}</div>
-                        <div class="text-xs text-gray">Mutual Projects: {{ suggested.mutual_projects }}</div>
+                        <div class="text-navy-blue font-medium text-sm">{{ suggested.name }}</div>   
+                        <div v-if="suggested.badges.length > 0" class="flex space-x-1">
+                            <img v-for="badge in suggested.badges" :key="badge.id" :src="badge.icon" :alt="badge.name" class="h-4 w-4" :title="badge.name">
+                        </div>
+                        <div class="text-xs text-gray pl-1">Mutual Projects: {{ suggested.mutual_projects }}</div>
                     </div>
                 </div>
                 <!-- Add Friend Icon with Tooltip -->

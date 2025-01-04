@@ -36,7 +36,7 @@ console.log('--user level--', level)
                 </div>
                 <div v-if="level" class="flex items-center">
                   <div>
-                    <div class="text-navy-blue font-bold text-4xl">{{ level.name }}</div>
+                    <div class="text-navy-blue font-bold text-4xl border-b border-navy-blue mb-1">{{ level.name }}</div>
                    <!--  <div class="text-right text-sm">Level</div> -->
                    <div v-if="badges.length > 0" class="flex space-x-1 justify-end">
                       <img v-for="badge in badges" :key="badge.id" :src="badge.icon" :alt="badge.name" class="h-8 w-8" :title="badge.name">
