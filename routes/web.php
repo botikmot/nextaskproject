@@ -178,7 +178,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/challenges', [ChallengeController::class, 'create'])->name('challenge.create');
     Route::put('/challenges/{challengeId}', [ChallengeController::class, 'update'])->name('challenge.update');
     Route::delete('/challenges/{challengeId}', [ChallengeController::class, 'destroy']);
-    Route::get('/challenges', [ChallengeController::class, 'index']);
+    Route::get('/challenges', [ChallengeController::class, 'index'])->name('challenge');
     Route::post('/challenges/{challenge}/join', [ChallengeController::class, 'join']);
     Route::post('/challenges/{challengeId}/rewards', [ChallengeController::class, 'addReward']);
     Route::get('/challenges/{challenge}/progress', [ChallengeController::class, 'viewProgress']);

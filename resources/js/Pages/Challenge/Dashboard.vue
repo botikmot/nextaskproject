@@ -18,7 +18,7 @@ const props = defineProps({
     challenges: Array,
 });
 
-console.log('userchallenges-->>', userchallenges)
+console.log('userchallenges-->>', props.challenges)
 /* const setActiveMenu = (menu) => {
     activeMenu.value = menu;
     if (menu === "all") {

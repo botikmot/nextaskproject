@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 import moment from "moment";
 import Dropdown from '@/Components/Dropdown.vue';
 import NewChallenge from './NewChallenge.vue';
+import axios from 'axios';
 
 const isViewDetails = ref(false)
 const isViewProgressDetails = ref(false)
@@ -141,7 +142,6 @@ const updateChallenge = (challenge) => {
     details.value = challenge
 }
 
-console.log('challenges', props.challenges)
 
 </script>
 

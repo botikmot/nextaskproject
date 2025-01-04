@@ -4,13 +4,61 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Challenge;
+use Inertia\Inertia;
 
 class ChallengeController extends Controller
 {
     public function index()
     {
-        $challenges = Challenge::with('rewards', 'users')->get();
-        return response()->json($challenges);
+        $authUser = auth()->user();
+        $challenges = Challenge::with('rewards', 'users')
+            ->where(function ($query) use ($authUser) {
+                // Challenges created by friends
+                $friendIds = $authUser->friends()->pluck('id');
+            
+                // Challenges created by project members
+                $projectMemberIds = $authUser->projectMemberships()
+                    ->with('users')
+                    ->get()
+                    ->pluck('users')
+                    ->flatten()
+                    ->pluck('id');
+
+                // Combine all relevant user IDs
+                $allowedUserIds = $friendIds->merge($projectMemberIds)->unique();
+
+                // Filter challenges where `user_id` matches any of the allowed IDs
+                $query->whereIn('user_id', $allowedUserIds)->orWhere('user_id', $authUser->id);
+            })
+            ->get()
+            ->map(function ($challenge) use ($authUser) {
+                // Determine if the user has joined this challenge
+                $joinedChallengeIds = $authUser->challenges()->pluck('challenges.id')->toArray();
+                $challenge->isJoined = in_array($challenge->id, $joinedChallengeIds);
+                $participantPoints = $challenge->getParticipantPoints();
+
+                // Attach participant points and percentage to each user in the users array
+                $challenge->users = $challenge->users->map(function ($user) use ($participantPoints, $challenge) {
+                    $totalPoints = $participantPoints[$user->id]['total_points'] ?? 0; // Get total points for the user
+                    $challengePoints = $challenge->points; // Total points of the challenge
+
+                    // Calculate percentage
+                    $percentage = $challengePoints > 0 ? ($totalPoints / $challengePoints) * 100 : 0;
+
+                    // Add participant points and percentage to the user object
+                    $user->participant_points = $totalPoints;
+                    $user->completion_percentage = round($percentage, 2); // Round to 2 decimal places
+
+                    return $user;
+                });
+                
+                return $challenge;
+                
+            });
+
+        return Inertia::render('Challenge/Dashboard', [
+            'challenges' => $challenges,
+        ]);
     }
 
     public function create(Request $request)
