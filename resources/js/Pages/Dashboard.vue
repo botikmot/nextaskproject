@@ -34,7 +34,7 @@ console.log('--user level--', level)
                   <p class="mt-2">Here's a summary of your day:</p>
                   <p class="text-sm text-linen">{{ currentDate }}</p>
                 </div>
-                <div class="flex items-center">
+                <div v-if="level" class="flex items-center">
                   <div>
                     <img class="w-16" :src="level.icon_svg" />
                   </div>

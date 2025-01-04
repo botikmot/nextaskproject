@@ -14,9 +14,16 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Role;
+use App\Services\LevelService;
 
 class RegisteredUserController extends Controller
 {
+    protected $levelService;
+
+    public function __construct(LevelService $levelService)
+    {
+        $this->levelService = $levelService;
+    }
     /**
      * Display the registration view.
      */
@@ -55,6 +62,9 @@ class RegisteredUserController extends Controller
 
                
         event(new Registered($user));
+
+        $this->levelService->checkAndUpdateLevel($user);
+        $this->levelService->checkTaskBadges($user);
 
         Auth::login($user);
 
