@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Level;
 use App\Models\User;
 use App\Models\Badge;
+use App\Models\Project;
 
 class LevelService
 {
@@ -71,5 +72,55 @@ class LevelService
         }
     }
 
+    public function checkExplorerBadge(User $user)
+    {
+        $hasCreatedTask = $user->tasks()->exists();
+
+        // Check if the user has joined at least one project
+        $hasJoinedProject = Project::whereHas('users', function ($query) use ($user) {
+            $query->where('users.id', $user->id); // Check if the user exists in the project's users
+        })->exists();
+
+        $hasSentMessage = $user->messages()->exists();
+
+        if ($hasCreatedTask && $hasJoinedProject && $hasSentMessage) {
+            $this->assignBadge($user, 'Explorer');
+        }
+    }
+
+    public function checkAchieverBadge(User $user)
+    {
+        // Milestone 1: Completed Tasks
+        $completedTasks = $user->tasks()
+            ->whereHas('project', function ($query) {
+                $query->whereColumn('tasks.status_id', 'projects.completed_status_id');
+            })
+            ->count();
+
+        // Milestone 2: Completed Projects (using progress attribute)
+        $completedProjects = $user->projects()
+            ->where(function ($query) {
+                $query->where('status', 'complete') // Use the 'status' column if available
+                    ->orWhereRaw('progress = 100'); // Use progress attribute to determine completion
+            })
+            ->count();
+
+        // Milestone 3: Challenge Points
+        $challengePoints = $user->challenges()->sum('points'); // Sum points from challenges
+
+        // Define thresholds for milestones
+        $taskMilestone = 25; // Example: Complete 100 tasks
+        $projectMilestone = 1; // Example: Complete 10 projects
+        $challengeMilestone = 10; // Example: Earn 500 points from challenges
+
+        // Check if user qualifies for the badge
+        if (
+            $completedTasks >= $taskMilestone &&
+            $completedProjects >= $projectMilestone &&
+            $challengePoints >= $challengeMilestone
+        ) {
+            $this->assignBadge($user, 'Achiever'); // Award the 'Achiever' badge
+        }
+    }
 
 }

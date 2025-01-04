@@ -36,12 +36,13 @@ console.log('--user level--', level)
                 </div>
                 <div v-if="level" class="flex items-center">
                   <div>
-                    <img class="w-16" :src="level.icon_svg" />
+                    <div class="text-navy-blue font-bold text-4xl">{{ level.name }}</div>
+                    <div class="text-right text-sm">Level</div>
                   </div>
                   <div class="pl-3">
-                    <div class="text-right text-sm">Level</div>
-                    <div class="text-navy-blue font-bold text-4xl">{{ level.name }}</div>
+                    <img class="w-16" :src="level.icon_svg" />
                   </div>
+                  
                 </div>
             </div>
 

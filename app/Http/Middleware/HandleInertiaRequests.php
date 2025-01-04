@@ -30,128 +30,96 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
-    public function share(Request $request): array
-    {
-        // Update last activity timestamp for authenticated users
-        if ($request->user()) {
-            $request->user()->update(['last_login' => now()]);
-            broadcast(new UserStatusChanged($request->user(), 'online'));
-        }
 
-        return [
-            ...parent::share($request),
-            'auth' => [
-                'user' => $request->user(),
-            ],
-            'suggestedFriends' => fn () => $request->user()
-                ? $request->user()->suggestedFriends()
-                : [],
-            'getAllEvents' => fn () => $request->user()
-                ? $request->user()->getAllEvents()
-                : [],
-            'receivedFriendRequests' => fn () => $request->user()
-                ? $request->user()->receivedFriendRequests->map(function ($friendRequest) use ($request) {
-                    // Get the sender (the user who sent the friend request)
-                    $sender = $friendRequest->sender;
+     public function share(Request $request): array
+     {
+         $user = $request->user();
+     
+         // Update last activity and broadcast user status if authenticated
+         if ($user) {
+             $user->update(['last_login' => now()]);
+             broadcast(new UserStatusChanged($user, 'online'));
+         }
+     
+         // Preload relationships for optimization
+         $user?->load([
+             'friends.projectMemberships',
+             'receivedFriendRequests.sender.projectMemberships',
+             'privateConversations.messages',
+             'privateConversations.users',
+             'groupConversations.messages.user',
+             'groupConversations.users',
+             'badges',
+         ]);
+     
+         // Helper function for mutual projects calculation
+         $calculateMutualProjects = fn ($relatedUser) => $relatedUser->projectMemberships->pluck('id')
+             ->intersect($user->projectMemberships->pluck('id'))
+             ->count();
+     
+         return [
+             ...parent::share($request),
+             'auth' => [
+                 'user' => $user,
+             ],
+             'suggestedFriends' => fn () => $user?->suggestedFriends() ?? [],
+             'getAllEvents' => fn () => $user?->getAllEvents() ?? [],
+             'receivedFriendRequests' => fn () => $user
+                 ? $user->receivedFriendRequests->map(function ($friendRequest) use ($calculateMutualProjects) {
+                     $sender = $friendRequest->sender;
+                     $sender->mutual_projects = $calculateMutualProjects($sender);
+                     return $friendRequest;
+                 })
+                 : [],
+             'sharedFriends' => fn () => $user
+                 ? $user->friends->map(function ($friend) use ($calculateMutualProjects) {
+                     $lastActivity = $friend->last_login ? Carbon::parse($friend->last_login) : null;
+                     $friend->status = $lastActivity && $lastActivity->diffInMinutes(now()) < 5 ? 'online' : 'offline';
+                     $friend->mutual_projects = $calculateMutualProjects($friend);
+                     $friend->badges = $friend->badges;
+                     return $friend;
+                 })
+                 : [],
+             'sharedConversations' => fn () => $user
+                 ? [
+                     'private' => $user->privateConversations->map(function ($conversation) use ($user) {
+                         $chatPartner = $conversation->chatPartner($user->id);
+                         $conversation->chat_name = $chatPartner->name ?? 'Unknown User';
+                         $conversation->chat_image = $chatPartner->profile_image ?? null;
+                         $conversation->status = $chatPartner && Carbon::parse($chatPartner->last_login)->diffInMinutes(now()) < 5
+                             ? 'online'
+                             : 'offline';
+                         $conversation->user_id = $chatPartner->id ?? null;
+                         return $conversation;
+                     }),
+                     'group' => $user->groupConversations->unique('id'),
+                 ]
+                 : [],
+             'notifications' => fn () => $user?->unreadNotifications()->with('user')->get() ?? [],
+             'participantChallenges' => fn () => $user
+                 ? Challenge::with(['rewards', 'users'])
+                     ->where(function ($query) use ($user) {
+                         $query->whereHas('users', fn ($q) => $q->where('user_id', $user->id))
+                             ->orWhere('user_id', $user->id);
+                     })
+                     ->get()
+                     ->map(function ($challenge) {
+                         $participantPoints = $challenge->getParticipantPoints();
+                         $challenge->users->each(function ($participant) use ($participantPoints, $challenge) {
+                             $totalPoints = $participantPoints[$participant->id]['total_points'] ?? 0;
+                             $participant->participant_points = $totalPoints;
+                             $participant->completion_percentage = $challenge->points > 0
+                                 ? round(($totalPoints / $challenge->points) * 100, 2)
+                                 : 0;
+                         });
+                         return $challenge;
+                     })
+                 : [],
+             'userLevel' => fn () => $user?->level()->first() ?? [],
+             'badges' => fn () => $user?->badges ?? [],
+             'tasksAheadOfDeadline' => fn () => $user?->tasksAheadOfDeadline() ?? [],
+         ];
+     }
 
-                    // Calculate mutual projects between the current user and the sender
-                    $mutualProjectsCount = $sender->projectMemberships->pluck('id')
-                        ->intersect($request->user()->projectMemberships->pluck('id'))
-                        ->count();
 
-                    // Add mutual projects count to the sender
-                    $sender->mutual_projects = $mutualProjectsCount;
-
-                    // Return the updated friend request with the sender's mutual projects
-                    return $friendRequest;
-                })
-                : [],
-            'sharedFriends' => fn () => $request->user()
-                ? $request->user()->friends->map(function ($friend) use ($request) {
-                    $lastActivity = $friend->last_login ? Carbon::parse($friend->last_login) : null;
-                    $isOnline = $lastActivity && $lastActivity->diffInMinutes(now()) < 5;
-                    $friend->status = $isOnline ? 'online' : 'offline';
-                    // Calculate mutual projects
-                    $mutualProjectsCount = $friend->projectMemberships->pluck('id')
-                        ->intersect($request->user()->projectMemberships->pluck('id'))
-                        ->count();
-
-                    // Add mutual projects count as a new attribute
-                    $friend->mutual_projects = $mutualProjectsCount;
-
-                    return $friend;
-                })
-                : [],
-            'sharedConversations' => fn () => $request->user()
-                ? [
-                    'private' => $request->user()->privateConversations()
-                        ->with([
-                            'users:id,name,profile_image',
-                            'messages' => fn ($query) => $query->latest()->limit(1),
-                        ])
-                        ->get()
-                        ->map(function ($conversation) use ($request) {
-                            // Add chat partner's name for private conversations
-                            $chatPartner = $conversation->chatPartner($request->user()->id);
-                            $conversation->chat_name = $chatPartner ? $chatPartner->name : 'Unknown User';
-                            $conversation->chat_image = $chatPartner ? $chatPartner->profile_image : null;
-                            $lastActivity = $chatPartner->last_login ? Carbon::parse($chatPartner->last_login) : null;
-                            $isOnline = $lastActivity && $lastActivity->diffInMinutes(now()) < 5;
-                            $conversation->status = $isOnline ? 'online' : 'offline';
-                            $conversation->user_id = $chatPartner ? $chatPartner->id : null;
-
-                            return $conversation;
-                        }),
-                    'group' => $request->user()->groupConversations()
-                        ->with([
-                            'users:id,name,profile_image',
-                            'messages' => fn ($query) => $query->with('user')->latest()->limit(1),
-                        ])
-                        ->get()
-                        ->unique('id'),
-                ]
-                : [],
-            'notifications' => fn () => $request->user()
-                ? $request->user()->unreadNotifications()->with('user')->get()
-                : [],
-            'participantChallenges' => fn () => $request->user()
-                ? Challenge::with('rewards', 'users') // Include relationships
-                    ->where(function ($query) use ($request) {
-                        $query->whereHas('users', function ($query) use ($request) {
-                            // Filter challenges where the authenticated user is a participant
-                            $query->where('user_id', $request->user()->id);
-                        })
-                        ->orWhere('user_id', $request->user()->id); // Include challenges where the auth user is the creator
-                    })
-                    ->get()
-                    ->map(function ($challenge) use ($request) {
-                        $participantPoints = $challenge->getParticipantPoints();
-    
-                        // Attach participant points and percentage to each user in the users array
-                        $challenge->users = $challenge->users->map(function ($user) use ($participantPoints, $challenge) {
-                            $totalPoints = $participantPoints[$user->id]['total_points'] ?? 0; // Get total points for the user
-                            $challengePoints = $challenge->points; // Total points of the challenge
-                            // Calculate percentage
-                            $percentage = $challengePoints > 0 ? ($totalPoints / $challengePoints) * 100 : 0;
-    
-                            // Add participant points and percentage to the user object
-                            $user->participant_points = $totalPoints;
-                            $user->completion_percentage = round($percentage, 2); // Round to 2 decimal places
-                            return $user;
-                        });
-    
-                        return $challenge;
-                })
-                : [],
-            'userLevel' => fn () => $request->user()
-                ? $request->user()->level()->first()
-                : [],
-            'badges' => fn () => $request->user()
-                ? $request->user()->badges()->get()
-                : [],
-            'tasksAheadOfDeadline' => fn () => $request->user()
-                ? $request->user()->tasksAheadOfDeadline()
-                : [],
-        ];
-    }
 }

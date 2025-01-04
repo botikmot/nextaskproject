@@ -80,7 +80,12 @@ onMounted(() => {
                         <UserImage class="h-8 w-8 rounded-full object-cover" :user="friend" />
                         <div class="pl-2">
                             <div class="text-navy-blue font-medium text-sm">{{ friend.name }}</div>
-                            <div class="text-xs text-gray">Mutual Projects: {{ friend.mutual_projects }}</div>
+                            <div class="flex">
+                                <div v-if="friend.badges.length > 0" class="flex space-x-1">
+                                    <img v-for="badge in friend.badges" :key="badge.id" :src="badge.icon" :alt="badge.name" class="h-4 w-4" :title="badge.name">
+                                </div>
+                                <div class="text-xs text-gray pl-1">Mutual Projects: {{ friend.mutual_projects }}</div>
+                            </div>
                         </div>
                     </div>
                 </div>
