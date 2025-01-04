@@ -227,6 +227,7 @@ class TaskController extends Controller
             }
 
             $this->levelService->checkAndUpdateLevel($user);
+            $this->levelService->checkAllBadges($user);
         }
 
 
@@ -294,6 +295,7 @@ class TaskController extends Controller
                 }
 
                 $this->levelService->checkAndUpdateLevel($user);
+                $this->levelService->checkAllBadges($user);
 
             }
 

@@ -186,7 +186,8 @@ class LevelService
         })->count();
 
         $this->updateBadge($user, 'Rookie', $completedChallenges >= 1);
-        $this->updateBadge($user, 'Conqueror', $completedChallenges >= 10);
+        $this->updateBadge($user, 'Conqueror', $completedChallenges >= 20);
+        $this->updateBadge($user, 'Top Competitor', $completedChallenges >= 100);
     }
 
 }
