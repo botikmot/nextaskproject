@@ -69,4 +69,13 @@ class Challenge extends Model
 
         return $participantPoints;
     }
+
+    public function isCompletedBy(User $user)
+    {
+        $participantPoints = $this->getParticipantPoints();
+        $userPoints = $participantPoints[$user->id]['total_points'] ?? 0;
+
+        // Check if user points are greater than or equal to challenge points
+        return $userPoints >= $this->points;
+    }
 }

@@ -15,12 +15,12 @@ class LevelSeeder extends Seeder
     {
         Level::insert([
             [
-                'name' => 'Newbie',
+                'name' => 'Pioneer',
                 'points_required' => 0,
                 'icon_svg' => '/img/levels/newbie.png',
             ],
             [
-                'name' => 'Explorer',
+                'name' => 'Nomad',
                 'points_required' => 100,
                 'icon_svg' => '/img/levels/explorer.png',
             ],
