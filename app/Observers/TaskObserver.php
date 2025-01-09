@@ -23,7 +23,7 @@ class TaskObserver
         $changes = $task->getChanges();
 
         // Remove 'updated_at' and 'index' from the changes to be logged
-        unset($changes['updated_at'], $changes['index']);
+        unset($changes['updated_at'], $changes['index'], $changes['start_time'], $changes['stop_time'], $changes['total_tracked_seconds'], $changes['total_tracked_minutes']);
 
         // If no changes remain, exit early
         if (empty($changes)) {

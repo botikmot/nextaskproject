@@ -709,4 +709,77 @@ class TaskController extends Controller
     }
 
 
+    public function startTimer(Task $task)
+    {
+        // Check if a timer is already running
+        if ($task->start_time) {
+            return response()->json([
+                'message' => 'Timer is already running for this task.',
+            ], 400);
+        }
+        // Start the timer
+        $task->start_time = now();
+        $task->save(); 
+        
+        return response()->json([
+            'message' => 'Timer started successfully.',
+            'startTime' => Carbon::parse($task->start_time)->toIso8601String(),
+        ]);
+    }
+
+    public function stopTimer(Task $task)
+    {
+        // Check if the timer was started
+        if (!$task->start_time) {
+            return response()->json([
+                'message' => 'Timer has not been started yet.',
+            ], 400);
+        }
+
+        // Stop the timer and calculate duration
+        $stopTime = now();
+        $startTime = Carbon::parse($task->start_time); // Convert start_time to Carbon
+        $duration = $startTime->diffInMinutes($stopTime);
+        $durationInSeconds = $startTime->diffInSeconds($stopTime);
+
+        // Update the task
+        $task->stop_time = now();
+        $task->total_tracked_minutes = $task->total_tracked_minutes + $duration;
+        $task->total_tracked_seconds += $durationInSeconds;
+        $task->start_time = null;
+        $task->save();
+
+        return response()->json([
+            'message' => 'Timer stopped successfully.',
+            'tracked_minutes' => $duration,
+        ]);
+    }
+
+
+    public function getTaskTime(Task $task)
+    {
+        $totalTrackedSeconds = $task->total_tracked_seconds ?? 0;
+        // Calculate hours, minutes, and seconds from total_tracked_minutes
+        $totalTrackedMinutes = $task->total_tracked_minutes ?? 0;
+
+        // If the timer is currently running, add the elapsed time to total_tracked_seconds
+        if (!is_null($task->start_time)) {
+            $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($task->start_time));
+            $totalTrackedSeconds += $elapsedSeconds;
+        }
+
+        // Calculate hours and minutes from total_tracked_minutes
+        $hours = floor($totalTrackedSeconds / 3600);
+        $minutes = floor(($totalTrackedSeconds % 3600) / 60);
+        $seconds = $totalTrackedSeconds % 60;
+
+        return response()->json([
+            'hours' => $hours,
+            'minutes' => $minutes,
+            'seconds' => $seconds,
+            'isRunning' => !is_null($task->start_time), // To check if the timer is currently running
+            'startTime' => $task->start_time ? Carbon::parse($task->start_time)->toIso8601String() : null, // Add start_time
+        ]);
+    }
+
 }

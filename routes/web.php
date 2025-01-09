@@ -136,7 +136,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{taskId}/remove-dependency', [TaskController::class, 'removeDependency'])->name('task.removeDependency');
     Route::put('/task-description/{id}', [TaskController::class, 'updateTaskDescription'])->name('task.taskDescription');
     Route::get('/tasks/tasks-completion-rate', [TaskController::class, 'getTaskCompletionRate'])->name('task.getTaskCompletionRate');
-
+    Route::post('/tasks/{task}/start-timer', [TaskController::class, 'startTimer'])->name('tasks.startTimer');
+    Route::post('/tasks/{task}/stop-timer', [TaskController::class, 'stopTimer'])->name('tasks.stopTimer');
+    Route::get('/tasks/{task}/time', [TaskController::class, 'getTaskTime']);
 
     // Calendar Events
     Route::post('/events', [EventController::class, 'store'])->name('event.store');

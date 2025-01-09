@@ -8,6 +8,7 @@ import SubTasks from './SubTasks.vue';
 import moment from 'moment';
 import Comments from './Comments.vue';
 import Swal from 'sweetalert2';
+import TaskTimer from './TaskTimer.vue';
 
 let isMemberModalOpen = ref(false);
 let showSubtask = ref(false)
@@ -250,7 +251,7 @@ watch(
         </div>
         
 
-        <div class="pb-3 block sm:flex justify-between">
+        <div class="pb-3 block sm:flex justify-between relative">
             <div class="">
                 <table class="text-md">
                     <tr>
@@ -370,6 +371,11 @@ watch(
                     <div class="text-center text-gray">Complete</div>
                 </div>
             </div>
+            
+            <div class="right-0 items-center block sm:absolute">
+                <TaskTimer :task="task"/>
+            </div>
+
         </div>
         
         <hr class="text-dark-gray"/>

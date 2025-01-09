@@ -7,6 +7,7 @@ import { usePage, useForm } from '@inertiajs/vue3'
 import TaskDetails from './TaskDetails.vue';
 import Modal from '@/Components/Modal.vue';
 import { ref, computed, onMounted } from 'vue';
+import TaskDetailsNew from './TaskDetailsNew.vue';
 
 
 const props = defineProps({
@@ -202,7 +203,8 @@ onMounted(() => {
 
         <!-- Task Modal -->
         <Modal :show="isTaskLogOpen" @close="isTaskLogOpen = false">
-            <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :project="project" :labels="labels"/>
+           <!--  <TaskDetails @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :project="project" :labels="labels"/> -->
+           <TaskDetailsNew @close="isTaskLogOpen = false" :task="task" :members="members" :tasks="tasks" :project="project" :labels="labels" />
         </Modal>
     </div>
 </template>
