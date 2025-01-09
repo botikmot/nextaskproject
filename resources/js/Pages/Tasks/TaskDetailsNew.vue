@@ -1,7 +1,10 @@
 <script setup>
-  import { ref, computed, defineEmits } from 'vue';
+  import { ref, computed, defineEmits, watch } from 'vue';
   import { usePage, useForm } from '@inertiajs/vue3'
   import Dropdown from '@/Components/Dropdown.vue';
+  import SubTasks from './SubTasks.vue';
+  import Comments from './Comments.vue';
+  import TaskDescription from './TaskDescription.vue';
   import moment from 'moment';
   import Swal from 'sweetalert2';
 
@@ -19,6 +22,7 @@ const props = defineProps({
 const emit = defineEmits();
 
 const challenges = usePage().props.participantChallenges
+const authUser = usePage().props.auth.user
   
 const form = useForm({
     title: props.task.title,
@@ -27,7 +31,7 @@ const form = useForm({
     labels:  props.task.labels.map(label => label.id), //props.task.labels,
     points: props.task.points,
     challenge_ids: props.task.challenges.map(challenge => challenge.id),
-    assigned_members: [],
+    assigned_members: props.task.users.map(user => user.id), //[],
     removed_users: [],
     comment: '',
     comment_id: null,
@@ -144,6 +148,139 @@ const removeDependency = (dependency, id) => {
 
 }
 
+const removeUser = (id) => {
+    form.removed_users.push(id)
+    
+    if(props.task.user_id !== authUser.id){
+        Swal.fire({
+            text: 'You cannot delete this user',
+            position: 'bottom-end',
+            backdrop: false,
+            timer: 2000,
+            showConfirmButton: false,
+            toast:true,
+            icon:'error',
+        });
+        return
+    }
+
+    form.post(`/remove-member/${props.task.id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+        },
+        onError: (error) => {
+            console.error('Error deleting users', error)
+        }
+    })
+}
+
+const isUserAssigned = (userId) => {
+      return props.task.users.some(user => user.id === userId);
+}
+
+const assignMember = () => {
+    form.post(`/assign-member/${props.task.id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: (response) => {
+            if(response.props.flash.success){
+                form.reset()
+            }else{
+                Swal.fire({
+                    text: response.props.flash.message,
+                    position: 'bottom-end',
+                    backdrop: false,
+                    timer: 2000,
+                    showConfirmButton: false,
+                    toast:true,
+                    icon: 'error',
+                });
+            }
+        },
+        onError: (error) => {
+            console.error('Error assigning users', error)
+        }
+    })
+
+}
+
+const confirmDelete = (id) => {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "Once deleted, this task cannot be recovered.",
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444', // Red for delete
+        cancelButtonColor: '#38A169', // Green for cancel
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.delete(`/task-remove/${id}`, {
+                data: form,
+                preserveScroll: true,
+                onSuccess: (response) => {
+                    console.log(response.props.flash.success)
+                    if(response.props.flash.success){
+                        form.reset()
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: 'The task has been successfully deleted.',
+                        });
+                    }else{
+                        Swal.fire({
+                            icon: 'error',
+                            //title: 'Deleted!',
+                            text: response.props.flash.message,
+                        });
+                    }
+                    
+                },
+                onError: (error) => {
+                    console.error('Error deleting task', error)
+                }
+            })
+        }
+    });
+}
+
+const updateDesc = () => {
+    form.description = newDesc.value
+    form.put(`/task-description/${props.task.id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset()
+            Swal.fire({
+                text: "Description successfully saved!",
+                position: 'bottom-end',
+                backdrop: false,
+                timer: 2000,
+                showConfirmButton: false,
+                toast:true,
+                icon: 'success',
+            });
+
+        },
+        onError: (error) => {
+            console.error('Error removing dependency', error)           
+        }
+    })
+
+}
+
+const newDesc = ref(props.task.description);
+
+
+// Watch for changes in task description (prop)
+watch(
+    () => props.task.description,
+    (newValue) => {
+        newDesc.value = newValue; // Keep the reactive description updated
+    }
+);
+
 const formatDate = (date) => {
     return moment(date).format('ll')
 }
@@ -155,9 +292,9 @@ const formatDate = (date) => {
         <!-- Modal Header -->
         <div class="flex justify-between items-center p-4 border-b border-dark-gray">
           <h2 class="text-navy-blue font-bold text-lg capitalize">{{ task.title }}</h2>
-          <div>
-            <button class="text-gray hover:text-red-warning mr-2" @click="editTask">Edit</button>
-            <button class="text-gray hover:text-red-warning" @click="deleteTask">Delete</button>
+          <div v-if="task.user_id == $page.props.auth.user.id || task.users.some(user => user.id === $page.props.auth.user.id)">
+            <button title="Edit" class="text-gray hover:text-sky-blue mr-2" @click="editTask"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button v-if="task.user_id == $page.props.auth.user.id" title="Delete" class="text-gray hover:text-red-warning" @click="confirmDelete(task.id)"><i class="fa-solid fa-trash"></i></button>
           </div>
         </div>
   
@@ -216,11 +353,11 @@ const formatDate = (date) => {
                   <div class="flex">
                     <label class="text-sm text-gray">Task Dependency:</label>
                   </div>
-                  <div class="pb-3">
+                  <div class="pb-3 flex">
                       <select
                           id="setDependencies"
                           v-model="form.dependency"
-                          class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
+                          class="block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-sky-blue"
                       >
                           <option
                               class="text-navy-blue text-sm"
@@ -229,22 +366,48 @@ const formatDate = (date) => {
                               :value="task.id"
                           >{{ task.title }}</option>
                       </select>
-                      <div class="flex py-1 justify-end">
-                          <button
-                              :disabled="!form.dependency"
-                              @click="addDependency"
-                              class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
-                              >
-                              + Add Dependency
-                          </button>
-                      </div>
+                      <button
+                          :disabled="!form.dependency"
+                          @click="addDependency"
+                          class="font-semibold text-xs ml-2 bg-sky-blue text-linen py-1 px-3 rounded-lg inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                          >
+                          Save Dependency
+                      </button>
                   </div>
                 </div>
+                <div>
+                  <label class="text-sm text-gray">Assigned Members:</label>
+                  <select
+                      id="assignedMembers"
+                      v-model="form.assigned_members"
+                      multiple
+                      class="input-field"
+                  >
+                      <option
+                          class="text-navy-blue text-sm"
+                          v-for="member in members"
+                          :key="member.id"
+                          :value="member.id"
+                          :disabled="isUserAssigned(member.user_id)"
+                      >{{ member.name }}</option>
+                  </select>
+                  <div class="flex py-1 justify-end">
+                      <button
+                          @click="assignMember"
+                          class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                          >
+                          Save Member
+                      </button>
+                  </div>
+                </div>
+
+
+
               </div>
 
               <div class="flex justify-end space-x-2 mt-4">
-                <button @click="updateTask" class="bg-blue-500 text-white px-4 py-2 rounded-md">Save</button>
-                <button @click="cancelEdit" class="bg-gray-500 text-white px-4 py-2 rounded-md">Cancel</button>
+                <button @click="updateTask" class="bg-sky-blue text-color-white px-4 py-2 rounded-md">Save</button>
+                <button @click="cancelEdit" class="bg-gray text-color-white px-4 py-2 rounded-md">Cancel</button>
               </div>
             </div>
 
@@ -341,7 +504,7 @@ const formatDate = (date) => {
             </div>
           </div>
   
-          <div>
+          <div v-if="!isEditing">
             <p class="text-sm text-gray mb-1">Assigned Members:</p>
             <div class="flex flex-wrap gap-2">
               <div v-for="(user, index) in task.users" :key="index" class="flex items-center pl-2">
@@ -382,15 +545,45 @@ const formatDate = (date) => {
           <div class="p-4">
             <div v-if="currentTab === 'Subtasks'">
               <!-- Subtasks content here -->
+              <SubTasks :task="task"/>
             </div>
             <div v-if="currentTab === 'Comments'">
               <!-- Comments content here -->
+              <Comments :task="task"/>
             </div>
             <div v-if="currentTab === 'Task Description'">
               <!-- Task Description content here -->
+              <TaskDescription :task="{ description: newDesc }" @update:desc="(value) => (newDesc = value)"/>
+              <div class="flex pb-2 justify-end mt-2">
+                  <button
+                      @click="updateDesc"
+                      class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                      >
+                      Save
+                  </button>
+              </div>
             </div>
             <div v-if="currentTab === 'Task History'">
               <!-- Task History content here -->
+               <div class="bg-color-white rounded-lg h-64 overflow-y-auto">
+                  <div class="p-2" v-if="task.histories.length" v-for="history in task.histories" :key="history.id">
+                      <p class="text-xs" v-if="history.attribute == 'status_id'">
+                          <strong>{{ history.user.name }}</strong> changed <strong>Status</strong>
+                          from <em class="font-bold">{{ history.old_status ? history.old_status.name : '' }}</em>
+                          to <em class="font-bold">{{ history.new_status ? history.new_status.name : '' }}</em>
+                          on {{ formatDate(history.created_at) }}.
+                      </p>
+                      <p class="text-xs" v-else>
+                          <strong>{{ history.user.name }}</strong> changed <strong class="capitalize">{{ history.attribute }}</strong>
+                          from <em class="font-bold" v-html="history.old_value ? history.old_value : 'null'"></em>
+                          to <em class="font-bold" v-html="history.new_value ? history.new_value : 'null'"></em>
+                          on {{ formatDate(history.created_at) }}.
+                      </p>
+                  </div>
+                  <div v-else>
+                      No History
+                  </div>
+              </div>
             </div>
           </div>
         </div>
@@ -406,7 +599,7 @@ const formatDate = (date) => {
               ></div>
             </div>
           </div>
-          <button class="bg-red-warning text-white px-4 py-2 rounded-md" @click="closeModal">Close</button>
+          <button class="bg-sky-blue text-color-white px-4 py-2 rounded-md" @click="closeModal">Close</button>
         </div>
       </div>
     </div>

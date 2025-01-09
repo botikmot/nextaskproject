@@ -52,7 +52,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div>
+    <div class="bg-color-white rounded-lg">
     <!-- Toolbar with buttons for bold, italic, and underline -->
     <div class="toolbar flex justify-end mb-3">
         <button @click="toggleBold" :class="{ 'is-active': editor?.isActive('bold') }">

@@ -132,7 +132,7 @@ onMounted(() => {
                 <!-- <h3 :class="`${ completedId == task.status.id ? 'line-through' : '' } text-md text-navy-blue font-semibold`">{{ task.title }}</h3> -->
                 <h3 class="text-md text-navy-blue font-semibold">{{ task.title }}</h3>
             </div>
-            <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm " @click.stop>
+            <!-- <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm " @click.stop>
                 <Dropdown align="right" width="48">
                     <template #trigger>
                         <i class="fa-solid fa-ellipsis"></i>
@@ -146,7 +146,7 @@ onMounted(() => {
                         </div>
                     </template>
                 </Dropdown>
-            </div>
+            </div> -->
         </div>
         <!-- <p class="text-xs text-gray">{{ task.description }}</p> -->
         <p class="text-xs" v-if="task.due_date">Due date: <span class="text-[#D97706]">{{ completedId == task.status_id ? formatDate(task.due_date) : remainingDays(task.due_date) }}</span></p>
