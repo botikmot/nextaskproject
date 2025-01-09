@@ -1,11 +1,10 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, defineEmits } from 'vue';
   import { usePage, useForm } from '@inertiajs/vue3'
   import Dropdown from '@/Components/Dropdown.vue';
   import moment from 'moment';
   import Swal from 'sweetalert2';
 
-  const showModal = ref(true);
   const currentTab = ref('Subtasks');
   const tabs = ['Subtasks', 'Comments', 'Task Description', 'Task History'];
 
@@ -16,6 +15,8 @@ const props = defineProps({
     labels: Object,
     project: Object,
 });
+
+const emit = defineEmits();
 
 const challenges = usePage().props.participantChallenges
   
@@ -66,35 +67,44 @@ const form = useForm({
   };
   
     const isEditing = ref(false);
-    const taskToEdit = ref({});
 
     const editTask = () => {
     isEditing.value = true;
-    //taskToEdit.value = { ...task.value };  // Copy task details for editing
     };
 
     const cancelEdit = () => {
     isEditing.value = false;
-    taskToEdit.value = {}; // Reset editing task
     };
 
-    const updateTask = () => {
-    // Send the updated task to the backend via an API call (use Axios or Inertia.js)
-    console.log('Updated Task:', taskToEdit.value);
+const updateTask = () => {
 
-    // Assume the task is successfully updated in the backend, so update the task on the frontend
-    task.value = { ...taskToEdit.value };
-
-    // Close the editing form
-    isEditing.value = false;
-    };
+    form.put(`/tasks-update/${props.task.id}`, {
+        data: form,
+        preserveScroll: true,
+        onSuccess: () => {
+            isEditing.value = false;
+            Swal.fire({
+                text: "Task successfully updated!",
+                position: 'bottom-end',
+                backdrop: false,
+                timer: 2000,
+                showConfirmButton: false,
+                toast:true,
+                icon: 'success',
+            });
+        },
+        onError: (error) => {
+            console.error('Error updating tasks', error)           
+        }
+    })
+}
   
   const deleteTask = () => {
     console.log('Delete task');
   };
   
   const closeModal = () => {
-    showModal.value = false;
+    emit('close')
   };
 
   const addDependency = () => {
@@ -221,6 +231,7 @@ const formatDate = (date) => {
                       </select>
                       <div class="flex py-1 justify-end">
                           <button
+                              :disabled="!form.dependency"
                               @click="addDependency"
                               class="font-semibold text-xs bg-sky-blue text-linen py-1 px-3 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                               >
@@ -275,9 +286,6 @@ const formatDate = (date) => {
                 <div class="" v-for="dependency in task.dependencies" :key="dependency.id">
                     <div class="flex items-center">
                         <div class="text-sm rounded-full">{{ dependency.title }}</div>
-                        <!-- <div class="pl-3 text-sm flex items-center italic text-navy-blue">
-                            <span class="font-bold">{{ dependency.status.name }}</span>
-                        </div> -->
                         <div v-if="task.user_id == $page.props.auth.user.id" class="text-sm cursor-pointer pl-3 pt-1">
                             <Dropdown align="right" width="48">
                                 <template #trigger>
