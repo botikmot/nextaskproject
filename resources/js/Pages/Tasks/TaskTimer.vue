@@ -7,6 +7,7 @@ const totalMinutes = ref(0); // Total tracked minutes
 const elapsedSeconds = ref(0);
 const isRunning = ref(false); // Timer status
 const interval = ref(null); // Timer interval reference
+const emit = defineEmits(['update-task-duration']);
 
 const props = defineProps({
   task: Object,
@@ -35,6 +36,8 @@ const fetchTaskTime = async () => {
       isRunning.value = data.isRunning
       console.log('totalSeconds.value:', totalSeconds.value);
 
+      emit('update-task-duration', totalSeconds.value);
+
       if (data.isRunning && data.startTime) {
         console.log('Timer is running. Starting real-time updater...');
         startRealTimeUpdater(new Date(data.startTime));
@@ -61,6 +64,8 @@ const startTimer = async () => {
 
       stopRealTimeUpdater();
       isRunning.value = false; // Optimistically update the state
+      //emit('update-task-duration', totalSeconds.value);
+      fetchTaskTime();
     } else {
       console.log('Starting timer...');
       const response = await axios.post(`/tasks/${props.task.id}/start-timer`);

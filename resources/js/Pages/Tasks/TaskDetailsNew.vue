@@ -5,6 +5,7 @@
   import SubTasks from './SubTasks.vue';
   import Comments from './Comments.vue';
   import TaskDescription from './TaskDescription.vue';
+  import TaskTimer from './TaskTimer.vue';
   import moment from 'moment';
   import Swal from 'sweetalert2';
 
@@ -23,7 +24,8 @@ const emit = defineEmits();
 
 const challenges = usePage().props.participantChallenges
 const authUser = usePage().props.auth.user
-  
+const totalTrackedSeconds = ref(0);
+
 const form = useForm({
     title: props.task.title,
     due_date: props.task.due_date,
@@ -80,6 +82,19 @@ const form = useForm({
     isEditing.value = false;
     };
 
+// Computed property for formatted duration
+const formattedDuration = computed(() => {
+  const hours = Math.floor(totalTrackedSeconds.value / 3600);
+  const minutes = Math.floor((totalTrackedSeconds.value % 3600) / 60);
+  const seconds = totalTrackedSeconds.value % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
+});
+
+// Update the tracked duration
+const updateTaskDuration = (newTrackedSeconds) => {
+  totalTrackedSeconds.value = newTrackedSeconds;
+};
+
 const updateTask = () => {
 
     form.put(`/tasks-update/${props.task.id}`, {
@@ -103,9 +118,6 @@ const updateTask = () => {
     })
 }
   
-  const deleteTask = () => {
-    console.log('Delete task');
-  };
   
   const closeModal = () => {
     emit('close')
@@ -471,21 +483,11 @@ const formatDate = (date) => {
             </div>
             <div>
               <p class="text-sm text-gray">Task Duration:</p>
-              <p class="text-sm text-navy-blue font-semibold">{{ formattedTime }}</p>
+              <p class="text-sm text-navy-blue font-semibold">{{ formattedDuration }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray">Time Tracking:</p>
-                <div class="flex items-center space-x-2">
-                    <span class="text-sm text-navy-blue">{{ formattedTime }}</span>
-                    <button 
-                        class="w-7 h-7 bg-crystal-blue rounded-full text-sm text-color-white"
-                        @click="toggleTimer"
-                    >
-                       <!--  {{ isTimerRunning ? 'Stop Timer' : 'Start Timer' }} -->
-                        <i v-if="!isTimerRunning" class="fa-solid fa-play text-green-leaf"></i>
-                        <i v-else class="fa-solid fa-pause text-red-warning"></i>
-                    </button>
-                </div>
+                <TaskTimer :task="task" @update-task-duration="updateTaskDuration"/>
             </div>
           </div>
   

@@ -7,6 +7,7 @@ import Dropdown from '@/Components/Dropdown.vue';
 import Modal from '@/Components/Modal.vue';
 import NewTaskModal from '../Projects/NewTaskModal.vue';
 import axios from 'axios';
+import TaskCardNew from './TaskCardNew.vue';
 
 
 const props = defineProps({
@@ -306,7 +307,17 @@ onMounted(() => {
         </button>
       </section>
         <section v-else class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3 gap-4 items-start">
-          <TaskCard
+          <!-- <TaskCard
+            v-for="(item, index) in tasks.data"
+            :key="item.id"
+            :task="item"
+            :tasks="item.project.tasks"
+            :completedId="item.project.completed_status_id"
+            :members="item.project.users"
+            :project="item.project"
+            :labels="item.project.labels"
+          /> -->
+          <TaskCardNew
             v-for="(item, index) in tasks.data"
             :key="item.id"
             :task="item"

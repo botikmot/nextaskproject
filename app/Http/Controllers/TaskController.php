@@ -89,7 +89,7 @@ class TaskController extends Controller
         $selectedStatuses = $request->input('selectedStatuses', []);
         $sortBy = $request->input('sortBy', 'created_at'); // Default to 'created_at'
         $sortOrder = $request->input('sortOrder', 'asc');  // Default to 'asc'
-        $perPage = 12;
+        $perPage = 8;
         $user = Auth::user();
 
         $userRole = $user->mainRoles->pluck('name')->first();
@@ -741,6 +741,7 @@ class TaskController extends Controller
         $startTime = Carbon::parse($task->start_time); // Convert start_time to Carbon
         $duration = $startTime->diffInMinutes($stopTime);
         $durationInSeconds = $startTime->diffInSeconds($stopTime);
+        $durationInHours = $duration / 60;
 
         // Update the task
         $task->stop_time = now();
@@ -752,6 +753,8 @@ class TaskController extends Controller
         return response()->json([
             'message' => 'Timer stopped successfully.',
             'tracked_minutes' => $duration,
+            'tracked_seconds' => $durationInSeconds,
+            'tracked_hours' => $durationInHours,
         ]);
     }
 
