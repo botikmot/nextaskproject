@@ -763,12 +763,17 @@ class TaskController extends Controller
     {
         $totalTrackedSeconds = $task->total_tracked_seconds ?? 0;
         // Calculate hours, minutes, and seconds from total_tracked_minutes
-        $totalTrackedMinutes = $task->total_tracked_minutes ?? 0;
-
+        
         // If the timer is currently running, add the elapsed time to total_tracked_seconds
         if (!is_null($task->start_time)) {
-            $elapsedSeconds = Carbon::now()->diffInSeconds(Carbon::parse($task->start_time));
-            $totalTrackedSeconds += $elapsedSeconds;
+            // Parse start_time in UTC and compare with the current UTC time
+            $startTime = Carbon::parse($task->start_time)->setTimezone('UTC');
+            $now = Carbon::now('UTC'); // Always use UTC for now
+            $elapsedSeconds = $now->diffInSeconds($startTime, false); // Add 'false' to allow negative results for debugging
+            // Avoid negative elapsedSeconds by validating the timestamp
+            if ($elapsedSeconds >= 0) {
+                $totalTrackedSeconds += $elapsedSeconds;
+            } 
         }
 
         // Calculate hours and minutes from total_tracked_minutes
@@ -780,6 +785,7 @@ class TaskController extends Controller
             'hours' => $hours,
             'minutes' => $minutes,
             'seconds' => $seconds,
+            'totalTrackedSeconds' => $totalTrackedSeconds,
             'isRunning' => !is_null($task->start_time), // To check if the timer is currently running
             'startTime' => $task->start_time ? Carbon::parse($task->start_time)->toIso8601String() : null, // Add start_time
         ]);

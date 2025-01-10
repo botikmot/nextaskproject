@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import axios from 'axios';
 
 const totalSeconds = ref(0);
@@ -30,9 +30,9 @@ const fetchTaskTime = async () => {
     console.log('Fetch Time Response:', data);
 
     if (data) {
-      totalMinutes.value = data.hours * 60 + data.minutes;
-      totalSeconds.value = totalMinutes.value * 60 + (data.seconds || 0);
-      elapsedSeconds.value = data.seconds || 0;
+      totalMinutes.value = Math.floor(data.totalTrackedSeconds / 60);
+      totalSeconds.value = data.totalTrackedSeconds; // Use totalTrackedSeconds from backend
+      elapsedSeconds.value = data.seconds || 0 // Reset elapsedSeconds when data is fetched
       isRunning.value = data.isRunning
       console.log('totalSeconds.value:', totalSeconds.value);
 
@@ -64,7 +64,6 @@ const startTimer = async () => {
 
       stopRealTimeUpdater();
       isRunning.value = false; // Optimistically update the state
-      //emit('update-task-duration', totalSeconds.value);
       fetchTaskTime();
     } else {
       console.log('Starting timer...');
@@ -96,10 +95,16 @@ const startRealTimeUpdater = (startTime, initialSeconds = 0) => {
 
   interval.value = setInterval(() => {
     const now = new Date();
-    elapsedSeconds.value = Math.floor((now - startTime) / 1000); // Calculate elapsed seconds
+    const elapsed = Math.floor((now - startTime) / 1000); // Time difference in seconds
 
     // Calculate total minutes and seconds
-    totalMinutes.value = Math.floor(totalSeconds.value / 60);
+    if (elapsed >= 0) {
+      elapsedSeconds.value = elapsed; // Update elapsed seconds
+      totalSeconds.value += 1; // Keep syncing total seconds
+      totalMinutes.value = Math.floor(totalSeconds.value / 60);
+    } else {
+      console.error('Error: Negative elapsed time detected.');
+    }
   }, 1000); // Update every second
 };
 
@@ -118,6 +123,10 @@ const stopRealTimeUpdater = () => {
 
 onMounted(() => {
   fetchTaskTime();
+});
+
+onUnmounted(() => {
+  stopRealTimeUpdater(); // Stop timer interval when modal is closed
 });
 </script>
 
