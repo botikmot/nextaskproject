@@ -145,7 +145,9 @@ const formatDate = (date) => {
 
 <template>
     <div class="mb-6 text-lg text-navy-blue font-semibold">Quick Actions </div>
-    <button @click="createTask" class="block w-full mb-4 py-2 text-linen hover:font-bold bg-sky-blue rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg">Create New Task</button>
+    <button @click="createTask" class="block w-full mb-4 py-2 text-linen hover:font-bold bg-gradient-to-r from-navy-blue to-sky-blue rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg">
+        Create New Task
+    </button>
     <!-- <button class="block w-full mb-4 py-2 text-white bg-blue-500 rounded">Join Meeting</button> -->
 
     <div v-if="receivedFriendRequests.length > 0" class="mt-6">
@@ -158,11 +160,6 @@ const formatDate = (date) => {
             <div class="flex items-center justify-between">
                 <!-- Profile Section -->
                 <div class="flex items-center space-x-3">
-                    <!-- <img
-                        :src="'/' + request.sender.profile_image"
-                        alt="Profile"
-                        class="w-8 h-8 rounded-full object-cover border-2 border-white"
-                    /> -->
                     <UserImage class="h-8 w-8 rounded-full object-cover" :user="request.sender" />
                     <div>
                         <div class="text-navy-blue font-medium text-sm">{{ request.sender.name }}</div>

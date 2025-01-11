@@ -57,7 +57,7 @@ onMounted(() => {
             <p>No recent chats available.</p>
         </div>        
         <a
-            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
             :href="route('messages')"
         >
         Open Messages
