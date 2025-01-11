@@ -103,7 +103,7 @@ class HandleInertiaRequests extends Middleware
                              ->orWhere('user_id', $user->id);
                      })
                      ->get()
-                     ->map(function ($challenge) {
+                     ->map(function ($challenge) use ($user) {
                          $participantPoints = $challenge->getParticipantPoints();
                          $challenge->users->each(function ($participant) use ($participantPoints, $challenge) {
                              $totalPoints = $participantPoints[$participant->id]['total_points'] ?? 0;
@@ -112,6 +112,12 @@ class HandleInertiaRequests extends Middleware
                                  ? round(($totalPoints / $challenge->points) * 100, 2)
                                  : 0;
                          });
+                            // Add the authenticated user's completion_percentage directly to the challenge
+                            $authUserPoints = $participantPoints[$user->id]['total_points'] ?? 0;
+                            $challenge->user_completion_percentage = $challenge->points > 0
+                                ? round(($authUserPoints / $challenge->points) * 100, 2)
+                                : 0;
+
                          return $challenge;
                      })
                  : [],

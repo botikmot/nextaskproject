@@ -40,7 +40,7 @@ const activeProjects = computed(() => {
             </li>
         </ul>
         <a
-            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
+            class="absolute bottom-5 right-5 cursor-pointer hover:scale-105 transition px-6 py-3 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
             :href="route('projects')"
             v-if="activeProjects.length > 0"
         >
@@ -48,7 +48,7 @@ const activeProjects = computed(() => {
         </a>
         <a
             v-else
-            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
+            class="absolute bottom-5 right-5 cursor-pointer hover:scale-105 transition px-6 py-3 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
             @click="isModalOpen = true"
         >
             Create Your First Project
