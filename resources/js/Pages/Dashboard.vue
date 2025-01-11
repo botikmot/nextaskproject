@@ -7,6 +7,7 @@ import UpcomingEvents from './Dashboard/UpcomingEvents.vue';
 import SocialHighlights from './Dashboard/SocialHighlights.vue';
 import RecentChats from './Dashboard/RecentChats.vue';
 import Notifications from './Dashboard/Notifications.vue';
+import { ref, computed, reactive, onMounted} from 'vue';
 
 const props = defineProps({
     userName: String,
@@ -20,111 +21,82 @@ const page = usePage();
 const level = page.props.userLevel
 const badges = page.props.badges
 console.log('--user level--', level)
+const currentDate = new Date().toLocaleDateString()
+
+const isNewUser = page.props.auth.user.is_new
+
 </script>
 
 <template>
-    <Head title="Dashboard" />
+  <Head title="Dashboard" />
 
-    <AuthenticatedLayout pageTitle="Dashboard" :notif="notif" v-slot="{ notif }">
-        <div class="dashboard flex-col w-full bg-linen p-6">
-            <!-- Welcome Banner -->
-            <div class="bg-sky-blue flex justify-between text-color-white p-6 rounded-lg shadow-md mb-6">
-                <div>
-                  <h1 class="text-2xl font-bold">Welcome back, {{ $page.props.auth.user.name }}!</h1>
-                  <p class="mt-2">Here's a summary of your day:</p>
-                  <p class="text-sm text-linen">{{ currentDate }}</p>
-                </div>
-                <div v-if="level" class="flex items-center">
-                  <div>
-                    <div class="text-navy-blue font-bold text-4xl border-b border-navy-blue mb-1 text-right">{{ level.name }}</div>
-                   <!--  <div class="text-right text-sm">Level</div> -->
-                   <div v-if="badges.length > 0" class="flex space-x-1 justify-end">
-                      <img v-for="badge in badges" :key="badge.id" :src="badge.icon" :alt="badge.name" class="h-8 w-8" :title="badge.name">
-                  </div>
-                  </div>
-                  <div class="pl-3">
-                    <img class="w-16" :src="level.icon_svg" />
-                  </div>
-                  
-                </div>
-            </div>
-
-            <!-- Main Grid Layout -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Task Overview -->
-                    <TaskOverview :tasks="tasks"/>
-                <!-- Project Highlights -->
-                    <ProjectsWidget :projects="projects"/>
-
-                <!-- Calendar Preview -->
-                    <UpcomingEvents :events="events"/>
-
-                <!-- Social Highlights -->
-                <div class="bg-color-white px-6 pt-6 pb-14 relative rounded-lg shadow-md">
-                  <SocialHighlights />
-                </div>
-            </div>
-
-            <!-- Bottom Widgets -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <!-- Notifications -->
-              <div class="bg-color-white p-6 rounded-lg shadow-md">
-                  <Notifications :notif="notif"/>
-              </div>
-
-              <!-- Recent Chats -->
-              <div class="bg-color-white p-6 relative rounded-lg shadow-md">
-                  <RecentChats />
-              </div>
-          </div>
+  <AuthenticatedLayout pageTitle="Dashboard" :notif="notif" v-slot="{ notif }">
+    <div class="dashboard w-full bg-light-gray p-6">
+      <!-- Welcome Banner -->
+      <div class="bg-gradient-to-r from-sky-blue to-navy-blue text-color-white p-8 rounded-lg shadow-lg flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold">
+            {{ isNewUser ? `Welcome to Nextask, ${$page.props.auth.user.name}!` : `Welcome back, ${$page.props.auth.user.name}!` }}
+          </h1>
+          <p class="mt-2 text-lg">
+            {{ isNewUser ? "We're excited to have you here. Let's get started on your journey!" : "Stay productive and achieve your goals today." }}
+          </p>
+          <p class="text-sm text-light-crystal">{{ currentDate }}</p>
         </div>
-    </AuthenticatedLayout>
+        <div class="block sm:flex items-center space-x-4">
+          <div class="text-right">
+            <div class="text-4xl font-bold">{{ level.name }}</div>
+            <div class="text-sm text-honey-gold">Your Current Level</div>
+            <div class="flex space-x-2 mt-2">
+              <img
+                v-for="badge in badges"
+                :key="badge.id"
+                :src="badge.icon"
+                :alt="badge.name"
+                class="h-10 w-10"
+                :title="badge.name"
+              />
+            </div>
+          </div>
+          <img :src="level.icon_svg" alt="Level Icon" class="h-20 w-20 mt-2 sm:mt-0" />
+        </div>
+      </div>
+
+      <!-- Main Dashboard Content -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        <!-- Task Overview -->
+        <div class="bg-color-white relative p-6 relative rounded-lg pb-14 shadow-md border border-dark-gray">
+          <TaskOverview :tasks="tasks" />
+        </div>
+
+        <!-- Project Highlights -->
+        <div class="bg-color-white p-6 rounded-lg relative shadow-md pb-14 border border-dark-gray">
+          <ProjectsWidget :projects="projects" />
+        </div>
+
+        <!-- Calendar Preview -->
+        <div class="bg-color-white p-6 rounded-lg relative pb-14 shadow-md border border-dark-gray">
+          <UpcomingEvents :events="events" :page="false"/>
+        </div>
+      </div>
+
+      <!-- Additional Widgets -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+        <!-- Social Highlights -->
+        <div class="bg-color-white p-6 rounded-lg pb-14 relative shadow-md border border-dark-gray">
+          <SocialHighlights />
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-color-white p-6 rounded-lg shadow-md border border-dark-gray">
+          <Notifications :notif="notif" />
+        </div>
+
+        <!-- Recent Chats -->
+        <div class="bg-color-white p-6 pb-14 rounded-lg shadow-md border relative border-dark-gray">
+          <RecentChats />
+        </div>
+      </div>
+    </div>
+  </AuthenticatedLayout>
 </template>
-
-
-<script>
-export default {
-  data() {
-    return {
-      user: { name: "John Doe" },
-      currentDate: new Date().toLocaleDateString(),
-      tasksDueToday: 2,
-      taskCompletionRate: 70,
-      activeProjects: [
-        { id: 1, title: "Project A", progress: 50 },
-        { id: 2, title: "Project B", progress: 80 },
-      ],
-      upcomingEvents: [
-        { id: 1, title: "Team Meeting", date: "2024-12-16" },
-        { id: 2, title: "Deadline: Report", date: "2024-12-18" },
-      ],
-      recentPosts: [
-        { id: 1, author: "Jane Smith", content: "Excited for the new release!" },
-      ],
-      notifications: [
-        { id: 1, message: "Task deadline approaching: 'Finish Proposal'" },
-      ],
-      recentChats: [
-        { id: 1, sender: "Alice", message: "Can we discuss this later?" },
-      ],
-    };
-  },
-  methods: {
-    navigateToTasks() {
-      console.log("Navigating to tasks...");
-    },
-    navigateToProjects() {
-      console.log("Navigating to projects...");
-    },
-    navigateToCalendar() {
-      console.log("Navigating to calendar...");
-    },
-    navigateToSocialPage() {
-      console.log("Navigating to social page...");
-    },
-    navigateToChat() {
-      console.log("Navigating to chat...");
-    },
-  },
-};
-</script>

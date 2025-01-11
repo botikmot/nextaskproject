@@ -40,13 +40,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="bg-color-white rounded-lg shadow-md px-6 pt-6 pb-14 relative">
+    <div class="">
         <h2 class="text-lg font-bold text-navy-blue border-b border-dark-gray pb-2">Task Overview</h2>
         <template v-if="totalTasksThisWeek === 0">
             <p class="mt-2 text-gray-500">No tasks have been created/assigned to you this week yet.</p>
             <p class="text-gray-500 mb-8">Start by creating your first task to manage your productivity!</p>
             <a
-                class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                 :href="route('my-tasks', {
                                 selectedProjects: data.selectedProjects,
                                 selectedStatuses: data.selectedStatuses,
@@ -69,7 +69,7 @@ onMounted(() => {
                 <p class="text-sm mt-2">{{ taskCompletionRate }}% of tasks completed this week.</p>
             </div>
             <a
-                class="absolute bottom-4 px-6 cursor-pointer py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                class="absolute bottom-5 right-5 px-6 cursor-pointer py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                 :href="route('my-tasks', {
                                 selectedProjects: data.selectedProjects,
                                 selectedStatuses: data.selectedStatuses,
@@ -92,7 +92,7 @@ onMounted(() => {
                 <p class="text-sm mt-2">{{ taskCompletionRate }}% of tasks completed this week.</p>
             </div>
             <a
-                class="absolute bottom-4 px-6 cursor-pointer py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+                class="absolute bottom-5 right-5 px-6 cursor-pointer py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
                 :href="route('my-tasks', {
                                 selectedProjects: data.selectedProjects,
                                 selectedStatuses: data.selectedStatuses,

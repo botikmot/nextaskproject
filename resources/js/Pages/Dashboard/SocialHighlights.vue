@@ -54,11 +54,12 @@ onMounted(() => {
                 </div>
             </li>
         </ul>
-        <div v-else class="text-center text-gray-500 mt-8">
+        <div v-else class="text-left text-gray-500 mt-8">
             <p>No social highlights this week.</p>
         </div>
         <a
-            class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            v-if="socialHighlights.length > 0"
+            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
             :href="route('social')"
             >
             View All Posts

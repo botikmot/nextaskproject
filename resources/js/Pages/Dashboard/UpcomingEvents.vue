@@ -7,6 +7,10 @@ const page = usePage();
 
 const getAllEvents = page.props.getAllEvents || [];
 
+const props = defineProps({
+    page: Boolean,
+});
+
 const upcomingEvents = computed(() => {
     const now = new Date();
 
@@ -41,7 +45,7 @@ const formatDate = (date) => {
 </script>
 
 <template>
-    <div class="bg-color-white px-6 pt-6 pb-14 relative rounded-lg shadow-md">
+    <div class="">
 
         <div v-if="todaysEvents.length > 0">
             <h2 class="text-lg font-bold border-b border-dark-gray text-navy-blue pb-2">{{ todaysEvents.length > 1 ? "Today's Events" : "Today's Event" }}</h2>
@@ -94,7 +98,8 @@ const formatDate = (date) => {
         </template>
 
         <a
-            class="absolute bottom-4 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            v-if="route().current() !== 'social'"
+            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
             :href="route('calendar')"
         >
            View Calendar

@@ -24,7 +24,7 @@ console.log('events', props.events)
             <!-- Profile Section (Fixed) -->
             <div class="profile-section lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">
                 <ProfileSection class="text-center p-6 bg-crystal-blue shadow rounded-lg" :events="events"/>
-                <UpcomingEvents v-if="events.length > 0" class="mt-6" :events="events"/>
+                <UpcomingEvents v-if="events.length > 0" class="mt-6" :events="events" :page="true"/>
             </div>
 
             <!-- Feed Section (Scrollable) -->

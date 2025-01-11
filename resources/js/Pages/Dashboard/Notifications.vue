@@ -40,7 +40,7 @@ const convertLinks = (text) => {
                 <div v-if="notification.data" class="text-sm truncate overflow-hidden whitespace-nowrap" v-html="convertLinks(notification.data.message)"></div>
             </li>
         </ul>
-        <div v-else class="text-center text-gray-500 mt-8">
+        <div v-else class="text-left text-gray-500 mt-8">
             <p>No notifications available.</p>
         </div> 
     </div>
