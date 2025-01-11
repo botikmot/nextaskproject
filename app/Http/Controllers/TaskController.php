@@ -89,7 +89,7 @@ class TaskController extends Controller
         $selectedStatuses = $request->input('selectedStatuses', []);
         $sortBy = $request->input('sortBy', 'created_at'); // Default to 'created_at'
         $sortOrder = $request->input('sortOrder', 'asc');  // Default to 'asc'
-        $perPage = 8;
+        $perPage = 9;
         $user = Auth::user();
 
         $userRole = $user->mainRoles->pluck('name')->first();

@@ -88,7 +88,7 @@ const viewEventDetails = (details) => {
     <Head title="Calendar" />
 
     <AuthenticatedLayout pageTitle="Calendar">
-        <div class="block lg:flex bg-linen h-full w-full space-x-4">
+        <div class="block lg:flex bg-light-gray p-6 h-full w-full space-x-4">
             <!-- Upcoming Events Sidebar -->
             <aside class="w-full lg:w-1/4 bg-gray-100 p-4 rounded-lg shadow">
                 <div class="flex items-center justify-between">

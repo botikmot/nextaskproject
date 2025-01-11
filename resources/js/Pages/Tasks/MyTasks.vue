@@ -162,7 +162,7 @@ onMounted(() => {
     <Head title="Tasks" />
 
     <AuthenticatedLayout pageTitle="My Tasks">
-    <div class="w-full bg-linen p-4 relative">
+    <div class="w-full bg-light-gray p-6 relative">
 
       <div v-if="isLoading" class="absolute inset-0 bg-dark-gray bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
         <!-- Loading spinner -->
@@ -306,7 +306,7 @@ onMounted(() => {
             Create New Task
         </button>
       </section>
-        <section v-else class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 xl:grid-cols-3 gap-4 items-start">
+        <section v-else class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 xl:grid-cols-2 gap-6 items-start">
           <!-- <TaskCard
             v-for="(item, index) in tasks.data"
             :key="item.id"

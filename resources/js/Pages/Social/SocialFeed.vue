@@ -20,7 +20,7 @@ console.log('events', props.events)
     <Head title="Social" />
 
     <AuthenticatedLayout pageTitle="Social" :userChangedStatus="userChangedStatus" v-slot="{ userChangedStatus }">
-        <div class="social-page flex flex-col lg:flex-row gap-6 p-6 w-full bg-linen">
+        <div class="social-page flex flex-col lg:flex-row gap-6 p-6 w-full bg-light-gray">
             <!-- Profile Section (Fixed) -->
             <div class="profile-section lg:w-1/4 hidden lg:block lg:sticky lg:top-6 h-fit">
                 <ProfileSection class="text-center p-6 bg-crystal-blue shadow rounded-lg" :events="events"/>

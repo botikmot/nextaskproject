@@ -46,7 +46,7 @@ const columnHeight = computed(() => {
     <Head title="Challenges" />
 
     <AuthenticatedLayout pageTitle="Challenges">
-        <div class="lg:flex block w-full p-6 bg-linen">
+        <div class="lg:flex block w-full p-6 bg-light-gray">
             <!-- Sidebar -->
             <div class="lg:w-1/2 2xl:w-1/4 xl:w-1/2 bg-crystal-blue p-4 rounded-lg shadow mr-4 w-full">
                 <button

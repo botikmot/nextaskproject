@@ -309,10 +309,10 @@ const formatDate = (date) => {
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <button @click="acceptFriendRequest(request.id, index)" class="bg-green-500 hover:bg-green-600 text-white rounded-full p-2">
+              <button @click="acceptFriendRequest(request.id, index)" class="text-green hover:bg-dark-gray h-8 w-8 rounded-full">
                 <i class="fas fa-check"></i>
               </button>
-              <button @click="rejectFriendRequest(request.id, index)" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-2">
+              <button @click="rejectFriendRequest(request.id, index)" class="text-red-warning hover:bg-dark-gray rounded-full h-8 w-8">
                 <i class="fas fa-times"></i>
               </button>
             </div>

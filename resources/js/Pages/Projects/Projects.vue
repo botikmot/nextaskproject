@@ -98,7 +98,7 @@ const formatDeadline = (date) => {
 
     <AuthenticatedLayout pageTitle="Projects">
 
-        <div v-if="props.projects.length" class="flex flex-col space-y-6 w-full bg-linen p-4">
+        <div v-if="props.projects.length" class="flex flex-col space-y-6 w-full bg-light-gray p-6">
             <section class="flex justify-between">
                 <div>
                     <!-- <h1 class="text-2xl font-semibold">My Projects</h1> -->
@@ -112,7 +112,7 @@ const formatDeadline = (date) => {
 
             <!-- Projects Section -->
             <section class="w-full">
-                <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
                     <div v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="bg-color-white p-4 shadow-xl rounded-lg cursor-pointer hover:bg-light-gray">
                         <div class="flex justify-between">
                             <h2 class="text-lg text-sky-blue font-semibold mb-2">{{ project.title }}</h2>
@@ -179,39 +179,10 @@ const formatDeadline = (date) => {
                         <span class="text-sm font-semibold mt-2">Add New Project</span>
                     </button>
                 </div>
-                <!-- <div class="flex-1 bg-white p-4 shadow rounded">
-                    <h2 class="text-lg font-semibold mb-2">Active Projects</h2>
-                    <ul class="space-y-3">
-                        
-                        <li class="border-b pb-3">
-                            <h3 class="text-md font-medium">Project Alpha</h3>
-                            <p class="text-sm text-gray-500">Deadline: Dec 15, 2024</p>
-                            <p class="text-sm">Description: A website redesign project aimed at improving user experience.</p>
-                            <p class="text-sm text-blue-600">Status: In Progress</p>
-                        </li>
-                        <li class="border-b pb-3">
-                            <h3 class="text-md font-medium">Project Beta</h3>
-                            <p class="text-sm text-gray-500">Deadline: Jan 10, 2025</p>
-                            <p class="text-sm">Description: Development of a mobile application for task management.</p>
-                            <p class="text-sm text-green-600">Status: On Track</p>
-                        </li>
-                    </ul>
-                </div> 
-                <div class="flex-1 bg-white p-4 shadow rounded">
-                    <h2 class="text-lg font-semibold mb-2">Completed Projects</h2>
-                    <ul class="space-y-3">
-                        
-                        <li class="border-b pb-3">
-                            <h3 class="text-md font-medium">Project Gamma</h3>
-                            <p class="text-sm text-gray-500">Completed on: Oct 01, 2024</p>
-                            <p class="text-sm">Description: Implementation of social features in NexTask platform.</p>
-                        </li>
-                    </ul>
-                </div> -->
             </section>
         </div>
 
-        <div v-else class="flex flex-col space-y-6 w-full bg-linen p-4">
+        <div v-else class="flex flex-col space-y-6 w-full bg-light-gray p-6">
             <section>
                 <!-- <h1 class="text-2xl text-sky-blue font-semibold">My Projects</h1> -->
                 <p class="text-navy-blue text-xl mt-3">

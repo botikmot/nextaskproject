@@ -22,7 +22,7 @@ const props = defineProps({
         v-slot="{ notif, userChangedStatus }"
     >
         <!-- Chat Page Layout -->
-    <div class="flex w-full space-x-4 p-6 bg-linen">
+    <div class="flex w-full space-x-4 p-6 bg-light-gray">
         <!-- Sidebar for Conversations -->
         <aside class="w-1/4 bg-crystal-blue p-4 rounded-lg shadow">
             <ConversationList
