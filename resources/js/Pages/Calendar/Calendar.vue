@@ -23,8 +23,9 @@ const props = defineProps({
 const upcomingEvents = computed(() => {
     const now = new Date();
 
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1); // Start of the next day
     // Filter events to include only those starting in the future
-    const filteredEvents = props.events.filter(event => new Date(event.start) > now);
+    const filteredEvents = props.events.filter(event => new Date(event.start) >= tomorrow);
 
     // Sort events by their start date in ascending order (nearest first)
     return filteredEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
@@ -91,7 +92,7 @@ const viewEventDetails = (details) => {
             <!-- Upcoming Events Sidebar -->
             <aside class="w-full lg:w-1/4 bg-gray-100 p-4 rounded-lg shadow">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-lg pl-3 text-navy-blue font-semibold mb-4">{{ events.length > 0 ? 'Upcoming Events' : 'Events' }}</h2>
+                    <h2 class="text-lg pl-3 text-navy-blue font-semibold mb-4">{{ upcomingEvents > 0 ? 'Upcoming Events' : 'Events' }}</h2>
                     <div>
                         <button @click="isEventModalOpen = true" class="block w-full mb-4 px-6 py-2 text-linen hover:font-bold bg-sky-blue rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg">
                             Create Event
@@ -103,7 +104,7 @@ const viewEventDetails = (details) => {
                 <!-- Upcoming Events List -->
                 <ul class="space-y-2">
                     <!-- Loop through events and display only upcoming ones -->
-                    <template v-if="events.length > 0">
+                    <template v-if="upcomingEvents.length > 0">
                         <li
                             v-for="event in upcomingEvents"
                             :key="event.id"

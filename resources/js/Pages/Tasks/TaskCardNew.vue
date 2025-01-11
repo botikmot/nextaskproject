@@ -125,10 +125,10 @@ const openTaskModal = () => {
       </div>
 
       <!-- Time Tracking -->
-      <div class="flex items-center justify-between mt-3">
+      <!-- <div class="flex items-center justify-between mt-3">
         <p class="text-sm text-gray leading-tight">Time Spent:</p>
         <p class="text-teal font-semibold leading-tight">{{ task.timeSpent }}</p>
-      </div>
+      </div> -->
 
 
       </div>

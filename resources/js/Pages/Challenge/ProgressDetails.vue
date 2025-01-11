@@ -33,31 +33,33 @@ const totalPoints = computed(() => {
         </div>
         <div class="py-3 w-full">
             <h5 class="font-bold text-lg text-navy-blue mb-3">Related Tasks</h5>
-            <table class="w-full border border-dark-gray border-collapse">
-                <thead class="text-navy-blue border-b border-dark-gray">
-                    <tr>
-                        <th class="border-r border-dark-gray px-4 py-1">Tasks</th>
-                        <th class="border-r border-dark-gray px-4 py-1">Points</th>
-                        <th class="px-4 py-1">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr 
-                        v-for="task in progress" 
-                        :key="task.id" 
-                        :class="`border-b border-dark-gray ${ task.project.completed_status_id == task.status.id ? 'text-green-leaf' : 'text-navy-blue' }`"
-                    >
-                        <td class="capitalize border-r border-dark-gray px-4 py-1">{{ task.title }}</td>
-                        <td class="text-center border-r border-dark-gray px-4 py-1">{{ task.points }}</td>
-                        <td class="px-4 py-1">{{ task.status.name }}</td>
-                    </tr>
-                    <tr class="border-b border-dark-gray">
-                        <td class="capitalize text-sky-blue border-r font-bold border-dark-gray px-4 py-1">Total completed</td>
-                        <td class="text-center border-r border-dark-gray px-4 py-1 text-sky-blue font-bold">{{ totalPoints }}</td>
-                        <td class="text-xs pl-4 py-1"></td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="overflow-y-auto max-h-96">
+                <table class="w-full border border-dark-gray border-collapse">
+                    <thead class="text-navy-blue border-b border-dark-gray">
+                        <tr>
+                            <th class="border-r border-dark-gray px-4 py-1">Tasks</th>
+                            <th class="border-r border-dark-gray px-4 py-1">Points</th>
+                            <th class="px-4 py-1">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr 
+                            v-for="task in progress" 
+                            :key="task.id" 
+                            :class="`border-b border-dark-gray ${ task.project.completed_status_id == task.status.id ? 'text-green-leaf' : 'text-navy-blue' }`"
+                        >
+                            <td class="capitalize border-r border-dark-gray px-4 py-1">{{ task.title }}</td>
+                            <td class="text-center border-r border-dark-gray px-4 py-1">{{ task.points }}</td>
+                            <td class="px-4 py-1">{{ task.status.name }}</td>
+                        </tr>
+                        <tr class="border-b border-dark-gray">
+                            <td class="capitalize text-sky-blue border-r font-bold border-dark-gray px-4 py-1">Total completed</td>
+                            <td class="text-center border-r border-dark-gray px-4 py-1 text-sky-blue font-bold">{{ totalPoints }}</td>
+                            <td class="text-xs pl-4 py-1"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </template>
