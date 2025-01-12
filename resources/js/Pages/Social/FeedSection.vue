@@ -5,6 +5,8 @@ import PostFeed from './PostFeed.vue';
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import axios from 'axios';
 import CreatePost from './TextAreaMention.vue';
+import EmojiPicker from "vue3-emoji-picker";
+import 'vue3-emoji-picker/css'
 
 const props = defineProps({
     posts: Object,
@@ -18,6 +20,8 @@ const allPosts = ref([...props.posts.data]);
 const feedSection = ref(null);
 const createPostLoading = ref(false)
 const createPostRef = ref(null);
+const emojiPickerVisible = ref(false)
+
 
 const form = useForm({
     content: '',
@@ -132,6 +136,20 @@ const updatePost = (updatedPost) => {
     );
 };
 
+const toggleEmojiPicker = () => {
+    emojiPickerVisible.value = !emojiPickerVisible.value
+}
+
+const addEmoji = (emoji) => {
+  console.log('emoji', emoji)
+  const emojiCode = emoji.i; // Use the emoji's native representation
+  // Use Tiptap commands to insert the emoji at the current cursor position
+  if (createPostRef.value && createPostRef.value.editor) {
+    createPostRef.value.editor.commands.insertContent(emojiCode);
+  }
+  emojiPickerVisible.value = false; // Hide the emoji picker
+};
+
 onMounted(() => {
     if (feedSection.value) {
         feedSection.value.addEventListener("scroll", handleScroll);
@@ -147,7 +165,68 @@ onBeforeUnmount(() => {
 
 <template>
     <div ref="feedSection" class="feed-section w-full lg:w-2/4 overflow-y-auto h-screen pr-2">
-        <div class="post-input bg-color-white p-4 rounded-lg shadow mb-6">
+        <div class="post-input bg-color-white p-6 rounded-lg shadow mb-6">
+                <!-- User Input Section -->
+                <div class="mention-container relative">
+                    <CreatePost @content-changed="handlePost" ref="createPostRef" />
+                </div>
+
+                <!-- Media and Emoji Section -->
+                <div class="flex justify-between items-center mt-4">
+                <!-- Media Upload -->
+                <div class="flex items-center">
+                    <button
+                        @click="triggerFileInput"
+                        class="flex items-center gap-2 bg-sky-blue px-3 py-2 rounded hover:bg-crystal-blue transition"
+                    >
+                    <i class="fa-solid fa-photo-film text-xl text-color-white"></i>
+                        <span class="text-color-white text-sm">Add Media</span>
+                    </button>
+                    <input
+                        type="file"
+                        ref="fileInput"
+                        @change="handleFileChange"
+                        class="hidden"
+                        multiple
+                        accept="image/*, video/*"
+                    />
+                    <span
+                        v-if="form.media.length"
+                        class="pl-3 text-navy-blue font-medium text-sm"
+                        >
+                        {{ form.media.length > 1
+                            ? form.media.length + ' attachments'
+                            : form.media.length + ' attachment' }}
+                    </span>
+                </div>
+
+                <!-- Emoji Picker -->
+                    <div>
+                        <button
+                            @click="toggleEmojiPicker"
+                            class="flex items-center gap-2 bg-light-blue px-3 py-2 rounded hover:bg-sky-blue transition"
+                        >
+                        <i class="fa-solid fa-face-smile text-xl text-navy-blue"></i>
+                            <span class="text-navy-blue text-sm">Add Emoji</span>
+                        </button>
+                        <div v-if="emojiPickerVisible" class="absolute mt-2 z-50">
+                            <EmojiPicker @select="addEmoji" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Post Button -->
+                <div class="mt-6 text-right">
+                <button
+                    @click="submitPost"
+                    :disabled="createPostLoading"
+                    class="bg-gradient-to-r from-navy-blue to-sky-blue hover:scale-105 text-color-white py-2 px-6 rounded hover:font-bold hover:from-sky-blue hover:to-navy-blue transition disabled:opacity-50"
+                >
+                    {{ createPostLoading ? "Posting..." : "Post" }}
+                </button>
+                </div>
+            </div>
+        <!-- <div class="post-input bg-color-white p-4 rounded-lg shadow mb-6">
 
             <div class="mention-container relative">
                 <CreatePost @content-changed="handlePost" ref="createPostRef"/>
@@ -168,7 +247,7 @@ onBeforeUnmount(() => {
                     {{ createPostLoading ? 'Posting...' : 'Post' }}
                 </button>
             </div>
-        </div>
+        </div> -->
 
         <div class="post-feed">
             <!-- Conditional Rendering for Posts -->

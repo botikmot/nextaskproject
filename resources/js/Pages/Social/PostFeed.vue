@@ -8,6 +8,8 @@ import UserImage from '@/Components/UserImage.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import TextAreaMention from './TextAreaMention.vue';
 import axios from 'axios';
+import EmojiPicker from "vue3-emoji-picker";
+import 'vue3-emoji-picker/css'
 
 const emit = defineEmits(['postDeleted', 'postUpdated']);
 
@@ -15,6 +17,8 @@ const isEdit = ref(false)
 const newComment = ref("");
 const showCommentInput = ref(false);
 const editingCommentId = ref(null);
+const emojiPickerVisible = ref(false)
+const createPostRef = ref(null);
 
 const props = defineProps({
     post: Object,
@@ -50,6 +54,20 @@ const convertLinks = (text) => {
 
 const toggleCommentInput = () => {
     showCommentInput.value = !showCommentInput.value;
+};
+
+const toggleEmojiPicker = () => {
+    emojiPickerVisible.value = !emojiPickerVisible.value
+}
+
+const addEmoji = (emoji) => {
+  console.log('emoji', emoji)
+  const emojiCode = emoji.i; // Use the emoji's native representation
+  // Use Tiptap commands to insert the emoji at the current cursor position
+  if (createPostRef.value && createPostRef.value.editor) {
+    createPostRef.value.editor.commands.insertContent(emojiCode);
+  }
+  emojiPickerVisible.value = false; // Hide the emoji picker
 };
 
 const confirmDeleteComment = (id) => {
@@ -283,20 +301,33 @@ const likePost = async (postId) => {
         </div> -->
         <!-- <hr class="text-dark-gray my-3"/> -->
         <div v-if="showCommentInput" class="mt-3">
-            <TextAreaMention @content-changed="handleComment" :placeholder="'Write a comment...'"/>
-            <div class="flex justify-end">
-                <button
-                    class="mt-2 px-3 py-1 hover:bg-crystal-blue text-sm rounded mr-3 hover:text-navy-blue"
-                    @click="showCommentInput = false"
-                >
-                    Cancel
-                </button>
-                <button
-                    class="mt-2 bg-sky-blue text-color-white text-sm px-3 py-1 rounded hover:bg-crystal-blue hover:text-navy-blue"
-                    @click="submitComment(post.id)"
-                >
-                    Submit
-                </button>
+            <TextAreaMention @content-changed="handleComment" :placeholder="'Write a comment...'" ref="createPostRef"/>
+            <div class="flex justify-between relative">
+                <div>
+                    <button
+                        @click="toggleEmojiPicker"
+                        class="flex items-center justify-center mt-2 w-8 h-8 rounded-full hover:bg-crystal-blue transition"
+                    >
+                        <i class="fa-solid fa-face-smile text-xl text-sky-blue"></i>
+                    </button>
+                    <div v-if="emojiPickerVisible" class="absolute mt-2 z-50">
+                        <EmojiPicker @select="addEmoji" />
+                    </div>
+                </div>
+                <div>
+                    <button
+                        class="mt-2 px-3 py-1 hover:bg-crystal-blue text-sm rounded mr-3 hover:text-navy-blue"
+                        @click="showCommentInput = false"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        class="mt-2 bg-sky-blue text-color-white text-sm px-3 py-1 rounded hover:bg-crystal-blue hover:text-navy-blue"
+                        @click="submitComment(post.id)"
+                    >
+                        Submit
+                    </button>
+                </div>
             </div>
         </div>
 
