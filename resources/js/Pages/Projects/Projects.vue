@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import CreateProjectModal from './CreateProjectModal.vue';
@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import moment from 'moment';
 import Modal from '@/Components/Modal.vue';
 import UpdateProjectModal from './UpdateProjectModal.vue';
+import PieChart from './PieChart.vue';
 
 let isModalOpen = ref(false);
 let isProjectModalOpen = ref(false);
@@ -30,7 +31,17 @@ const openProjectModal = (data) => {
     isProjectModalOpen.value = true;
 }
 
-console.log('userRole', props.userRole)
+const searchQuery = ref('')
+const filter = ref('')
+
+const completedProjects = computed(() => {
+    return props.projects.filter((project) => project.progress === 100).length;
+});
+
+const ongoingProjects = computed(() => {
+    return props.projects.filter((project) => project.progress < 100).length;
+});
+
 const form = useForm({
     id: null,
     filter: localStorage.getItem('taskView') || 'myTasks',
@@ -95,130 +106,161 @@ const formatDeadline = (date) => {
 
 <template>
     <Head title="Projects" />
-
+  
     <AuthenticatedLayout pageTitle="Projects">
-
-        <div v-if="props.projects.length" class="flex flex-col space-y-6 w-full bg-light-gray p-6">
-            <section class="flex justify-between">
-                <div>
-                    <!-- <h1 class="text-2xl font-semibold">My Projects</h1> -->
-                    <p class="text-navy-blue font-bold text-xl">
-                        Organize and manage your projects, track progress, and collaborate with your team.
-                    </p>
+      <div v-if="projects.length"class="flex flex-col space-y-6 w-full bg-light-gray p-6">
+        <!-- Header Section -->
+        <section class="flex flex-col lg:flex-row justify-between items-start lg:items-center">
+          <div>
+            <p class="text-navy-blue">
+              Organize and manage your projects effectively. Track progress, collaborate with your team, and achieve your goals.
+            </p>
+          </div>
+          <!-- Search and Filters -->
+          <div class="flex items-center space-x-4 mt-4 lg:mt-0">
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="px-4 py-2 border rounded-lg focus:outline-none"
+              placeholder="Search projects..."
+            />
+            <select v-model="filter" class="px-4 py-2 border rounded-lg focus:outline-none">
+              <option value="">All</option>
+              <option value="completed">Completed</option>
+              <option value="ongoing">Ongoing</option>
+            </select>
+          </div>
+        </section>
+  
+        <!-- Overview Stats -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div class="bg-color-white p-4 rounded-lg shadow flex items-center space-x-4">
+            <i class="fa-solid fa-folder text-sky-blue text-3xl"></i>
+            <div>
+              <h2 class="text-lg font-bold text-navy-blue">{{ projects.length }}</h2>
+              <p class="text-gray">Total Projects</p>
+            </div>
+          </div>
+          <div class="bg-color-white p-4 rounded-lg shadow flex items-center space-x-4">
+            <i class="fa-solid fa-check-circle text-green-leaf text-3xl"></i>
+            <div>
+              <h2 class="text-lg font-semibold text-navy-blue">{{ completedProjects }}</h2>
+              <p class="text-gray">Completed Projects</p>
+            </div>
+          </div>
+          <div class="bg-color-white p-4 rounded-lg shadow flex items-center space-x-4">
+            <i class="fa-solid fa-spinner text-red-warning text-3xl"></i>
+            <div>
+              <h2 class="text-lg font-semibold text-navy-blue">{{ ongoingProjects }}</h2>
+              <p class="text-gray">Ongoing Projects</p>
+            </div>
+          </div>
+        </section>
+  
+        <!-- Project List -->
+        <section>
+          <h2 class="text-xl font-bold text-navy-blue mb-4">Project List</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
+            <div
+                v-for="project in projects"
+                :key="project.id"
+                @click="navigateToProject(project.id)"
+                class="bg-color-white p-6 rounded-lg shadow hover:shadow-lg cursor-pointer relative transition"
+                >
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-sky-blue">{{ project.title }}</h3>
+                    <div v-if="project.user_id == $page.props.auth.user.id" class="text-sm" @click.stop>
+                    <Dropdown align="right" width="48">
+                        <template #trigger>
+                        <i class="fa-solid fa-ellipsis"></i>
+                        </template>
+                        <template #content>
+                        <div class="hover:bg-crystal-blue px-3 py-2" @click="confirmDelete(project.id)">
+                            Delete
+                        </div>
+                        <div class="hover:bg-crystal-blue px-3 py-2" @click="openProjectModal(project)">
+                            Edit
+                        </div>
+                        </template>
+                    </Dropdown>
+                    </div>
                 </div>
-                <!-- Quick Actions Section -->
-                <div class="block"></div>
-            </section>
-
-            <!-- Projects Section -->
-            <section class="w-full">
-                <div class="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-4">
-                    <div v-for="project in projects" :key="project.id" @click="navigateToProject(project.id)" class="bg-color-white p-4 shadow-xl rounded-lg cursor-pointer hover:bg-light-gray">
-                        <div class="flex justify-between">
-                            <h2 class="text-lg text-sky-blue font-semibold mb-2">{{ project.title }}</h2>
-                            <!-- <div>{{ project.progress }}% complete</div> -->
-                            <div v-if="project.user_id == $page.props.auth.user.id" class="text-sm"  @click.stop>
-                                <Dropdown align="right" width="48">
-                                    <template #trigger>
-                                        <i class="fa-solid fa-ellipsis"></i>
-                                    </template>
-                                    <template #content>
-                                        <div
-                                            class="hover:bg-crystal-blue px-3 py-2"
-                                            @click="confirmDelete(project.id)"
-                                        >
-                                            Delete
-                                        </div>
-                                        <div
-                                            class="hover:bg-crystal-blue px-3 py-2"
-                                            @click="openProjectModal(project)"
-                                        >
-                                            Edit
-                                        </div>
-                                    </template>
-                                </Dropdown>
-                            </div>
-                        </div>
-                        <hr class="pb-3 text-gray"/>
-                        <div class="flex">
-                            <div class="w-1/2 text-navy-blue">
-                                <!-- <h3 class="text-md font-medium">{{ project.description }}</h3> -->
-                                <!-- <p class="text-sm">Created: {{ formatDate(project.created_at) }}</p> -->
-                                <p class="text-sm">Deadline: {{ formatDeadline(project.deadline) }}</p>
-                                <p class="text-sm">Members: {{  project.users.length }}</p>
-                                <div class="pt-2 flex justify-start">
-                                    <div class="relative flex items-center">
-                                        <div v-for="(member, index) in project.users.slice(0, 5)" :key="member.id" class="relative -mr-3">
-                                            <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
-                                        </div>
-                                        
-                                        <div v-if="project.users.length > 5" class="flex items-center text-navy-blue ml-6">
-                                            <span class="text-lg font-bold">+{{ project.users.length - 5 }}</span>
-                                        </div>
-                                    </div>
+                <div class="flex justify-between">
+                    <div>
+                        <p class="text-gray text-sm mt-2">{{ project.description }}</p>
+                        <p class="text-sm text-gray">Deadline: {{ formatDeadline(project.deadline) }}</p>
+                        <p class="text-sm text-gray">Members: {{ project.users.length }}</p>
+                        <div class="pt-2 flex justify-start">
+                            <div class="relative flex items-center">
+                                <div v-for="(member, index) in project.users.slice(0, 5)" :key="member.id" class="relative -mr-2">
+                                    <img :src="'/' + member.profile_image" alt="Profile" class="w-8 h-8 rounded-full object-cover border-2 border-color-white" />
+                                </div>
+                                
+                                <div v-if="project.users.length > 5" class="flex items-center text-navy-blue ml-6">
+                                    <span class="text-lg font-bold">+{{ project.users.length - 5 }}</span>
                                 </div>
                             </div>
-                            <div class="w-1/2 flex justify-center">
-                                <div class="text-sky-blue">
-                                    <div class="text-5xl font-bold">{{ project.progress }}%</div>
-                                    <div class="text-center text-gray">Progress</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="w-full h-2 bg-crystal-blue rounded-full mt-3">
-                            <div :style="{ width: project.progress + '%' }" class="h-full bg-navy-blue rounded-full"></div>
                         </div>
                     </div>
-                    <!-- Add New Project Button -->
-                    <button
-                        v-if="userRole == 'admin'"
-                        @click="openModal"
-                        class="flex text-navy-blue flex-col items-center justify-center bg-color-white p-4 shadow-xl rounded-lg cursor-pointer hover:text-linen hover:bg-sky-blue"
-                    >
-                        <span class="text-4xl text-blue-500">+</span>
-                        <span class="text-sm font-semibold mt-2">Add New Project</span>
-                    </button>
+                    <div class="flex flex-col items-center">
+                        <PieChart :progress="project.progress" :chartId="'chart-' + project.id" />
+                        <p class="text-sm text-navy-blue">Progress {{ project.progress }}%</p>
+                    </div>
                 </div>
-            </section>
+            </div>
+
+  
+            <!-- Add New Project Button -->
+            <!-- <button
+              v-if="userRole == 'admin'"
+              @click="openModal"
+              class="flex items-center justify-center bg-color-white p-6 rounded-lg shadow hover:shadow-lg cursor-pointer transition"
+            >
+              <i class="fa-solid fa-plus text-sky-blue text-3xl"></i>
+              <span class="ml-2 text-sm font-semibold">Add New Project</span>
+            </button> -->
+
+            <button
+              @click="openModal"
+              class="flex items-center justify-center bg-color-white p-6 rounded-lg shadow hover:shadow-lg cursor-pointer transition"
+            >
+              <i class="fa-solid fa-plus text-sky-blue text-3xl"></i>
+              <span class="ml-2 text-sm text-gray font-semibold">Add New Project</span>
+            </button>
+
+          </div>
+        </section>
+      </div>
+
+      <!-- Placeholder for New Users -->
+      <div v-else class="flex flex-col items-center justify-center w-full h-[calc(100vh-150px)] bg-light-gray p-6">
+           <!--  <img 
+                src="/images/placeholder-new-user.svg" 
+                alt="Welcome" 
+                class="w-1/2 max-w-md mb-6"
+            /> -->
+            <p class="text-navy-blue text-xl font-semibold mb-3 text-center">
+                Welcome to <span class="font-bold">NexTask</span>! Let's get started with your first project.
+            </p>
+            <p class="text-gray text-center mb-6">
+                Click the button below to create your first project and begin managing tasks, setting deadlines, and collaborating with your team.
+            </p>
+            <button
+                @click="openModal"
+                class="font-semibold text-lg hover:scale-105 bg-gradient-to-r from-navy-blue to-sky-blue text-linen py-2 px-6 rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
+            >
+                Create Your First Project
+            </button>
         </div>
 
-        <div v-else class="flex flex-col space-y-6 w-full bg-light-gray p-6">
-            <section>
-                <!-- <h1 class="text-2xl text-sky-blue font-semibold">My Projects</h1> -->
-                <p class="text-navy-blue text-xl mt-3">
-                    Welcome to <span class="font-bold">NexTask!</span> Let’s get started with managing your projects.
-                </p>
-                <p class="text-navy-blue mt-3">
-                    To begin, you can create your first project by clicking the button below. 
-                    Organize your tasks, set deadlines, and collaborate with your team to achieve your goals!
-                </p>
-            </section>
-
-            <!-- No Projects Section for Newly Registered User -->
-            <section class="flex-1">
-                <p class="text-navy-blue mb-4">
-                    Start your journey by creating a new project!
-                </p>
-                <button
-                    @click="openModal"
-                    class="font-semibold text-lg bg-sky-blue text-linen py-2 px-6 rounded-full inline-block hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
-                    >
-                    + Create Your First Project
-                </button>
-            </section>
-        </div>
-
-        <!-- Modal -->
-        <!-- <div v-if="isModalOpen" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"> -->
-        <Modal :show="isModalOpen" @close="isModalOpen = false">
-            <CreateProjectModal @close="isModalOpen = false"/>
-        </Modal>
-
-        <Modal :show="isProjectModalOpen" @close="isProjectModalOpen = false">
-            <UpdateProjectModal @close="isProjectModalOpen = false" :project="project"/>
-        </Modal>
-        <!-- </div> -->
-
+  
+      <!-- Modal -->
+      <Modal :show="isModalOpen" @close="isModalOpen = false">
+        <CreateProjectModal @close="isModalOpen = false" />
+      </Modal>
+      <Modal :show="isProjectModalOpen" @close="isProjectModalOpen = false">
+        <UpdateProjectModal :project="project" @close="isProjectModalOpen = false" />
+      </Modal>
     </AuthenticatedLayout>
 </template>
 
