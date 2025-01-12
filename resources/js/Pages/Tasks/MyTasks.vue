@@ -298,7 +298,7 @@ onMounted(() => {
           </div>
         </div>
 
-        <div v-else-if="projects.length > 0 && hasStatuses && tasks.data.length === 0 && !isLoading" class="text-center py-10">
+        <div v-else-if="projects.length > 0 && hasStatuses && statistics.totalTasks === 0 && !isLoading" class="text-center py-10">
           <div class="bg-light-gray p-6 rounded-lg shadow-md">
             <h2 class="text-navy-blue text-2xl font-bold">Welcome to Your Task Dashboard!</h2>
             <p class="mt-4 text-gray-600">You have projects and statuses, but no tasks. Add tasks to get started.</p>
@@ -317,15 +317,15 @@ onMounted(() => {
         <div v-else>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             <div class="p-4 bg-color-white shadow rounded">
-              <h3 class="text-sm font-semibold text-gray-600">Total Tasks</h3>
+              <h3 class="text-sm font-semibold text-gray">Total Tasks</h3>
               <p class="text-2xl font-bold text-navy-blue">{{ statistics.totalTasks }}</p>
             </div>
             <div class="p-4 bg-color-white shadow rounded">
-              <h3 class="text-sm font-semibold text-gray-600">Completed Tasks</h3>
+              <h3 class="text-sm font-semibold text-gray">Completed Tasks</h3>
               <p class="text-2xl font-bold text-green">{{ statistics.completedTasks }}</p>
             </div>
             <div class="p-4 bg-color-white shadow rounded">
-              <h3 class="text-sm font-semibold text-gray-600">Pending Tasks</h3>
+              <h3 class="text-sm font-semibold text-gray">Pending Tasks</h3>
               <p class="text-2xl font-bold text-red-warning">{{ statistics.pendingTasks }}</p>
             </div>
           </div>
@@ -335,7 +335,7 @@ onMounted(() => {
             <span>Loading tasks...</span>
           </div>
           <div v-else-if="tasks.data.length === 0" class="text-center py-10">
-            <p class="text-navy-blue">No tasks found</p>
+            <p class="text-navy-blue">No tasks found. Please check Filters</p>
           </div>
           <div
             v-else
@@ -358,7 +358,7 @@ onMounted(() => {
             <button
               @click="goToPage(currentPage - 1)"
               :disabled="currentPage === 1"
-              class="px-4 py-2 bg-sky-blue text-color-white rounded hover:bg-crystal-blue"
+              class="px-4 py-2 hover:scale-105 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded hover:from-sky-blue hover:to-navy-blue transition"
             >
               Previous
             </button>
@@ -368,7 +368,7 @@ onMounted(() => {
             <button
               @click="goToPage(currentPage + 1)"
               :disabled="currentPage === totalPages"
-              class="px-4 py-2 bg-sky-blue text-color-white rounded hover:bg-crystal-blue"
+              class="px-4 py-2 hover:scale-105 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded hover:from-sky-blue hover:to-navy-blue transition"
             >
               Next
             </button>
