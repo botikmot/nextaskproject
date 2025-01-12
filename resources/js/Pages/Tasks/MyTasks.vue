@@ -18,6 +18,7 @@ const props = defineProps({
   selectedStatuses: Array,
   sortBy: String,
   sortOrder: String,
+  statistics: Object,
 });
 
 let isTaskModalOpen = ref(false);
@@ -141,7 +142,7 @@ const getStatuses = () => {
     }
 };
 
-console.log('tasks', props.tasks)
+console.log('statistics', props.statistics)
 onMounted(() => {
     const savedProjects = JSON.parse(localStorage.getItem('selectedProjects')) || [];
     const savedStatuses = JSON.parse(localStorage.getItem('selectedStatuses')) || [];
@@ -157,195 +158,229 @@ onMounted(() => {
 
 </script>
 
-
 <template>
-    <Head title="Tasks" />
-
-    <AuthenticatedLayout pageTitle="My Tasks">
-    <div class="w-full bg-light-gray p-6 relative">
-
-      <div v-if="isLoading" class="absolute inset-0 bg-dark-gray bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
-        <!-- Loading spinner -->
-        <svg aria-hidden="true" class="w-24 h-24 text-gray animate-spin dark:text-gray-600 fill-sky-blue" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-        </svg>
-        <span class="sr-only">Loading...</span>
-      </div>
-
-      <div class="flex justify-between">
-        <p class="text-navy-blue text-lg">
-          Track your progress, prioritize effectively, and stay on top of your responsibilities. 
-          Every task brings you one step closer to your goals.
-        </p>
-        <div class="flex items-center space-x-4">          
-          <!-- Filter Dropdown -->
-          <Dropdown align="right" width="64">
-            <template #trigger>
-              
-              <div class="flex text-color-white cursor-pointer rounded-full px-3 bg-sky-blue py-1 items-center hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg">
-                <i class="fa-solid fa-gear"></i>
-                <span class="pl-2">Filter</span>
-              </div>
-            </template>
-            <template #content>
-              <div v-for="project in projects" :key="project.id" class="border-b py-2 border-dark-gray">
-                <!-- Project Section -->
+  <AuthenticatedLayout pageTitle="Tasks">
+    <div class="flex flex-col lg:flex-row h-full w-full bg-light-gray">
+      <!-- Sidebar Filter -->
+      <aside class="w-full lg:w-1/4 bg-color-white shadow-md p-6">
+        <h2 class="text-navy-blue text-lg font-bold mb-4">Filters</h2>
+        <div v-if="projects.length === 0" class="text-center text-gray-600 mt-4">
+          <p>No projects available. Create your first project to start managing tasks.</p>
+        </div>
+        <div v-else>
+          <div class="mb-6">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">Projects</h3>
+            <div v-for="project in projects" :key="project.id" class="border-b py-2 border-dark-gray">
+                  
                 <div
-                  class="flex items-center pl-3 hover:bg-crystal-blue text-sm font-thin py-2 cursor-pointer"
-                  @click.stop="toggleProject(project.id)"
-                >
-                  <input
-                    type="checkbox"
-                    class="form-checkbox h-4 w-4 text-navy-blue"
-                    :value="project.id"
-                    :checked="selectedProjects.includes(project.id)"
+                    class="flex items-center pl-3 hover:bg-crystal-blue text-sm font-thin py-2 cursor-pointer"
                     @click.stop="toggleProject(project.id)"
-                  />
-                  <span class="pl-2 font-semibold">{{ project.title }}</span>
-                </div>
-
-                <!-- Statuses Section -->
-                <div
-                  v-if="project.statuses && selectedProjects.includes(project.id)"
-                  class="pl-3 mt-2"
-                >
-                  <div
-                    v-for="status in project.statuses"
-                    :key="status.id"
-                    class="flex pl-3 items-center text-sm font-thin py-1 hover:bg-crystal-blue cursor-pointer"
-                    @click.stop="toggleStatus(status.id)"
                   >
                     <input
                       type="checkbox"
-                      class="form-checkbox h-4 w-4 text-sky-blue"
-                      :value="status.id"
-                      :checked="selectedStatuses.includes(status.id)"
-                      @click.stop="toggleStatus(status.id)"
+                      class="form-checkbox h-4 w-4 text-navy-blue"
+                      :value="project.id"
+                      :checked="selectedProjects.includes(project.id)"
+                      @click.stop="toggleProject(project.id)"
                     />
-                    <span class="pl-2">{{ status.name }}</span>
+                    <span class="pl-2 font-semibold">{{ project.title }}</span>
+                </div>
+                  <div
+                    v-if="project.statuses && selectedProjects.includes(project.id)"
+                    class="pl-3 mt-2"
+                  > 
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Statuses</h3>
+                    <div
+                      v-for="status in project.statuses"
+                      :key="status.id"
+                      class="flex pl-3 items-center text-sm font-thin py-1 hover:bg-crystal-blue cursor-pointer"
+                      @click.stop="toggleStatus(status.id)"
+                    >
+                      <input
+                        type="checkbox"
+                        class="form-checkbox h-4 w-4 text-sky-blue"
+                        :value="status.id"
+                        :checked="selectedStatuses.includes(status.id)"
+                        @click.stop="toggleStatus(status.id)"
+                      />
+                      <span class="pl-2">{{ status.name }}</span>
+                    </div>
                   </div>
-                </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <h3 class="text-sm font-semibold text-gray-700 mb-2">Sort By</h3>
+              <div 
+                  v-for="option in sortingOptions"
+                  :key="option.value"
+                  class="flex items-center py-1 pl-3 hover:bg-crystal-blue cursor-pointer"
+                  @click.stop="toggleSortBy(option.value)"
+              >
+                  <input
+                      type="radio"
+                      class="form-radio h-4 w-4 text-navy-blue"
+                      :value="option.value"
+                      v-model="sortBy"
+                  />
+                <span class="pl-2 text-sm">{{ option.label }}</span>
+            </div>
+          </div>
+          <div class="mb-6">
+              <h3 class="text-sm font-semibold text-gray-700 mb-2">Sort Order</h3>
+              <div @click.stop="toggleOrderBy('asc')" class="flex items-center py-1 pl-3 hover:bg-crystal-blue cursor-pointer">
+                  <input
+                      type="radio"
+                      class="form-radio h-4 w-4 text-navy-blue"
+                      value="asc"
+                      v-model="sortOrder"
+                  />
+                  <span class="pl-2 text-sm">Ascending</span>
               </div>
-              <!-- Sort By Section -->
-                <div class="pl-3 border-b py-2 border-dark-gray">
-                    <div class="font-semibold text-sm text-navy-blue mb-2">Sort by</div>
-                        <div 
-                            v-for="option in sortingOptions"
-                            :key="option.value"
-                            class="flex items-center py-1 pl-3 hover:bg-crystal-blue cursor-pointer"
-                            @click.stop="toggleSortBy(option.value)"
-                        >
-                            <input
-                                type="radio"
-                                class="form-radio h-4 w-4 text-navy-blue"
-                                :value="option.value"
-                                v-model="sortBy"
-                            />
-                        <span class="pl-2 text-sm">{{ option.label }}</span>
-                    </div>
-                </div>
-              <!-- Sort Order Section -->
-                <div class="pl-3 border-b py-2 border-dark-gray">
-                    <div class="font-semibold text-sm text-navy-blue mb-2">Sort Order</div>
-                    <div @click.stop="toggleOrderBy('asc')" class="flex items-center py-1 pl-3 hover:bg-crystal-blue cursor-pointer">
-                        <input
-                            type="radio"
-                            class="form-radio h-4 w-4 text-navy-blue"
-                            value="asc"
-                            v-model="sortOrder"
-                        />
-                        <span class="pl-2 text-sm">Ascending</span>
-                    </div>
-                    <div @click.stop="toggleOrderBy('desc')" class="flex items-center py-1 pl-3 hover:bg-crystal-blue cursor-pointer">
-                        <input
-                            type="radio"
-                            class="form-radio h-4 w-4 text-navy-blue"
-                            value="desc"
-                            v-model="sortOrder"
-                        />
-                        <span class="pl-2 text-sm">Descending</span>
-                    </div>
-                </div>
-
-            </template>
-          </Dropdown>
+              <div @click.stop="toggleOrderBy('desc')" class="flex items-center py-1 pl-3 hover:bg-crystal-blue cursor-pointer">
+                  <input
+                      type="radio"
+                      class="form-radio h-4 w-4 text-navy-blue"
+                      value="desc"
+                      v-model="sortOrder"
+                  />
+                  <span class="pl-2 text-sm">Descending</span>
+              </div>
+          </div>
         </div>
-      </div>
-      <div class="w-full px-4 py-6 sm:px-6 lg:px-8">
 
-        <!-- Conditional Placeholder Messages -->
-      <section v-if="projects.length === 0 && !isLoading" class="text-center text-gray">
-        <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
-        <p class="pb-6">Create a project and add a status to start managing your tasks.</p>
-        <a
-            class="mt-12 px-6 py-3 cursor-pointer bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
-            :href="route('projects')"
-          >
-            Set Up Your First Project
-        </a>
-      </section>
+      </aside>
 
-      <section v-else-if="projects.length > 0 && !hasStatuses && !isLoading" class="text-center text-gray-500">
-        <p class="text-navy-blue text-lg">You currently have no tasks available.</p>
-        <p class="pb-6">You have projects but no statuses. Add statuses to your project to categorize tasks.</p>
-        <a
-            class="mt-12 px-6 py-3 cursor-pointer bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
-            :href="route('projects')"
-          >
-            Set Up Your First Project
-        </a>
-      </section>
+      <!-- Main Content -->
+      <main class="w-full lg:w-3/4 p-6 relative">
 
-      <section v-else-if="projects.length > 0 && hasStatuses && tasks.length === 0 && !isLoading" class="text-center text-gray-500">
-        <p>You have projects and statuses, but no tasks. Add tasks to get started.</p>
-        <button
-            class="mt-3 px-6 py-2 bg-sky-blue text-color-white rounded-full hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg hover:font-bold"
-            @click="createTask"
-          >
-            Create New Task
-        </button>
-      </section>
-        <section v-else class="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-3 xl:grid-cols-2 gap-6 items-start">
-          <!-- <TaskCard
-            v-for="(item, index) in tasks.data"
-            :key="item.id"
-            :task="item"
-            :tasks="item.project.tasks"
-            :completedId="item.project.completed_status_id"
-            :members="item.project.users"
-            :project="item.project"
-            :labels="item.project.labels"
-          /> -->
-          <TaskCardNew
-            v-for="(item, index) in tasks.data"
-            :key="item.id"
-            :task="item"
-            :tasks="item.project.tasks"
-            :completedId="item.project.completed_status_id"
-            :members="item.project.users"
-            :project="item.project"
-            :labels="item.project.labels"
-          />
-        </section>
-        <!-- Pagination Controls -->
-        <div v-if="!isLoading && tasks.data.length" class="pagination flex justify-start mt-3 items-center">
-            <button class="mx-3 bg-sky-blue px-3 py-1 rounded text-color-white" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1">
-                Previous
-            </button>
-            <span class="text-sm font-bold text-navy-blue">Page {{ currentPage }} of {{ totalPages }}</span>
-            <button class="mx-3 bg-sky-blue px-3 py-1 rounded text-color-white" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages">
-                Next
-            </button>
+        <div v-if="isLoading" class="absolute inset-0 bg-dark-gray bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-10">
+          <svg aria-hidden="true" class="w-24 h-24 text-gray animate-spin dark:text-gray-600 fill-sky-blue" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+          </svg>
+          <span class="sr-only">Loading...</span>
         </div>
-      </div>
 
-      <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
-        <NewTaskModal @close="isTaskModalOpen = false" :projects="tasksProjects" :labels="labels"/>
-      </Modal>
+        <!-- New User Placeholder -->
+        <div v-if="projects.length === 0 && !isLoading" class="text-center py-10">
+          <div class="bg-light-gray p-6 rounded-lg shadow-md">
+            <h2 class="text-navy-blue text-2xl font-bold">Welcome to Your Task Dashboard!</h2>
+            <p class="mt-4 text-gray-600">
+              Get started by creating your first project and adding tasks.
+            </p>
+            <div class="mt-6">
+              <a
+                class="inline-block px-6 py-3 hover:scale-105 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue transition"
+                :href="route('projects')"
+              >
+                Create Your First Project
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="projects.length > 0 && !hasStatuses && !isLoading" class="text-center py-10">
+          <div class="bg-light-gray p-6 rounded-lg shadow-md">
+            <h2 class="text-navy-blue text-2xl font-bold">Welcome to Your Task Dashboard!</h2>
+            <p class="mt-4 text-gray-600">You currently have no tasks available.</p>
+            <p class="">You have projects but no columns. Add columns to your project to categorize tasks.</p>
+            <div class="mt-6">
+              <a
+                v-for="project in projects"
+                :key="project.id"
+                class="inline-block px-6 py-3 mr-2 capitalize hover:scale-105 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue transition"
+                :href="route('project.show', project.id)"
+              >
+               {{ project.title }}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="projects.length > 0 && hasStatuses && tasks.data.length === 0 && !isLoading" class="text-center py-10">
+          <div class="bg-light-gray p-6 rounded-lg shadow-md">
+            <h2 class="text-navy-blue text-2xl font-bold">Welcome to Your Task Dashboard!</h2>
+            <p class="mt-4 text-gray-600">You have projects and statuses, but no tasks. Add tasks to get started.</p>
+            <div class="mt-6">
+              <button
+                class="inline-block px-6 py-3 hover:scale-105 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue transition"
+                @click="createTask"
+              >
+                Create New Task
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Widgets -->
+        <div v-else>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div class="p-4 bg-color-white shadow rounded">
+              <h3 class="text-sm font-semibold text-gray-600">Total Tasks</h3>
+              <p class="text-2xl font-bold text-navy-blue">{{ statistics.totalTasks }}</p>
+            </div>
+            <div class="p-4 bg-color-white shadow rounded">
+              <h3 class="text-sm font-semibold text-gray-600">Completed Tasks</h3>
+              <p class="text-2xl font-bold text-green">{{ statistics.completedTasks }}</p>
+            </div>
+            <div class="p-4 bg-color-white shadow rounded">
+              <h3 class="text-sm font-semibold text-gray-600">Pending Tasks</h3>
+              <p class="text-2xl font-bold text-red-warning">{{ statistics.pendingTasks }}</p>
+            </div>
+          </div>
+
+          <!-- Tasks List -->
+          <div v-if="isLoading" class="text-center py-10">
+            <span>Loading tasks...</span>
+          </div>
+          <div v-else-if="tasks.data.length === 0" class="text-center py-10">
+            <p class="text-navy-blue">No tasks found</p>
+          </div>
+          <div
+            v-else
+            class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"
+          >
+            <TaskCardNew
+              v-for="item in tasks.data"
+                :key="item.id"
+                :task="item"
+                :tasks="item.project.tasks"
+                :completedId="item.project.completed_status_id"
+                :members="item.project.users"
+                :project="item.project"
+                :labels="item.project.labels"
+            />
+          </div>
+
+          <!-- Pagination -->
+          <div v-if="tasks.data.length" class="mt-6 flex justify-between items-center">
+            <button
+              @click="goToPage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              class="px-4 py-2 bg-sky-blue text-color-white rounded hover:bg-crystal-blue"
+            >
+              Previous
+            </button>
+            <span class="text-sm">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+            <button
+              @click="goToPage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              class="px-4 py-2 bg-sky-blue text-color-white rounded hover:bg-crystal-blue"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+      </main>
     </div>
+    <Modal :show="isTaskModalOpen" @close="isTaskModalOpen = false">
+      <NewTaskModal @close="isTaskModalOpen = false" :projects="tasksProjects" :labels="labels"/>
+    </Modal>
   </AuthenticatedLayout>
-
 </template>
 
 <style scoped>

@@ -143,6 +143,19 @@ class TaskController extends Controller
         //->orderBy($sortBy, $sortOrder)
         ->paginate($perPage);
 
+        // Calculate task statistics
+        $totalTasks = $user->tasks()->count();
+
+        // Completed tasks: Check if status_id matches project.completed_status_id
+        $completedTasks = $user->tasks()
+            ->whereHas('project', function ($query) {
+                $query->whereColumn('tasks.status_id', 'projects.completed_status_id');
+            })
+            ->count();
+
+        // Pending tasks: Exclude completed tasks
+        $pendingTasks = $totalTasks - $completedTasks;
+
         //return response()->json($tasks);
         return Inertia::render('Tasks/MyTasks', [
             'tasks' => $tasks,
@@ -152,6 +165,11 @@ class TaskController extends Controller
             'selectedStatuses' => $selectedStatuses,
             'sortBy' => $sortBy,
             'sortOrder' => $sortOrder,
+            'statistics' => [
+                'totalTasks' => $totalTasks,
+                'completedTasks' => $completedTasks,
+                'pendingTasks' => $pendingTasks,
+            ],
         ]);
 
     }

@@ -292,7 +292,7 @@ const formatDate = (date) => {
             <p class="text-sm text-navy-blue">Active Task</p>
             <p class="text-xs text-gray">Tracking Time: {{ formatTime(activeTaskTime) }}</p>
           </div>
-          <button @click="toggleTimeTracking" class="bg-crystal-blue text-white py-1 px-3 rounded-full text-sm hover:bg-light-blue transition">Toggle Timer</button>
+          <button @click="toggleTimeTracking" class="bg-crystal-blue text-navy-blue py-1 px-3 hover:text-color-white rounded-full text-sm hover:bg-sky-blue transition">Toggle Timer</button>
         </div>
       </div>
   

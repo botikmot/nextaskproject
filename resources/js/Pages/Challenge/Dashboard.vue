@@ -19,26 +19,6 @@ const props = defineProps({
 });
 
 console.log('userchallenges-->>', props.challenges)
-/* const setActiveMenu = (menu) => {
-    activeMenu.value = menu;
-    if (menu === "all") {
-        //this.filteredChallenges = this.challenges;
-    } else if (menu === "ongoing") {
-        const today = new Date().toISOString().slice(0, 10);
-        this.filteredChallenges = this.challenges.filter(
-        (challenge) =>
-            challenge.start_date <= today && challenge.end_date >= today
-        );
-    } else if (menu === "completed") {
-        const today = new Date().toISOString().slice(0, 10);
-        this.filteredChallenges = this.challenges.filter(
-        (challenge) => challenge.end_date < today
-        );
-    }
-} */
-const columnHeight = computed(() => {
-    return 'calc(100vh - 215px)';
-});
 
 </script>
 
