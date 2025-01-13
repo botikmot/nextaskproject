@@ -159,6 +159,8 @@ onMounted(() => {
 </script>
 
 <template>
+  <Head title="Tasks" />
+  
   <AuthenticatedLayout pageTitle="Tasks">
     <div class="flex flex-col lg:flex-row h-full w-full bg-light-gray">
       <!-- Sidebar Filter -->
