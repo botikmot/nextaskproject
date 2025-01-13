@@ -38,7 +38,7 @@ const form = useForm({
     comment: '',
 });
 
-const convertLinks = (text) => {   
+/* const convertLinks = (text) => {   
     // Convert links to clickable anchor tags
     const linkPattern = /https?:\/\/\S+/g;
     const linkReplacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
@@ -50,7 +50,53 @@ const convertLinks = (text) => {
     text = text.replace(hashtagPattern, hashtagReplacement);
 
     return text;
-}
+} */
+
+const convertLinks = (html) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Traverse child nodes to replace text without affecting attributes
+  const traverseNodes = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      // Convert links to clickable anchor tags
+      const linkPattern = /https?:\/\/\S+/g;
+      const hashtagPattern = /#(\w+)/g;
+
+      let text = node.textContent;
+
+      text = text.replace(
+        linkPattern,
+        '<a class="text-sky-blue" href="$&" target="_blank">$&</a>'
+      );
+
+      text = text.replace(
+        hashtagPattern,
+        '<a class="text-navy-blue text-sm font-bold hover:underline" href="/hashtags/$1">#$1</a>'
+      );
+
+      // Replace the text node with the new HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = text;
+
+      // Append each child node from tempDiv to the parent of the current node
+      while (tempDiv.firstChild) {
+        node.parentNode.insertBefore(tempDiv.firstChild, node);
+      }
+
+      // Remove the original text node
+      node.parentNode.removeChild(node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      // Recursively process child nodes
+      node.childNodes.forEach((child) => traverseNodes(child));
+    }
+  };
+
+  traverseNodes(doc.body);
+  return doc.body.innerHTML;
+};
+
+
 
 const toggleCommentInput = () => {
     showCommentInput.value = !showCommentInput.value;

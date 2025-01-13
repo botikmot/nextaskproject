@@ -142,10 +142,18 @@ const toggleEmojiPicker = () => {
 
 const addEmoji = (emoji) => {
   console.log('emoji', emoji)
+  const emojiUrl = `https://cdn.jsdelivr.net/npm/emoji-datasource-apple@6.0.1/img/apple/64/${emoji.r}.png`; // Use the emoji Unicode for the URL
   const emojiCode = emoji.i; // Use the emoji's native representation
   // Use Tiptap commands to insert the emoji at the current cursor position
+  /* if (createPostRef.value && createPostRef.value.editor) {
+    //createPostRef.value.editor.commands.insertContent(emojiCode);
+        createPostRef.value.editor.commands.insertContent({
+            type: "emoji",
+            attrs: { src: emojiUrl, alt: emojiCode, class: "emoji-image", },
+        });
+  } */
   if (createPostRef.value && createPostRef.value.editor) {
-    createPostRef.value.editor.commands.insertContent(emojiCode);
+    createPostRef.value.editor.commands.insertEmoji(emojiUrl, emojiCode);
   }
   emojiPickerVisible.value = false; // Hide the emoji picker
 };
@@ -284,7 +292,7 @@ onBeforeUnmount(() => {
     </div>
 </template>
 
-<style scoped>
+<style>
 .mention-container {
   position: relative;
 }
@@ -314,5 +322,12 @@ onBeforeUnmount(() => {
 
 .mention-dropdown li:hover {
   background-color: #f0f0f0;
+}
+
+img.emoji-image {
+  width: 20px; /* Adjust the size */
+  height: 20px; /* Ensure consistent height */
+  object-fit: contain; /* Keeps the aspect ratio */
+  vertical-align: middle; /* Aligns the emoji with text */
 }
 </style>

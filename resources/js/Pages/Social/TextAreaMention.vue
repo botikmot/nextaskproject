@@ -9,6 +9,7 @@
   import Placeholder from '@tiptap/extension-placeholder'
   import Text from '@tiptap/extension-text'
   import { Editor, EditorContent } from '@tiptap/vue-3'
+  import { EmojiExtension } from '../EmojiExtension.js'
   
   import suggestion from './suggestion.js'
   
@@ -42,6 +43,7 @@
           Placeholder.configure({
                 placeholder: this.placeholder ? this.placeholder : 'Type something amazing...',
             }),
+          EmojiExtension,
         ],
         content: this.postContent || '',
         onUpdate: ({ editor }) => {
@@ -111,6 +113,13 @@
   padding: 10px; /* Add some padding inside the editor */
   max-width: 100%;
   box-sizing: border-box; /* Ensure padding doesn’t affect width */
+}
+
+img.emoji-image {
+  width: 20px; /* Adjust as needed */
+  height: 20px; /* Adjust as needed */
+  display: inline; /* Ensure inline behavior */
+  vertical-align: middle; /* Align with text */
 }
 
   </style>
