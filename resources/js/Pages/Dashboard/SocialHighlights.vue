@@ -20,7 +20,7 @@ const formatDate = (date) => {
     return moment(date).fromNow()
 }
 
-const convertLinks = (text) => {
+/* const convertLinks = (text) => {
     // Convert links to clickable anchor tags
 
     text = text.replace(/<\/?p>/g, ''); // Remove all <p> and </p> tags
@@ -32,7 +32,51 @@ const convertLinks = (text) => {
     text = text.replace(pattern, replacement);
 
     return text;
-}
+} */
+
+const convertLinks = (html) => {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Traverse child nodes to replace text without affecting attributes
+  const traverseNodes = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      // Convert links to clickable anchor tags
+      const linkPattern = /https?:\/\/\S+/g;
+      const hashtagPattern = /#(\w+)/g;
+
+      let text = node.textContent;
+
+      text = text.replace(
+        linkPattern,
+        '<a class="text-sky-blue" href="$&" target="_blank">$&</a>'
+      );
+
+      text = text.replace(
+        hashtagPattern,
+        '<a class="text-navy-blue text-sm font-bold hover:underline" href="/hashtags/$1">#$1</a>'
+      );
+
+      // Replace the text node with the new HTML
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = text;
+
+      // Append each child node from tempDiv to the parent of the current node
+      while (tempDiv.firstChild) {
+        node.parentNode.insertBefore(tempDiv.firstChild, node);
+      }
+
+      // Remove the original text node
+      node.parentNode.removeChild(node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      // Recursively process child nodes
+      node.childNodes.forEach((child) => traverseNodes(child));
+    }
+  };
+
+  traverseNodes(doc.body);
+  return doc.body.innerHTML;
+};
 
 onMounted(() => {
     fetchSocialHighlights()
@@ -59,7 +103,7 @@ onMounted(() => {
         </div>
         <a
             v-if="socialHighlights.length > 0"
-            class="absolute bottom-5 right-5 cursor-pointer px-6 py-3 bg-sky-blue text-color-white rounded-full hover:font-bold hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg"
+            class="absolute bottom-5 right-5 hover:scale-105 cursor-pointer px-6 py-3 bg-gradient-to-r from-navy-blue to-sky-blue text-color-white rounded-full hover:from-sky-blue hover:to-navy-blue hover:shadow-lg"
             :href="route('social')"
             >
             View All Posts
@@ -83,5 +127,13 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   line-clamp: 2; /* Number of lines to display */
+}
+
+img.emoji-image {
+  width: 20px; /* Adjust the size */
+  height: 20px; /* Ensure consistent height */
+  object-fit: contain; /* Keeps the aspect ratio */
+  vertical-align: middle; /* Aligns the emoji with text */
+  display: inline; /* Ensure inline behavior */
 }
 </style>
