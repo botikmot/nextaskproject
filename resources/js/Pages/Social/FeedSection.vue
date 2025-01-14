@@ -180,59 +180,61 @@ onBeforeUnmount(() => {
                 </div>
 
                 <!-- Media and Emoji Section -->
-                <div class="flex justify-between items-center mt-4">
-                <!-- Media Upload -->
-                <div class="flex items-center">
-                    <button
-                        @click="triggerFileInput"
-                        class="flex items-center gap-2 bg-sky-blue px-3 py-2 rounded hover:bg-crystal-blue transition"
-                    >
-                    <i class="fa-solid fa-photo-film text-xl text-color-white"></i>
-                        <span class="text-color-white text-sm">Add Media</span>
-                    </button>
-                    <input
-                        type="file"
-                        ref="fileInput"
-                        @change="handleFileChange"
-                        class="hidden"
-                        multiple
-                        accept="image/*, video/*"
-                    />
-                    <span
-                        v-if="form.media.length"
-                        class="pl-3 text-navy-blue font-medium text-sm"
-                        >
-                        {{ form.media.length > 1
-                            ? form.media.length + ' attachments'
-                            : form.media.length + ' attachment' }}
-                    </span>
-                </div>
-
-                <!-- Emoji Picker -->
-                    <div>
-                        <button
-                            @click="toggleEmojiPicker"
-                            class="flex items-center gap-2 bg-light-blue px-3 py-2 rounded hover:bg-sky-blue transition"
-                        >
-                        <i class="fa-solid fa-face-smile text-xl text-navy-blue"></i>
-                            <span class="text-navy-blue text-sm">Add Emoji</span>
-                        </button>
-                        <div v-if="emojiPickerVisible" class="absolute mt-2 z-50">
-                            <EmojiPicker @select="addEmoji" />
+                <div class="flex items-center mt-4 justify-between">
+                    <!-- Media Upload -->
+                     <div class="flex items-center">
+                        <div class="flex items-center">
+                            <button
+                                @click="triggerFileInput"
+                                class="flex items-center gap-2 px-3 py-2 rounded transition"
+                            >
+                            <i class="fa-solid fa-photo-film text-2xl hover:text-sky-blue text-navy-blue"></i>
+                                <!-- <span class="text-color-white text-sm">Add Media</span> -->
+                            </button>
+                            <input
+                                type="file"
+                                ref="fileInput"
+                                @change="handleFileChange"
+                                class="hidden"
+                                multiple
+                                accept="image/*, video/*"
+                            />
+                            <span
+                                v-if="form.media.length"
+                                class="text-navy-blue font-medium text-sm"
+                                >
+                                {{ form.media.length > 1
+                                    ? form.media.length + ' attachments'
+                                    : form.media.length + ' attachment' }}
+                            </span>
                         </div>
+
+                        <!-- Emoji Picker -->
+                        <div class="pl-2">
+                            <button
+                                @click="toggleEmojiPicker"
+                                class="flex items-center justify-center w-10 h-10 rounded-full transition"
+                            >
+                            <i class="fa-regular fa-face-smile text-2xl text-navy-blue hover:text-sky-blue"></i>
+                            <!--  <span class="text-navy-blue text-sm">Add Emoji</span> -->
+                            </button>
+                            <div v-if="emojiPickerVisible" class="absolute mt-2 z-50">
+                                <EmojiPicker @select="addEmoji" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Post Button -->
+                    <div class="">
+                        <button
+                            @click="submitPost"
+                            :disabled="createPostLoading"
+                            class="bg-gradient-to-r from-navy-blue to-sky-blue hover:scale-105 text-color-white py-2 px-6 rounded hover:font-bold hover:from-sky-blue hover:to-navy-blue transition disabled:opacity-50"
+                        >
+                            {{ createPostLoading ? "Posting..." : "Post" }}
+                        </button>
                     </div>
                 </div>
 
-                <!-- Post Button -->
-                <div class="mt-6 text-right">
-                <button
-                    @click="submitPost"
-                    :disabled="createPostLoading"
-                    class="bg-gradient-to-r from-navy-blue to-sky-blue hover:scale-105 text-color-white py-2 px-6 rounded hover:font-bold hover:from-sky-blue hover:to-navy-blue transition disabled:opacity-50"
-                >
-                    {{ createPostLoading ? "Posting..." : "Post" }}
-                </button>
-                </div>
             </div>
         <!-- <div class="post-input bg-color-white p-4 rounded-lg shadow mb-6">
 

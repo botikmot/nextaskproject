@@ -809,4 +809,71 @@ class TaskController extends Controller
         ]);
     }
 
+    public function getActiveTasks(Request $request)
+    {
+        // Get the authenticated user
+        $user = $request->user();
+
+        // Use the tasks() relationship to query active tasks
+        $activeTasks = $user->tasks()
+            ->whereNotNull('start_time')
+            //->whereNull('stop_time')
+            ->get();
+
+        // Optionally, calculate tracking time for each task
+        $tasksWithTracking = $activeTasks->map(function ($task) {
+            return [
+                'id' => $task->id,
+                'name' => $task->title,
+                'isRunning' => true,
+                'tracking_time' => $this->calculateTrackingTime($task),
+            ];
+        });
+
+        return response()->json(['tasks' => $tasksWithTracking]);
+    }
+
+    private function calculateTrackingTime($task)
+    {
+        // Ensure that the start time is correctly parsed in UTC (assuming the start_time is already in UTC).
+        $startTime = Carbon::parse($task->start_time); // Assume the time is already UTC.
+        
+        // Get the current time in UTC.
+        $currentTime = Carbon::now('UTC');
+
+        // If the start time is after the current time, tracking time should be 0 or adjusted.
+        if ($startTime->greaterThan($currentTime)) {
+            return 0; // or handle it differently if required.
+        }
+
+        // Calculate the tracking time in seconds.
+        $trackingTime = $startTime->diffInSeconds($currentTime) + $task->total_tracked_seconds;
+
+        return $trackingTime;
+    }
+
+
+    public function toggleTimeTracking(Request $request, $taskId)
+    {
+        $task = Task::findOrFail($taskId);
+
+        if ($task->start_time && !$task->stop_time) {
+            // Stop tracking
+            $stopTime = Carbon::now('UTC');
+            $task->total_tracked_seconds += $stopTime->diffInSeconds(Carbon::parse($task->start_time)->setTimezone('UTC'));
+            $task->start_time = null;
+            $task->stop_time = $stopTime;
+        } else {
+            // Start tracking
+            $task->start_time = Carbon::now('UTC');
+            $task->stop_time = null;
+        }
+
+        $task->save();
+
+        return response()->json(['task' => $task]);
+    }
+
+
+
 }

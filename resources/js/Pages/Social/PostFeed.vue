@@ -38,20 +38,6 @@ const form = useForm({
     comment: '',
 });
 
-/* const convertLinks = (text) => {   
-    // Convert links to clickable anchor tags
-    const linkPattern = /https?:\/\/\S+/g;
-    const linkReplacement = '<a class="text-sky-blue" href="$&" target="_blank">$&</a>';
-    text = text.replace(linkPattern, linkReplacement);
-
-    // Convert hashtags to clickable anchor tags
-    const hashtagPattern = /#(\w+)/g;
-    const hashtagReplacement = '<a class="text-navy-blue text-sm font-bold hover:underline" href="/hashtags/$1">#$1</a>';
-    text = text.replace(hashtagPattern, hashtagReplacement);
-
-    return text;
-} */
-
 const convertLinks = (html) => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
@@ -322,7 +308,7 @@ const likePost = async (postId) => {
         <p v-if="!isEdit" class="mt-2" v-html="convertLinks(post.content)"></p>
         <div v-else class="py-2">
             <TextAreaMention @content-changed="handlePost" :postContent="post.content"/>
-            <div class="flex justify-end">
+            <div class="flex justify-end mt-2">
                 <button type="button" class="mr-2 bg-gray-300 text-sm text-navy-blue py-1 px-4 rounded" @click="isEdit = false">Cancel</button>
                 <button type="submit" class="bg-sky-blue text-linen text-sm rounded-full py-1 px-4 hover:bg-crystal-blue hover:text-navy-blue hover:shadow-lg" @click="updatePost">Update</button>
             </div>
@@ -427,15 +413,19 @@ const likePost = async (postId) => {
             </div>
         </div>
         <hr class="text-dark-gray my-3"/>
-        <div class="post-actions mt-4 text-sm flex gap-4">
-            <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">
-                {{ post.is_liked_by_auth_user ? "Unlike" : "Like" }}
-            </button>
-            <span>{{ post.likes_count }} {{ post.likes_count === 1 ? "Like" : "Likes" }}</span>
-            <button @click="toggleCommentInput" class="text-navy-blue hover:text-sky-blue">
-                Comment
-            </button>
-            <button @click="sharePost(post.id)" class="text-navy-blue hover:text-sky-blue">Share</button>
+        <div class="post-actions mt-4 flex justify-between text-sm">
+            <div class="flex gap-4">
+                <button @click="likePost(post.id)" class="text-navy-blue hover:text-sky-blue">
+                    {{ post.is_liked_by_auth_user ? "Unlike" : "Like" }}
+                </button>
+                <button @click="toggleCommentInput" class="text-navy-blue hover:text-sky-blue">
+                    Comment
+                </button>
+                <button @click="sharePost(post.id)" class="text-navy-blue hover:text-sky-blue">Share</button>
+            </div>
+            <div>
+                <span>{{ post.likes_count }} {{ post.likes_count === 1 ? "Like" : "Likes" }}</span>
+            </div>
         </div>
 
 

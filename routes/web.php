@@ -139,6 +139,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{task}/start-timer', [TaskController::class, 'startTimer'])->name('tasks.startTimer');
     Route::post('/tasks/{task}/stop-timer', [TaskController::class, 'stopTimer'])->name('tasks.stopTimer');
     Route::get('/tasks/{task}/time', [TaskController::class, 'getTaskTime']);
+    Route::get('/tasks/active', [TaskController::class, 'getActiveTasks']);
+    Route::post('/tasks/{task}/toggle-time-tracking', [TaskController::class, 'toggleTimeTracking']);
+
+
 
     // Calendar Events
     Route::post('/events', [EventController::class, 'store'])->name('event.store');
